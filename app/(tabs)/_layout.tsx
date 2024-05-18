@@ -11,7 +11,7 @@ import { View, StyleSheet } from 'react-native'
 export default function TabLayout() {
 	return (
 		<Tabs
-			initialRouteName='index'
+			initialRouteName='two'
 			screenOptions={{
 				tabBarActiveTintColor: Colors.violet,
 				tabBarShowLabel: false,

@@ -3,8 +3,9 @@ import React from 'react'
 
 export default function index() {
 	return (
-		<View>
+		<View style={{flex: 1}}>
 			<Text>index</Text>
 		</View>
 	)
 }
+
