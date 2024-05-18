@@ -1,0 +1,17 @@
+{
+	"welcome": "Welcome",
+	"message": "Hello, this is a message",
+	"play": "play",
+	"levelInfoThree": "there is gonna be 3 levels",
+	"levelInfoTwo": "there is gonna be 2 levels",
+	"levelInfoOne": "there is gonna be 1 level",
+	"levelInfoEmpty": "Error no level found",
+	"firstCard": "take first card by pressing on needed level button",
+	"chooseLevel": "choose level",
+	"chooseLevelContinue": "Choose a card to continue",
+	"searchBarPlaceholder": "search",
+	"favoritesSoon": "The Favorites will be available soon!",
+	"favoritesSoonDesc": "You will be able to add entire decks and individual cards with questions!",
+	"lkSoon": "Personal account will be available here soon!",
+	"lkSoonDesc": "You will be able to save progress and navigate to settings"
+}
