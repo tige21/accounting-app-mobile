@@ -1,5 +1,5 @@
 import { FontAwesome } from '@expo/vector-icons'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
 	ScrollView,
 	StyleSheet,
@@ -10,20 +10,11 @@ import {
 import { PieChart } from 'react-native-gifted-charts'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-const data = [
-	{ category: 'Здоровье', price: 10, color: '#fe6f7b' },
-	{ category: 'Образование', price: 20, color: '#69bffe' },
-	{ category: 'Развлечения', price: 30, color: '#f584ff' },
-	{ category: 'Дом', price: 40, color: '#ffc047' },
-	{ category: 'Кафе и рестораны', price: 50, color: '#93e850' },
-	{ category: 'Транспорт', price: 60, color: '#9e73fc' },
-	{ category: 'Продуты', price: 70, color: '#6871fc' }
-]
-
-const dataPie = data.map(item => ({
-	value: item.price,
-	color: item.color
-}))
+interface IData {
+	category: string
+	price: number
+	color: string
+}
 
 export default function two() {
 	const dataDay = [
@@ -52,10 +43,17 @@ export default function two() {
 		{ category: 'Продуты', price: 70, color: '#6871fc' }
 	]
 
-	const handleTimeFrameChange = (timeFrame: string) => {
-		const [selectedTimeFrame, setSelectedTimeFrame] = useState('day')
-		const [data, setData] = useState(dataDay)
+	const dataPie = (data: IData[]) => {
+		return data.map((item: IData) => ({
+			value: item.price,
+			color: item.color
+		}))
+	}
 
+	const [selectedTimeFrame, setSelectedTimeFrame] = useState('day')
+	const [data, setData] = useState(dataDay)
+	const [dataForPie, setDataForPie] = useState(dataPie(data))
+	const handleTimeFrameChange = (timeFrame: string) => {
 		setSelectedTimeFrame(timeFrame)
 
 		switch (timeFrame) {
@@ -75,6 +73,10 @@ export default function two() {
 				setData(dataDay)
 		}
 	}
+
+	useEffect(() => {
+		setDataForPie(dataPie(data))
+	}, [data])
 
 	return (
 		<SafeAreaView style={{ flex: 1 }}>
@@ -112,7 +114,7 @@ export default function two() {
 							marginBottom: 30
 						}}
 					>
-						<PieChart innerRadius={55} radius={90} data={dataPie} donut />
+						<PieChart innerRadius={55} radius={90} data={dataForPie} donut />
 					</View>
 				</View>
 				<ScrollView style={styles.transactions}>
