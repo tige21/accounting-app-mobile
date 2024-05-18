@@ -24,7 +24,7 @@ const responsiveBackground = `
 
 
 body {
-  background-color: #fff;
+  background-color: #F2F2F2;
 }
 @media (prefers-color-scheme: dark) {
   body {

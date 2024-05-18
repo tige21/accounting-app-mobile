@@ -6,11 +6,10 @@ import React from 'react'
 export default function TabLayout() {
 	return (
 		<Tabs
-			initialRouteName='index'
+			initialRouteName='two'
 			screenOptions={{
 				tabBarActiveTintColor: Colors.deepGray,
 				tabBarShowLabel: false
-			
 			}}
 		>
 			<Tabs.Screen
