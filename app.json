@@ -19,7 +19,7 @@
 		},
 		"android": {
 			"adaptiveIcon": {
-				"foregroundImage": "./assets/images/icon1.png",
+				"foregroundImage": "./assets/images/logo.png",
 				"backgroundColor": "#f3f3f3"
 			},
 			"package": "com.tige21.haur"
