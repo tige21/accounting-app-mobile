@@ -13,7 +13,7 @@ export default function TabLayout() {
 		<Tabs
 			initialRouteName='index'
 			screenOptions={{
-				tabBarActiveTintColor: Colors.white,
+				tabBarActiveTintColor: Colors.violet,
 				tabBarShowLabel: false,
 				tabBarStyle: { height: 78 }
 			}}
@@ -38,7 +38,7 @@ export default function TabLayout() {
 					tabBarLabel: 'Decks',
 					headerShown: false,
 					tabBarIcon: ({ size, color }) => (
-						<AntDesign name='pluscircle' size={24} color='black' />
+						<AntDesign name='pluscircle' size={40} color={Colors.violet} />
 					)
 				}}
 			/>
@@ -50,7 +50,6 @@ export default function TabLayout() {
 					tabBarIcon: ({ size, color }) => (
 						<MaterialIcons name='bar-chart' size={50} color={Colors.grey} />
 					)
-					
 				}}
 			/>
 		</Tabs>
