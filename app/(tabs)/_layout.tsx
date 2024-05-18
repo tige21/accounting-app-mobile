@@ -1,15 +1,21 @@
+import SvgComponent from '@/assets/images/svg/add'
 import Colors from '@/constants/Colors'
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
+import {
+	MaterialCommunityIcons,
+	MaterialIcons,
+} from '@expo/vector-icons'
 import { Tabs } from 'expo-router'
 import React from 'react'
+import { View, StyleSheet } from 'react-native'
 
 export default function TabLayout() {
 	return (
 		<Tabs
 			initialRouteName='two'
 			screenOptions={{
-				tabBarActiveTintColor: Colors.deepGray,
-				tabBarShowLabel: false
+				tabBarActiveTintColor: Colors.violet,
+				tabBarShowLabel: false,
+				tabBarStyle: { height: 100 }
 			}}
 		>
 			<Tabs.Screen
@@ -18,7 +24,13 @@ export default function TabLayout() {
 					tabBarLabel: 'Decks',
 					headerShown: false,
 					tabBarIcon: ({ size, color }) => (
-						<Ionicons name='heart' size={size} color={color} />
+						<View style={styles.iconContainer}>
+							<MaterialCommunityIcons
+								name='chart-donut'
+								size={40}
+								color={Colors.grey}
+							/>
+						</View>
 					)
 				}}
 			/>
@@ -28,7 +40,9 @@ export default function TabLayout() {
 					tabBarLabel: 'Decks',
 					headerShown: false,
 					tabBarIcon: ({ size, color }) => (
-						<MaterialCommunityIcons name='cards' size={24} color={color} />
+						<View style={styles.plusIconContainer}>
+							<SvgComponent />
+						</View>
 					)
 				}}
 			/>
@@ -38,14 +52,28 @@ export default function TabLayout() {
 					tabBarLabel: 'Decks',
 					headerShown: false,
 					tabBarIcon: ({ size, color }) => (
-						<MaterialCommunityIcons
-							name='account-box'
-							size={24}
-							color={color}
-						/>
+						<View style={styles.iconContainer}>
+							<MaterialIcons name='bar-chart' size={50} color={Colors.grey} />
+						</View>
 					)
 				}}
 			/>
 		</Tabs>
 	)
 }
+
+const styles = StyleSheet.create({
+	iconContainer: {
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center'
+	},
+	plusIconContainer: {
+		position: 'absolute',
+		bottom: 33, 
+		alignItems: 'center',
+		justifyContent: 'center',
+		width: '100%',
+		height: '100%'
+	}
+})
