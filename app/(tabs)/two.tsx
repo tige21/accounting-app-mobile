@@ -6,6 +6,7 @@ import {
 	ScrollView,
 	StyleSheet,
 	Text,
+	TextInput,
 	TouchableOpacity,
 	View
 } from 'react-native'
@@ -65,6 +66,21 @@ export default function two() {
 	const [selectedTimeFrame, setSelectedTimeFrame] = useState('day')
 	const [data, setData] = useState(dataDay)
 	const [dataForPie, setDataForPie] = useState(dataPie(data))
+	const [isEditing, setIsEditing] = useState(false)
+	const [text, setText] = useState('1000')
+
+	const handleEdit = () => {
+		setIsEditing(true)
+	}
+
+	const handleSave = () => {
+		setIsEditing(false)
+	}
+
+	const handleChange = (value: string) => {
+		setText(value)
+	}
+
 	const handleTimeFrameChange = (timeFrame: string) => {
 		setSelectedTimeFrame(timeFrame)
 
@@ -93,11 +109,24 @@ export default function two() {
 	return (
 		<SafeAreaView style={{ flex: 1, marginBottom: -15 }}>
 			<View style={{ flex: 1, marginHorizontal: 16, marginVertical: 18 }}>
-			<Switcher onLanguageChange={() => {}} switcherStyle={{}} />
+				<Switcher onLanguageChange={() => {}} switcherStyle={{}} />
 
-				<Text style={{ fontWeight: 900, fontSize: 48, color: '#333333' }}>
-					10 000 Р
-				</Text>
+				<View>
+					{isEditing ? (
+						<TextInput
+							value={text}
+							onChangeText={handleChange}
+							onBlur={handleSave}
+							autoFocus
+						/>
+					) : (
+						<TouchableOpacity onPress={handleEdit}>
+							<Text style={{ fontWeight: 900, fontSize: 48, color: '#333333' }}>
+								{text} Р
+							</Text>
+						</TouchableOpacity>
+					)}
+				</View>
 				<View
 					style={{
 						width: '100%',

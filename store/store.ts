@@ -4,17 +4,13 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query'
 import { enableMapSet } from 'immer'
 import { useDispatch } from 'react-redux'
-import deckLikeReducer from './reducer/deck-likes-slice'
-import cardsOfDeckReducer from './reducer/deck-slice'
 import languageReducer from './reducer/language-slice'
-import questionLikeReducer from './reducer/question-like-slice'
+
 
 const rootReducer = combineReducers({
 	[api.reducerPath]: api.reducer,
-	cardsOfDeck: cardsOfDeckReducer,
 	language: languageReducer,
-	decksLikes: deckLikeReducer,
-	questionsLikes: questionLikeReducer
+
 })
 
 enableMapSet()

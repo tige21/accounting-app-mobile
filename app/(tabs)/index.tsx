@@ -1,7 +1,9 @@
+import CustomBottomSheetModal from '@/components/BottomSheetModal'
 import Colors from '@/constants/Colors'
 import { Feather } from '@expo/vector-icons'
+import { BottomSheetModal } from '@gorhom/bottom-sheet'
 import { Picker } from '@react-native-picker/picker'
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import {
 	KeyboardAvoidingView,
 	Text,
@@ -11,6 +13,7 @@ import {
 import { TextInput } from 'react-native-gesture-handler'
 export default function index() {
 	const [selectedLanguage, setSelectedLanguage] = useState()
+	const bottomSheetRef = useRef<BottomSheetModal>(null)
 
 	return (
 		<KeyboardAvoidingView
@@ -48,21 +51,6 @@ export default function index() {
 					/>
 				</View>
 
-				{/* <View
-					style={{
-						width: '100%',
-						backgroundColor: 'white',
-						height: 45,
-						justifyContent: 'center',
-						paddingHorizontal: 20,
-						borderRadius: 10
-					}}
-				>
-					<TextInput
-						style={{ color: Colors.grey, fontSize: 17 }}
-						placeholder='Здоровье'
-					/>
-				</View> */}
 				<View
 					style={{
 						width: '100%',
@@ -80,8 +68,14 @@ export default function index() {
 							setSelectedLanguage(itemValue)
 						}
 					>
-						<Picker.Item label='Java' value='java' />
-						<Picker.Item label='JavaScript' value='js' />
+						<Picker.Item label='Здоровье' value='java' />
+						<Picker.Item label='Развлечения' value='js' />
+						<Picker.Item label='Дом' value='java' />
+						<Picker.Item label='Кофе и развлечения' value='js' />
+						<Picker.Item label='Образование' value='java' />
+						<Picker.Item label='Продукты' value='js' />
+						<Picker.Item label='Транспорт' value='java' />
+						<Picker.Item label='Прочее' value='js' />
 					</Picker>
 				</View>
 
@@ -111,6 +105,7 @@ export default function index() {
 							width: 50,
 							marginRight: 20
 						}}
+						onPress={() => bottomSheetRef.current?.present()}
 					>
 						<Feather name='calendar' size={24} color='white' />
 					</TouchableOpacity>
@@ -136,6 +131,8 @@ export default function index() {
 						Сохранить
 					</Text>
 				</TouchableOpacity>
+				<CustomBottomSheetModal kek='kek' ref={bottomSheetRef} />
+
 			</View>
 		</KeyboardAvoidingView>
 	)
