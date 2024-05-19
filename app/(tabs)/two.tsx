@@ -1,4 +1,6 @@
-import { FontAwesome } from '@expo/vector-icons'
+import EntertainmentIcon from '@/assets/svg/entertainment-icon'
+import HealthIcon from '@/assets/svg/health-icon'
+import Switcher from '@/components/Switcher'
 import React, { useEffect, useState } from 'react'
 import {
 	ScrollView,
@@ -18,12 +20,22 @@ interface IData {
 
 export default function two() {
 	const dataDay = [
-		{ category: 'Здоровье', price: 10, color: '#fe6f7b' },
+		{
+			category: 'Здоровье',
+			price: 10,
+			color: '#fe6f7b',
+			icon: <HealthIcon color='white' />
+		},
 		{ category: 'Образование', price: 20, color: '#69bffe' }
 	]
 
 	const dataWeek = [
-		{ category: 'Развлечения', price: 30, color: '#f584ff' },
+		{
+			category: 'Развлечения',
+			price: 30,
+			color: '#f584ff',
+			icon: <EntertainmentIcon color='white' />
+		},
 		{ category: 'Дом', price: 40, color: '#ffc047' },
 		{ category: 'Кафе и рестораны', price: 50, color: '#93e850' }
 	]
@@ -79,8 +91,10 @@ export default function two() {
 	}, [data])
 
 	return (
-		<SafeAreaView style={{ flex: 1 }}>
+		<SafeAreaView style={{ flex: 1, marginBottom: -15 }}>
 			<View style={{ flex: 1, marginHorizontal: 16, marginVertical: 18 }}>
+			<Switcher onLanguageChange={() => {}} switcherStyle={{}} />
+
 				<Text style={{ fontWeight: 900, fontSize: 48, color: '#333333' }}>
 					10 000 Р
 				</Text>
@@ -133,7 +147,7 @@ export default function two() {
 										alignItems: 'center'
 									}}
 								>
-									<FontAwesome name='heartbeat' size={22} color='white' />
+									{item.icon}
 								</View>
 								<Text
 									style={{ color: '#333333', fontSize: 18, fontWeight: 500 }}
@@ -166,7 +180,9 @@ const styles = StyleSheet.create({
 	transactions: {
 		marginTop: 30,
 		width: '100%',
-		flexDirection: 'column'
+		flexDirection: 'column',
+		paddingBottom: 20,
+		flex: 1
 	},
 	transactionItem: {
 		height: 60,

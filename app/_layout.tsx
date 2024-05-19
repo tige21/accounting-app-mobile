@@ -1,4 +1,3 @@
-import { AnimateSplashScreen } from '@/components/screens'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -108,7 +107,6 @@ export default function RootLayout() {
 					> */}
 					<Stack>
 						<Stack.Screen name='(tabs)' options={{ headerShown: false }} />
-					
 					</Stack>
 					{/* </ThemeProvider> */}
 				</BottomSheetModalProvider>

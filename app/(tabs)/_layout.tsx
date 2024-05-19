@@ -1,21 +1,17 @@
 import SvgComponent from '@/assets/images/svg/add'
 import Colors from '@/constants/Colors'
-import {
-	MaterialCommunityIcons,
-	MaterialIcons,
-} from '@expo/vector-icons'
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { Tabs } from 'expo-router'
 import React from 'react'
-import { View, StyleSheet } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 export default function TabLayout() {
 	return (
 		<Tabs
-			initialRouteName='two'
+			initialRouteName='index'
 			screenOptions={{
 				tabBarActiveTintColor: Colors.violet,
-				tabBarShowLabel: false,
-				tabBarStyle: { height: 100 }
+				tabBarShowLabel: false
 			}}
 		>
 			<Tabs.Screen
@@ -28,7 +24,7 @@ export default function TabLayout() {
 							<MaterialCommunityIcons
 								name='chart-donut'
 								size={40}
-								color={Colors.grey}
+								color={color}
 							/>
 						</View>
 					)
@@ -53,7 +49,7 @@ export default function TabLayout() {
 					headerShown: false,
 					tabBarIcon: ({ size, color }) => (
 						<View style={styles.iconContainer}>
-							<MaterialIcons name='bar-chart' size={50} color={Colors.grey} />
+							<MaterialIcons name='bar-chart' size={50} color={color} />
 						</View>
 					)
 				}}
@@ -70,10 +66,8 @@ const styles = StyleSheet.create({
 	},
 	plusIconContainer: {
 		position: 'absolute',
-		bottom: 33, 
+		bottom: 15,
 		alignItems: 'center',
-		justifyContent: 'center',
-		width: '100%',
-		height: '100%'
+		justifyContent: 'center'
 	}
 })
