@@ -1,5 +1,9 @@
 import EducationIcon from '@/assets/svg/education-icon'
 import HealthIcon from '@/assets/svg/health-icon'
+import HouseIcon from '@/assets/svg/house-icon'
+import OtherIcon from '@/assets/svg/other-icon'
+import RestaurantsIcon from '@/assets/svg/restaurants-icon'
+import TransportIcon from '@/assets/svg/transport-icon'
 import Switcher from '@/components/Switcher'
 import React, { useState } from 'react'
 import {
@@ -51,7 +55,7 @@ export default function three() {
 	const dataDay: IBarData[] = [
 		{
 			category: 'Здоровье',
-			price: 10,
+			price: 40,
 			color: '#fe6f7b',
 			icon: <HealthIcon color='red' />
 		},
@@ -60,6 +64,30 @@ export default function three() {
 			price: 20,
 			color: '#69bffe',
 			icon: <EducationIcon color='#69bffe' />
+		},
+		{
+			category: 'Дом',
+			price: 60,
+			color: '#FFC047',
+			icon: <HouseIcon color='#FFC047' />
+		},
+		{
+			category: 'Кофе и рестораны',
+			price: 80,
+			color: '#93E850',
+			icon: <RestaurantsIcon color='#93E850' />
+		},
+		{
+			category: 'Транспорт',
+			price: 10,
+			color: '#9E73FC',
+			icon: <TransportIcon color='#9E73FC' />
+		},
+		{
+			category: 'Транспорт',
+			price: 25,
+			color: '#969696',
+			icon: <OtherIcon color='#969696' />
 		}
 	]
 
@@ -67,7 +95,7 @@ export default function three() {
 		<SafeAreaView style={{ flex: 1, marginBottom: -15 }}>
 			<View style={{ flex: 1, marginHorizontal: 16, marginVertical: 18 }}>
 				<Switcher onLanguageChange={() => {}} switcherStyle={{}} />
-				
+
 				{/* <Switcher
 					onLanguageChange={function (language: string): void {
 						throw new Error('Function not implemented.')

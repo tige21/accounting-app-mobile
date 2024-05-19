@@ -1,5 +1,6 @@
 import EntertainmentIcon from '@/assets/svg/entertainment-icon'
 import HealthIcon from '@/assets/svg/health-icon'
+import HouseIcon from '@/assets/svg/house-icon'
 import Switcher from '@/components/Switcher'
 import React, { useEffect, useState } from 'react'
 import {
@@ -37,7 +38,12 @@ export default function two() {
 			color: '#f584ff',
 			icon: <EntertainmentIcon color='white' />
 		},
-		{ category: 'Дом', price: 40, color: '#ffc047' },
+		{
+			category: 'Дом',
+			price: 40,
+			color: '#ffc047',
+			icon: <HouseIcon color='#ffc047' />
+		},
 		{ category: 'Кафе и рестораны', price: 50, color: '#93e850' }
 	]
 
