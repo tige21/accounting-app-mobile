@@ -1,3 +1,6 @@
+if (__DEV__) {
+	require("../ReactotronConfig");
+}
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import AsyncStorage from '@react-native-async-storage/async-storage'
