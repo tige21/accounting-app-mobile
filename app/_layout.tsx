@@ -12,7 +12,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import uuid from 'react-native-uuid'
 import { Provider } from 'react-redux'
 import '../constants/i18n/i18n.config'
-import store from '../store/store'
 
 export { ErrorBoundary } from 'expo-router'
 
@@ -102,7 +101,6 @@ export default function RootLayout() {
 	// }
 
 	return (
-		<Provider store={store}>
 			<GestureHandlerRootView style={{ flex: 1 }}>
 				<BottomSheetModalProvider>
 					{/* <ThemeProvider
@@ -114,6 +112,5 @@ export default function RootLayout() {
 					{/* </ThemeProvider> */}
 				</BottomSheetModalProvider>
 			</GestureHandlerRootView>
-		</Provider>
 	)
 }

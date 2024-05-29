@@ -1,5 +1,3 @@
-import { useAppDispatch, useAppSelector } from '@/features/hooks/useRedux'
-import { setLanguage } from '@/store/reducer/language-slice'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
@@ -18,8 +16,7 @@ const Switcher: React.FC<SwitcherProps> = ({
 	onLanguageChange,
 	switcherStyle
 }) => {
-	const dispatch = useAppDispatch()
-	const language = useAppSelector(state => state.language.language)
+	const [language, setLanguage] = useState<string>('en')
 
 	// Получаем язык из AsyncStorage и устанавливаем его в состояние isEnglish
 	const [isEnglish, setIsEnglish] = useState<boolean>(language === 'en')
@@ -48,7 +45,6 @@ const Switcher: React.FC<SwitcherProps> = ({
 		const newLanguageValue = !isEnglish ? 'en' : 'ru'
 		try {
 			await AsyncStorage.setItem('language', newLanguageValue)
-			dispatch(setLanguage(newLanguageValue))
 			setIsEnglish(!isEnglish)
 			onLanguageChange(newLanguageValue)
 			translateX.value = withTiming(isEnglish ? 0 : 24, { duration: 300 })
