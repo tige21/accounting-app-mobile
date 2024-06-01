@@ -23,7 +23,7 @@ interface IBarData {
 	icon: JSX.Element
 }
 
-export default function three() {
+export default function BarScreen() {
 	const [text, setText] = useState('1000')
 	const [isEditing, setIsEditing] = useState(false)
 
