@@ -1,3 +1,6 @@
+if (__DEV__) {
+	require("../ReactotronConfig");
+}
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -9,7 +12,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import uuid from 'react-native-uuid'
 import { Provider } from 'react-redux'
 import '../constants/i18n/i18n.config'
-import store from '../store/store'
 
 export { ErrorBoundary } from 'expo-router'
 
@@ -99,7 +101,6 @@ export default function RootLayout() {
 	// }
 
 	return (
-		<Provider store={store}>
 			<GestureHandlerRootView style={{ flex: 1 }}>
 				<BottomSheetModalProvider>
 					{/* <ThemeProvider
@@ -111,6 +112,5 @@ export default function RootLayout() {
 					{/* </ThemeProvider> */}
 				</BottomSheetModalProvider>
 			</GestureHandlerRootView>
-		</Provider>
 	)
 }
