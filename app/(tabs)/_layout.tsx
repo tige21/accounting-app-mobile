@@ -52,7 +52,7 @@ export default function TabLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name='donut'
+				name='pie-screen'
 				options={{
 					tabBarIcon: ({ color }) => (
 						<View style={styles.iconContainer}>
@@ -63,7 +63,7 @@ export default function TabLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name='bar'
+				name='bar-screen'
 				options={{
 					tabBarIcon: ({ color }) => (
 						<View style={styles.iconContainer}>
