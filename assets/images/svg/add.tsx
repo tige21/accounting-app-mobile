@@ -8,8 +8,8 @@ const SvgComponent = (props: SvgProps) => (
     fill="none"
     {...props}
   >
-    <Circle cx={35} cy={35} r={35} fill="#E8E9FF" />
-    <Circle cx={34.5} cy={34.5} r={25.5} fill="#3D42C4" />
+    <Circle cx={35} cy={35} r={35} fill="#BCDCFF" />
+    <Circle cx={34.5} cy={34.5} r={25.5} fill="#007AFF" />
     <Path
       fill="#fff"
       d="M33.916 36.083h-6.5v-2.166h6.5v-6.5h2.167v6.5h6.5v2.166h-6.5v6.5h-2.166v-6.5Z"
