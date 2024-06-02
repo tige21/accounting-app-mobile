@@ -3,7 +3,8 @@ import Colors from '@/constants/Colors'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { Tabs } from 'expo-router'
 import React from 'react'
-import { StyleSheet, View } from 'react-native'
+import { View } from 'react-native'
+import styles from '../styles'
 
 export default function TabLayout() {
 	return (
@@ -15,7 +16,7 @@ export default function TabLayout() {
 			}}
 		>
 			<Tabs.Screen
-				name='two'
+				name='pie-screen'
 				options={{
 					tabBarLabel: 'Decks',
 					headerShown: false,
@@ -36,14 +37,18 @@ export default function TabLayout() {
 					tabBarLabel: 'Decks',
 					headerShown: false,
 					tabBarIcon: ({ size, color }) => (
-						<View style={styles.plusIconContainer}>
-							<SvgComponent />
+						<View style={styles.iconContainer}>
+							<MaterialCommunityIcons
+								name='chart-donut'
+								size={40}
+								color={color}
+							/>
 						</View>
 					)
 				}}
 			/>
 			<Tabs.Screen
-				name='three'
+				name='bar-screen'
 				options={{
 					tabBarLabel: 'Decks',
 					headerShown: false,
@@ -58,16 +63,3 @@ export default function TabLayout() {
 	)
 }
 
-const styles = StyleSheet.create({
-	iconContainer: {
-		flex: 1,
-		alignItems: 'center',
-		justifyContent: 'center'
-	},
-	plusIconContainer: {
-		position: 'absolute',
-		bottom: 15,
-		alignItems: 'center',
-		justifyContent: 'center'
-	}
-})

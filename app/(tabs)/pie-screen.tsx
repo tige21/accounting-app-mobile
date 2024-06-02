@@ -13,14 +13,14 @@ import {
 } from 'react-native'
 import { PieChart } from 'react-native-gifted-charts'
 import { SafeAreaView } from 'react-native-safe-area-context'
-
+import styles from '../styles'
 interface IData {
 	category: string
 	price: number
 	color: string
 }
 
-export default function two() {
+export default function PieScreen() {
 	const dataDay = [
 		{
 			category: 'Здоровье',
@@ -202,36 +202,3 @@ export default function two() {
 	)
 }
 
-const styles = StyleSheet.create({
-	graphicsNames: {
-		flex: 1,
-		margin: 20,
-		flexDirection: 'row',
-		justifyContent: 'space-between'
-	},
-	graphicName: {
-		color: '#A9ABE4'
-	},
-	transactions: {
-		marginTop: 30,
-		width: '100%',
-		flexDirection: 'column',
-		paddingBottom: 20,
-		flex: 1
-	},
-	transactionItem: {
-		height: 60,
-		borderRadius: 10,
-		alignItems: 'center',
-		backgroundColor: '#ffffff',
-		padding: 20,
-		marginBottom: 20,
-		flexDirection: 'row',
-		justifyContent: 'space-between'
-	},
-	transactionText: {
-		color: '#333333',
-		fontSize: 18,
-		fontWeight: 500
-	}
-})
