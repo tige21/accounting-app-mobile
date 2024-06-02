@@ -1,6 +1,6 @@
 import SvgComponent from '@/assets/images/svg/add'
 import Colors from '@/constants/Colors'
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
+import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { Tabs } from 'expo-router'
 import React from 'react'
 import { StyleSheet, View } from 'react-native'
@@ -10,48 +10,67 @@ export default function TabLayout() {
 		<Tabs
 			initialRouteName='index'
 			screenOptions={{
-				tabBarActiveTintColor: Colors.violet,
-				tabBarShowLabel: false
+				tabBarActiveTintColor: Colors.blue,
+				tabBarInactiveTintColor: Colors.grey_2,
+				headerShown: false,
+				tabBarStyle: {
+					paddingTop: 5
+				}
 			}}
 		>
 			<Tabs.Screen
-				name='two'
+				name='analytics'
 				options={{
-					tabBarLabel: 'Decks',
-					headerShown: false,
-					tabBarIcon: ({ size, color }) => (
+					tabBarIcon: ({ color }) => (
 						<View style={styles.iconContainer}>
-							<MaterialCommunityIcons
-								name='chart-donut'
-								size={40}
-								color={color}
-							/>
+							<Ionicons name='analytics' size={32} color={color} />
 						</View>
-					)
+					),
+					tabBarLabel: 'Аналитика'
+				}}
+			/>
+			<Tabs.Screen
+				name='task'
+				options={{
+					tabBarIcon: ({ color }) => (
+						<View style={styles.iconContainer}>
+							<MaterialIcons name='task-alt' size={32} color={color} />
+						</View>
+					),
+					tabBarLabel: 'Задачи'
 				}}
 			/>
 			<Tabs.Screen
 				name='index'
 				options={{
-					tabBarLabel: 'Decks',
-					headerShown: false,
-					tabBarIcon: ({ size, color }) => (
+					tabBarIcon: ({}) => (
 						<View style={styles.plusIconContainer}>
 							<SvgComponent />
 						</View>
-					)
+					),
+					tabBarLabel: ''
 				}}
 			/>
 			<Tabs.Screen
-				name='three'
+				name='donut'
 				options={{
-					tabBarLabel: 'Decks',
-					headerShown: false,
-					tabBarIcon: ({ size, color }) => (
+					tabBarIcon: ({ color }) => (
 						<View style={styles.iconContainer}>
-							<MaterialIcons name='bar-chart' size={50} color={color} />
+							<MaterialIcons name='donut-large' size={32} color={color} />
 						</View>
-					)
+					),
+					tabBarLabel: 'Расходы'
+				}}
+			/>
+			<Tabs.Screen
+				name='bar'
+				options={{
+					tabBarIcon: ({ color }) => (
+						<View style={styles.iconContainer}>
+							<MaterialIcons name='bar-chart' size={32} color={color} />
+						</View>
+					),
+					tabBarLabel: 'Статистика'
 				}}
 			/>
 		</Tabs>
@@ -66,8 +85,8 @@ const styles = StyleSheet.create({
 	},
 	plusIconContainer: {
 		position: 'absolute',
-		bottom: 15,
 		alignItems: 'center',
+		bottom: 0,
 		justifyContent: 'center'
 	}
 })
