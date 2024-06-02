@@ -19,7 +19,7 @@ export default function TabLayout() {
 			}}
 		>
 			<Tabs.Screen
-				name='analytics'
+				name='analytics-screen'
 				options={{
 					tabBarIcon: ({ color }) => (
 						<View style={styles.iconContainer}>
@@ -30,7 +30,7 @@ export default function TabLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name='task'
+				name='task-screen'
 				options={{
 					tabBarIcon: ({ color }) => (
 						<View style={styles.iconContainer}>
@@ -41,7 +41,7 @@ export default function TabLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name='index'
+				name='add-screen'
 				options={{
 					tabBarIcon: ({}) => (
 						<View style={styles.plusIconContainer}>
