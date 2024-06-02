@@ -1,4 +1,4 @@
-import CustomBottomSheetModal from '@/components/BottomSheetModal'
+import CustomBottomSheetModal from '@/components/CalendarPickModal'
 import Colors from '@/constants/Colors'
 import { Feather } from '@expo/vector-icons'
 import { BottomSheetModal } from '@gorhom/bottom-sheet'

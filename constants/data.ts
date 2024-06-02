@@ -56,7 +56,7 @@ export const buttons = [
 	},
 	{
 		title: 'deep',
-		bg: Colors.primary
+		// bg: Colors.primary
 	}
 ]
 

@@ -5,7 +5,7 @@ import OtherIcon from '@/assets/svg/other-icon'
 import RestaurantsIcon from '@/assets/svg/restaurants-icon'
 import TransportIcon from '@/assets/svg/transport-icon'
 import Switcher from '@/components/Switcher'
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import {
 	StyleSheet,
 	Text,
@@ -16,6 +16,9 @@ import {
 import { BarChart } from 'react-native-gifted-charts'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import styles from '../styles'
+import {BottomSheetModal} from "@gorhom/bottom-sheet";
+import CustomBottomSheetModal from "@/components/CalendarPickModal";
+import Index from "@/components/CalendarPickModal";
 interface IBarData {
 	category: string
 	price: number
@@ -51,7 +54,15 @@ export default function BarScreen() {
 			}
 		})
 	}
+	const bottomSheetRef = useRef<BottomSheetModal>(null)
 
+	const handleDismiss = () => {
+		bottomSheetRef.current?.dismiss()
+	}
+	
+	const handlePresent = () => {
+		bottomSheetRef.current?.present()
+	}
 	const dataDay: IBarData[] = [
 		{
 			category: 'Здоровье',
@@ -158,8 +169,15 @@ export default function BarScreen() {
 							xAxisThickness={0}
 						/>
 					</View>
+					<TouchableOpacity onPress={handlePresent}>
+						<Text>sfasdfasfsfds f</Text>
+					</TouchableOpacity>
 				</View>
+
+
 			</View>
+			<Index handleDismiss={handleDismiss} ref={bottomSheetRef}/>
+
 		</SafeAreaView>
 	)
 }

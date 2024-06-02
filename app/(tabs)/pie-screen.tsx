@@ -4,6 +4,7 @@ import HouseIcon from '@/assets/svg/house-icon'
 import Switcher from '@/components/Switcher'
 import React, { useEffect, useState } from 'react'
 import {
+	Platform,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -113,7 +114,7 @@ export default function PieScreen() {
 	}, [data])
 
 	return (
-		<SafeAreaView style={{ flex: 1, marginBottom: -15 }}>
+		<SafeAreaView style={{ flex: 1, marginBottom: Platform.OS === 'ios' ? -55 : -20 }}>
 			<View style={{ flex: 1, marginHorizontal: 16, marginVertical: 18 }}>
 				<Switcher onLanguageChange={() => {}} switcherStyle={{}} />
 
@@ -190,7 +191,6 @@ export default function PieScreen() {
 									{item.category}
 								</Text>
 							</View>
-							{/* <Text style={styles.transactionText}>1000 Р</Text> */}
 							<Text style={{ color: '#333333', fontSize: 18, fontWeight: 800 }}>
 								{item.price} P
 							</Text>
