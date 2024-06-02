@@ -19,7 +19,7 @@ export default function TabLayout() {
 			}}
 		>
 			<Tabs.Screen
-				name='analytics-screen'
+				name='AnalyticsScreen'
 				options={{
 					tabBarIcon: ({ color }) => (
 						<View style={styles.iconContainer}>
@@ -30,7 +30,7 @@ export default function TabLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name='task-screen'
+				name='TaskScreen'
 				options={{
 					tabBarIcon: ({ color }) => (
 						<View style={styles.iconContainer}>
@@ -41,7 +41,7 @@ export default function TabLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name='add-screen'
+				name='AddScreen'
 				options={{
 					tabBarIcon: ({}) => (
 						<View style={styles.plusIconContainer}>
@@ -52,7 +52,7 @@ export default function TabLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name='pie-screen'
+				name='PieScreen'
 				options={{
 					tabBarIcon: ({ color }) => (
 						<View style={styles.iconContainer}>
@@ -63,7 +63,7 @@ export default function TabLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name='bar-screen'
+				name='BarScreen'
 				options={{
 					tabBarIcon: ({ color }) => (
 						<View style={styles.iconContainer}>
