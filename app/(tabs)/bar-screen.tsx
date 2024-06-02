@@ -92,7 +92,7 @@ export default function BarScreen() {
 	]
 
 	return (
-		<SafeAreaView style={{ flex: 1, marginBottom: -15 }}>
+		<SafeAreaView style={{ flex: 1, marginBottom: 5 }}>
 			<View style={{ flex: 1, marginHorizontal: 16, marginVertical: 18 }}>
 				<Switcher onLanguageChange={() => {}} switcherStyle={{}} />
 
