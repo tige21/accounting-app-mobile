@@ -8,7 +8,7 @@ import { StyleSheet, View } from 'react-native'
 export default function TabLayout() {
 	return (
 		<Tabs
-			initialRouteName='index'
+			initialRouteName='AddScreen'
 			screenOptions={{
 				tabBarActiveTintColor: Colors.blue,
 				tabBarInactiveTintColor: Colors.grey_2,
