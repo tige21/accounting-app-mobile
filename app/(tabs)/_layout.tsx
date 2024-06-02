@@ -8,7 +8,7 @@ import { StyleSheet, View } from 'react-native'
 export default function TabLayout() {
 	return (
 		<Tabs
-			initialRouteName='AddScreen'
+			initialRouteName='add-screen'
 			screenOptions={{
 				tabBarActiveTintColor: Colors.blue,
 				tabBarInactiveTintColor: Colors.grey_2,
@@ -19,7 +19,7 @@ export default function TabLayout() {
 			}}
 		>
 			<Tabs.Screen
-				name='AnalyticsScreen'
+				name='analytics-screen'
 				options={{
 					tabBarIcon: ({ color }) => (
 						<View style={styles.iconContainer}>
@@ -30,7 +30,7 @@ export default function TabLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name='TaskScreen'
+				name='task-screen'
 				options={{
 					tabBarIcon: ({ color }) => (
 						<View style={styles.iconContainer}>
@@ -41,7 +41,7 @@ export default function TabLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name='AddScreen'
+				name='add-screen'
 				options={{
 					tabBarIcon: ({}) => (
 						<View style={styles.plusIconContainer}>
@@ -52,7 +52,7 @@ export default function TabLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name='PieScreen'
+				name='pie-screen'
 				options={{
 					tabBarIcon: ({ color }) => (
 						<View style={styles.iconContainer}>
@@ -63,7 +63,7 @@ export default function TabLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name='BarScreen'
+				name='bar-screen'
 				options={{
 					tabBarIcon: ({ color }) => (
 						<View style={styles.iconContainer}>
