@@ -9,7 +9,9 @@ import {
 	Text,
 	TouchableOpacity,
 	View,
-	StyleSheet
+	StyleSheet,
+	Button,
+	Alert
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { TextInput } from 'react-native-gesture-handler'
@@ -35,6 +37,33 @@ import CashbackIcon from '@/assets/svg/cashback-icon'
 
 export default function AddScreen() {
 	const [selectedLanguage, setSelectedLanguage] = useState<string>('expenses')
+	const [selectedCategory, setSelectedCategory] = useState(null)
+	const categories = [
+		{ id: 0, name: 'Здоровье' },
+		{ id: 1, name: 'Транспорт' },
+		{ id: 2, name: 'Животные' },
+		{ id: 3, name: 'Красота' },
+		{ id: 4, name: 'Образование' },
+		{ id: 5, name: 'Переводы' },
+		{ id: 6, name: 'Кафе' },
+		{ id: 7, name: 'Равзлечения' },
+		{ id: 8, name: 'Другое' },
+		{ id: 9, name: 'Продукты' },
+		{ id: 10, name: 'Дом' },
+		{ id: 11, name: 'Пассвиный' },
+		{ id: 12, name: 'Подарок' },
+		{ id: 13, name: 'Зарплата' },
+		{ id: 14, name: 'Акции' },
+		{ id: 15, name: 'Аванс' },
+		{ id: 16, name: 'Фриланс' },
+		{ id: 17, name: 'Кешбэк' },
+		{ id: 18, name: 'Другое' }
+	]
+
+	const selectCategory = categoryId => {
+		setSelectedCategory(categoryId)
+	}
+
 	const bottomSheetRef = useRef<BottomSheetModal>(null)
 	let contentToDisplay = null
 
@@ -63,78 +92,201 @@ export default function AddScreen() {
 						}}
 					>
 						<View style={{ flexDirection: 'column', gap: 12 }}>
-							<View style={styles.iconCategoryView}>
+							<TouchableOpacity
+								style={[styles.iconCategoryView]}
+								onPress={() => selectCategory(categories[0].id)}
+							>
 								<View style={styles.iconView}>
 									<HealthIcon />
 								</View>
-								<Text style={styles.placeholderCategory}>Здоровье</Text>
-							</View>
-							<View style={styles.iconCategoryView}>
+								<Text
+									style={
+										selectedCategory === categories[0].id
+											? styles.selectedText
+											: styles.placeholderCategory
+									}
+								>
+									{categories[0].name}
+								</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.iconCategoryView]}
+								onPress={() => selectCategory(categories[1].id)}
+							>
 								<View style={styles.iconView}>
 									<TransportIcon />
 								</View>
-								<Text style={styles.placeholderCategory}>Транспорт</Text>
-							</View>
-							<View style={styles.iconCategoryView}>
+								<Text
+									style={
+										selectedCategory === categories[1].id
+											? styles.selectedText
+											: styles.placeholderCategory
+									}
+								>
+									{categories[1].name}
+								</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.iconCategoryView]}
+								onPress={() => selectCategory(categories[2].id)}
+							>
 								<View style={styles.iconView}>
 									<PetsIcon />
 								</View>
-								<Text style={styles.placeholderCategory}>Животные</Text>
-							</View>
+								<Text
+									style={
+										selectedCategory === categories[2].id
+											? styles.selectedText
+											: styles.placeholderCategory
+									}
+								>
+									{categories[2].name}
+								</Text>
+							</TouchableOpacity>
 						</View>
+
 						<View style={{ flexDirection: 'column', gap: 12 }}>
-							<View style={styles.iconCategoryView}>
+							<TouchableOpacity
+								style={[styles.iconCategoryView]}
+								onPress={() => selectCategory(categories[3].id)}
+							>
 								<View style={styles.iconView}>
 									<BeautyIcon />
 								</View>
-								<Text style={styles.placeholderCategory}>Красота</Text>
-							</View>
-							<View style={styles.iconCategoryView}>
+								<Text
+									style={
+										selectedCategory === categories[3].id
+											? styles.selectedText
+											: styles.placeholderCategory
+									}
+								>
+									{categories[3].name}
+								</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.iconCategoryView]}
+								onPress={() => selectCategory(categories[4].id)}
+							>
 								<View style={styles.iconView}>
 									<EducationIcon />
 								</View>
-								<Text style={styles.placeholderCategory}>Образование</Text>
-							</View>
-							<View style={styles.iconCategoryView}>
+								<Text
+									style={
+										selectedCategory === categories[4].id
+											? styles.selectedText
+											: styles.placeholderCategory
+									}
+								>
+									{categories[4].name}
+								</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.iconCategoryView]}
+								onPress={() => selectCategory(categories[5].id)}
+							>
 								<View style={styles.iconView}>
 									<TransactionsIcon />
 								</View>
-								<Text style={styles.placeholderCategory}>Переводы</Text>
-							</View>
+								<Text
+									style={
+										selectedCategory === categories[5].id
+											? styles.selectedText
+											: styles.placeholderCategory
+									}
+								>
+									{categories[5].name}
+								</Text>
+							</TouchableOpacity>
 						</View>
+
 						<View style={{ flexDirection: 'column', gap: 12 }}>
-							<View style={styles.iconCategoryView}>
+							<TouchableOpacity
+								style={[styles.iconCategoryView]}
+								onPress={() => selectCategory(categories[6].id)}
+							>
 								<View style={styles.iconView}>
 									<RestaurantsIcon />
 								</View>
-								<Text style={styles.placeholderCategory}>Кафе</Text>
-							</View>
-							<View style={styles.iconCategoryView}>
+								<Text
+									style={
+										selectedCategory === categories[6].id
+											? styles.selectedText
+											: styles.placeholderCategory
+									}
+								>
+									{categories[6].name}
+								</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.iconCategoryView]}
+								onPress={() => selectCategory(categories[7].id)}
+							>
 								<View style={styles.iconView}>
 									<EntertainmentIcon />
 								</View>
-								<Text style={styles.placeholderCategory}>Развлечения</Text>
-							</View>
-							<View style={styles.iconCategoryView}>
+								<Text
+									style={
+										selectedCategory === categories[7].id
+											? styles.selectedText
+											: styles.placeholderCategory
+									}
+								>
+									{categories[7].name}
+								</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.iconCategoryView]}
+								onPress={() => selectCategory(categories[8].id)}
+							>
 								<View style={styles.iconView}>
 									<OtherIcon />
 								</View>
-								<Text style={styles.placeholderCategory}>Другое</Text>
-							</View>
+								<Text
+									style={
+										selectedCategory === categories[8].id
+											? styles.selectedText
+											: styles.placeholderCategory
+									}
+								>
+									{categories[8].name}
+								</Text>
+							</TouchableOpacity>
 						</View>
 						<View style={{ flexDirection: 'column', gap: 12 }}>
-							<View style={styles.iconCategoryView}>
+							<TouchableOpacity
+								style={[styles.iconCategoryView]}
+								onPress={() => selectCategory(categories[9].id)}
+							>
 								<View style={styles.iconView}>
 									<GroceriesIcon />
 								</View>
-								<Text style={styles.placeholderCategory}>Продукты</Text>
-							</View>
-							<View style={styles.iconCategoryView}>
+								<Text
+									style={
+										selectedCategory === categories[9].id
+											? styles.selectedText
+											: styles.placeholderCategory
+									}
+								>
+									{categories[9].name}
+								</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.iconCategoryView]}
+								onPress={() => selectCategory(categories[10].id)}
+							>
 								<View style={styles.iconView}>
 									<HouseIcon />
 								</View>
-								<Text style={styles.placeholderCategory}>Дом</Text>
-							</View>
+								<Text
+									style={
+										selectedCategory === categories[10].id
+											? styles.selectedText
+											: styles.placeholderCategory
+									}
+								>
+									{categories[10].name}
+								</Text>
+							</TouchableOpacity>
 						</View>
 					</View>
 				</View>
@@ -165,60 +317,148 @@ export default function AddScreen() {
 						}}
 					>
 						<View style={{ flexDirection: 'column', gap: 12 }}>
-							<View style={styles.iconCategoryView}>
+							<TouchableOpacity
+								style={[styles.iconCategoryView]}
+								onPress={() => selectCategory(categories[11].id)}
+							>
 								<View style={styles.iconView}>
 									<PassiveIncomeIcon />
 								</View>
-								<Text style={styles.placeholderCategory}>Пассивный</Text>
-							</View>
-							<View style={styles.iconCategoryView}>
+								<Text
+									style={
+										selectedCategory === categories[11].id
+											? styles.selectedText
+											: styles.placeholderCategory
+									}
+								>
+									{categories[11].name}
+								</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.iconCategoryView]}
+								onPress={() => selectCategory(categories[12].id)}
+							>
 								<View style={styles.iconView}>
 									<GiftIcon />
 								</View>
-								<Text style={styles.placeholderCategory}>Подарок</Text>
-							</View>
+								<Text
+									style={
+										selectedCategory === categories[12].id
+											? styles.selectedText
+											: styles.placeholderCategory
+									}
+								>
+									{categories[12].name}
+								</Text>
+							</TouchableOpacity>
 						</View>
 						<View style={{ flexDirection: 'column', gap: 12 }}>
-							<View style={styles.iconCategoryView}>
+							<TouchableOpacity
+								style={[styles.iconCategoryView]}
+								onPress={() => selectCategory(categories[13].id)}
+							>
 								<View style={styles.iconView}>
 									<SalaryIcon />
 								</View>
-								<Text style={styles.placeholderCategory}>Зарплата</Text>
-							</View>
-							<View style={styles.iconCategoryView}>
+								<Text
+									style={
+										selectedCategory === categories[13].id
+											? styles.selectedText
+											: styles.placeholderCategory
+									}
+								>
+									{categories[13].name}
+								</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.iconCategoryView]}
+								onPress={() => selectCategory(categories[14].id)}
+							>
 								<View style={styles.iconView}>
 									<StockIcon />
 								</View>
-								<Text style={styles.placeholderCategory}>Акции</Text>
-							</View>
+								<Text
+									style={
+										selectedCategory === categories[14].id
+											? styles.selectedText
+											: styles.placeholderCategory
+									}
+								>
+									{categories[14].name}
+								</Text>
+							</TouchableOpacity>
 						</View>
 						<View style={{ flexDirection: 'column', gap: 12 }}>
-							<View style={styles.iconCategoryView}>
+							<TouchableOpacity
+								style={[styles.iconCategoryView]}
+								onPress={() => selectCategory(categories[15].id)}
+							>
 								<View style={styles.iconView}>
 									<AdvanceIcon />
 								</View>
-								<Text style={styles.placeholderCategory}>Аванс</Text>
-							</View>
-							<View style={styles.iconCategoryView}>
+								<Text
+									style={
+										selectedCategory === categories[15].id
+											? styles.selectedText
+											: styles.placeholderCategory
+									}
+								>
+									{categories[15].name}
+								</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.iconCategoryView]}
+								onPress={() => selectCategory(categories[16].id)}
+							>
 								<View style={styles.iconView}>
 									<FreelanceIcon />
 								</View>
-								<Text style={styles.placeholderCategory}>Фриланс</Text>
-							</View>
+								<Text
+									style={
+										selectedCategory === categories[16].id
+											? styles.selectedText
+											: styles.placeholderCategory
+									}
+								>
+									{categories[16].name}
+								</Text>
+							</TouchableOpacity>
 						</View>
 						<View style={{ flexDirection: 'column', gap: 12 }}>
-							<View style={styles.iconCategoryView}>
+							<TouchableOpacity
+								style={[styles.iconCategoryView]}
+								onPress={() => selectCategory(categories[17].id)}
+							>
 								<View style={styles.iconView}>
 									<CashbackIcon />
 								</View>
-								<Text style={styles.placeholderCategory}>Кэшбек</Text>
-							</View>
-							<View style={styles.iconCategoryView}>
+								<Text
+									style={
+										selectedCategory === categories[17].id
+											? styles.selectedText
+											: styles.placeholderCategory
+									}
+								>
+									{categories[17].name}
+								</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.iconCategoryView]}
+								onPress={() => selectCategory(categories[18].id)}
+							>
 								<View style={styles.iconView}>
 									<OtherIcon />
 								</View>
-								<Text style={styles.placeholderCategory}>Другое</Text>
-							</View>
+								<Text
+									style={
+										selectedCategory === categories[18].id
+											? styles.selectedText
+											: styles.placeholderCategory
+									}
+								>
+									{categories[18].name}
+								</Text>
+							</TouchableOpacity>
 						</View>
 					</View>
 				</View>
@@ -244,8 +484,8 @@ export default function AddScreen() {
 							<Text
 								style={[
 									selectedLanguage === 'expenses'
-										? { fontSize: 20, color: Colors.blue, fontWeight: 'bold' }
-										: { fontSize: 20, color: Colors.grey_2, fontWeight: 'bold' }
+										? { fontSize: 20, color: Colors.blue, fontWeight: '700' }
+										: { fontSize: 20, color: Colors.grey_2, fontWeight: '700' }
 								]}
 							>
 								Расход
@@ -328,5 +568,10 @@ const styles = StyleSheet.create({
 		marginHorizontal: 32,
 		marginTop: 32,
 		gap: 24
+	},
+	selectedText: {
+		fontSize: 10,
+		color: Colors.blue
 	}
 })
+
