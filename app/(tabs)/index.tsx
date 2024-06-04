@@ -513,6 +513,12 @@ export default function AddScreen() {
 					</TouchableOpacity>
 				</View>
 				{contentToDisplay}
+				<View>
+					<TouchableOpacity style={styles.buttonStyle}>
+						<Text style={styles.buttonTextStyle}>Сохранить</Text>
+					</TouchableOpacity>
+					<CustomBottomSheetModal kek='kek' ref={bottomSheetRef} />
+				</View>
 			</KeyboardAvoidingView>
 		</SafeAreaView>
 	)
@@ -572,6 +578,20 @@ const styles = StyleSheet.create({
 	selectedText: {
 		fontSize: 10,
 		color: Colors.blue
+	},
+	buttonStyle: {
+		height: 50,
+		marginHorizontal: 32,
+		marginTop: 50,
+		backgroundColor: Colors.blue,
+		alignItems: 'center',
+		justifyContent: 'center',
+		borderRadius: 10
+	},
+	buttonTextStyle: {
+		fontWeight: '700',
+		fontSize: 17,
+		color: 'white',
+		textAlign: 'center'
 	}
 })
-
