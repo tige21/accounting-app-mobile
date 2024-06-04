@@ -1,6 +1,7 @@
 import * as React from "react"
 import Svg, { Path } from "react-native-svg"
-const EducationIcon = ({color, ...props}: any) => (
+import Colors from '@/constants/Colors'
+const EducationIcon = ({color=Colors.violet_1, ...props}: any) => (
   <Svg
     xmlns="http://www.w3.org/2000/svg"
     width={22}

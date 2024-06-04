@@ -1,6 +1,7 @@
 import * as React from "react"
 import Svg, { Path } from "react-native-svg"
-const HouseIcon = ({color, ...props}: any) => (
+import Colors from '@/constants/Colors'
+const HouseIcon = ({color=Colors.green_2, ...props}: any) => (
   <Svg
     xmlns="http://www.w3.org/2000/svg"
     width={16}

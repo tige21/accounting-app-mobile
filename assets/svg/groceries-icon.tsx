@@ -1,6 +1,7 @@
 import * as React from "react"
 import Svg, { Path } from "react-native-svg"
-const ProductsIcon = ({color, ...props}: any) => (
+import Colors from '@/constants/Colors'
+const GroceriesIcon = ({color=Colors.pink_1, ...props}: any) => (
   <Svg
     xmlns="http://www.w3.org/2000/svg"
     width={20}
@@ -14,4 +15,4 @@ const ProductsIcon = ({color, ...props}: any) => (
     />
   </Svg>
 )
-export default ProductsIcon
+export default GroceriesIcon
