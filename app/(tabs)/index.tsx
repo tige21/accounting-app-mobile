@@ -25,8 +25,13 @@ import OtherIcon from '@/assets/svg/other-icon'
 import BeautyIcon from '@/assets/svg/beauty-icon'
 import PetsIcon from '@/assets/svg/pets-icon'
 import TransactionsIcon from '@/assets/svg/transactions-icon '
-
-
+import PassiveIncomeIcon from '@/assets/svg/passive-income-icon'
+import GiftIcon from '@/assets/svg/gift-icon'
+import SalaryIcon from '@/assets/svg/salary-icon'
+import StockIcon from '@/assets/svg/stock-icon'
+import AdvanceIcon from '@/assets/svg/advance-icon'
+import FreelanceIcon from '@/assets/svg/freelance-icon'
+import CashbackIcon from '@/assets/svg/cashback-icon'
 
 export default function AddScreen() {
 	const [selectedLanguage, setSelectedLanguage] = useState<string>('expenses')
@@ -137,13 +142,7 @@ export default function AddScreen() {
 		)
 	} else if (selectedLanguage === 'income') {
 		contentToDisplay = (
-			<View
-				style={{
-					marginHorizontal: 32,
-					marginTop: 32,
-					gap: 24
-				}}
-			>
+			<View style={styles.contentToDisplay}>
 				<View>
 					<Text style={styles.subText}>Сумма</Text>
 					<View>
@@ -151,13 +150,77 @@ export default function AddScreen() {
 							<TextInput
 								style={styles.inputText}
 								placeholder='1000'
-								placeholderTextColor={Colors.grey_2}
+								placeholderTextColor={Colors.grey_1}
 							/>
 						</View>
 					</View>
 				</View>
 				<View>
 					<Text style={styles.subText}>Категория</Text>
+					<View
+						style={{
+							flexDirection: 'row',
+							justifyContent: 'space-between',
+							marginHorizontal: -5
+						}}
+					>
+						<View style={{ flexDirection: 'column', gap: 12 }}>
+							<View style={styles.iconCategoryView}>
+								<View style={styles.iconView}>
+									<PassiveIncomeIcon />
+								</View>
+								<Text style={styles.placeholderCategory}>Пассивный</Text>
+							</View>
+							<View style={styles.iconCategoryView}>
+								<View style={styles.iconView}>
+									<GiftIcon />
+								</View>
+								<Text style={styles.placeholderCategory}>Подарок</Text>
+							</View>
+						</View>
+						<View style={{ flexDirection: 'column', gap: 12 }}>
+							<View style={styles.iconCategoryView}>
+								<View style={styles.iconView}>
+									<SalaryIcon />
+								</View>
+								<Text style={styles.placeholderCategory}>Зарплата</Text>
+							</View>
+							<View style={styles.iconCategoryView}>
+								<View style={styles.iconView}>
+									<StockIcon />
+								</View>
+								<Text style={styles.placeholderCategory}>Акции</Text>
+							</View>
+						</View>
+						<View style={{ flexDirection: 'column', gap: 12 }}>
+							<View style={styles.iconCategoryView}>
+								<View style={styles.iconView}>
+									<AdvanceIcon />
+								</View>
+								<Text style={styles.placeholderCategory}>Аванс</Text>
+							</View>
+							<View style={styles.iconCategoryView}>
+								<View style={styles.iconView}>
+									<FreelanceIcon />
+								</View>
+								<Text style={styles.placeholderCategory}>Фриланс</Text>
+							</View>
+						</View>
+						<View style={{ flexDirection: 'column', gap: 12 }}>
+							<View style={styles.iconCategoryView}>
+								<View style={styles.iconView}>
+									<CashbackIcon />
+								</View>
+								<Text style={styles.placeholderCategory}>Кэшбек</Text>
+							</View>
+							<View style={styles.iconCategoryView}>
+								<View style={styles.iconView}>
+									<OtherIcon />
+								</View>
+								<Text style={styles.placeholderCategory}>Другое</Text>
+							</View>
+						</View>
+					</View>
 				</View>
 			</View>
 		)
@@ -267,5 +330,3 @@ const styles = StyleSheet.create({
 		gap: 24
 	}
 })
-
-
