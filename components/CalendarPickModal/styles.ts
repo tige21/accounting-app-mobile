@@ -20,6 +20,10 @@ export default StyleSheet.create({
         borderRadius: 33,
         height: 360,
     },
+    selectedRange: {
+        backgroundColor: 'blue',
+        opacity: 0.2,
+    },
     saveButton: {
         height: 50,
         width: '100%',

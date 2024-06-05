@@ -1,14 +1,14 @@
 import SvgComponent from '@/assets/images/svg/add'
 import Colors from '@/constants/Colors'
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
-import { Tabs } from 'expo-router'
+import {router, Tabs} from 'expo-router'
 import React from 'react'
 import { StyleSheet, View } from 'react-native'
 
 export default function TabLayout() {
 	return (
 		<Tabs
-			initialRouteName='index'
+			initialRouteName={'bar-screen'}
 			screenOptions={{
 				tabBarActiveTintColor: Colors.blue,
 				tabBarInactiveTintColor: Colors.grey_2,
@@ -43,6 +43,8 @@ export default function TabLayout() {
 			<Tabs.Screen
 				name='index'
 				options={{
+					href: 'transaction',
+					headerShown: false,
 					tabBarIcon: ({}) => (
 						<View style={styles.plusIconContainer}>
 							<SvgComponent />
@@ -50,6 +52,12 @@ export default function TabLayout() {
 					),
 					tabBarLabel: ''
 				}}
+				listeners={() => ({
+					tabPress: (e) => {
+						e.preventDefault()
+						router.push("transaction")
+					},
+				})}
 			/>
 			<Tabs.Screen
 				name='pie-screen'
