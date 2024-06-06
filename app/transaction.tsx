@@ -47,9 +47,10 @@ import CalendarPickButton from '@/components/CalendarPickModal/CalendarPickButto
 interface IBackButton {
 	handleBack: () => void
 }
+
 const BackButton: React.FC<IBackButton> = ({ handleBack }) => (
 	<TouchableOpacity onPress={handleBack} style={styles.iconBack}>
-		<Ionicons title='chevron-back' size={24} color={Colors.grey_2} />
+		<Ionicons name='chevron-back' size={24} color={Colors.grey_2} />
 	</TouchableOpacity>
 )
 
