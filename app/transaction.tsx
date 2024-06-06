@@ -43,16 +43,8 @@ import CategoryButton, {
 import { ECatogories } from '@/constants/enums'
 import { CalendarPickModal, CommonInput } from '@/components'
 import CalendarPickButton from '@/components/CalendarPickModal/CalendarPickButton'
+import BackButton from '@/components/BackButton'
 
-interface IBackButton {
-	handleBack: () => void
-}
-
-const BackButton: React.FC<IBackButton> = ({ handleBack }) => (
-	<TouchableOpacity onPress={handleBack} style={styles.iconBack}>
-		<Ionicons name='chevron-back' size={24} color={Colors.grey_2} />
-	</TouchableOpacity>
-)
 
 export default function AddScreen() {
 	const [selectedLanguage, setSelectedLanguage] = useState<
@@ -199,10 +191,6 @@ export default function AddScreen() {
 }
 
 const styles = StyleSheet.create({
-	iconBack: {
-		marginLeft: 20,
-		marginTop: 10
-	},
 	subText: {
 		color: Colors.black,
 		fontSize: 17,
