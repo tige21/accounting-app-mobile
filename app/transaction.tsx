@@ -154,7 +154,7 @@ export default function AddScreen() {
 							style={{
 								flexDirection: 'row',
 								flexWrap: 'wrap',
-								gap: 23
+								gap: 24
 							}}
 						>
 							{categories[selectedLanguage].map(category => (
@@ -203,7 +203,6 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		marginTop: 24
 	},
-
 	contentToDisplay: {
 		marginHorizontal: 32,
 		marginTop: 32,

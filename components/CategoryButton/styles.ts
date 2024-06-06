@@ -20,7 +20,7 @@ export default StyleSheet.create({
         borderColor: Colors.blue
     },
     categoryButton: {
-        width: 60,
+        width: 68,
         alignItems: 'center',
         gap: 2,
     },
