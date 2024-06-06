@@ -64,11 +64,11 @@ export default function AddScreen() {
 			{ id: 5, title: 'Переводы', icon: <TransactionsIcon /> },
 			{ id: 6, title: 'Кафе', icon: <RestaurantsIcon /> },
 			{ id: 7, title: 'Равзлечения', icon: <EntertainmentIcon /> },
+			{ id: 9, title: 'Продукты', icon: <GroceriesIcon /> },
+			{ id: 10, title: 'Дом', icon: <HouseIcon /> },
 			{ id: 8, title: 'Другое', icon: <OtherIcon /> }
 		],
 		[ECatogories.INCOME]: [
-			{ id: 9, title: 'Продукты', icon: <GroceriesIcon /> },
-			{ id: 10, title: 'Дом', icon: <HouseIcon /> },
 			{ id: 11, title: 'Пассвиный', icon: <PassiveIncomeIcon /> },
 			{ id: 12, title: 'Подарок', icon: <GiftIcon /> },
 			{ id: 13, title: 'Зарплата', icon: <SalaryIcon /> },
