@@ -115,15 +115,32 @@ export default function AddScreen() {
 		setSelectedDate(date)
 	}
 
-	const formatDate = (date: string): string => {
-		const dayjsDate = dayjs(date);
-		const day = dayjsDate.date();
-		const month = dayjsDate.month() + 1;
-		const year = dayjsDate.year();
-		const monthName = dayjsDate.localeData().monthsShort(dayjsDate);
+	const formatDate = (dateString: string): string => {
+		const date = new Date(dateString);
+	  
+		const day = date.getDate();
+		const month = date.getMonth() + 1;
+		const year = date.getFullYear();
+	  
+		const monthNames = [
+		  "января",
+		  "февраля",
+		  "марта",
+		  "апреля",
+		  "мая",
+		  "июня",
+		  "июля",
+		  "августа",
+		  "сентября",
+		  "октября",
+		  "ноября",
+		  "декабря",
+		];
+	  
+		const monthName = monthNames[month - 1];
 	  
 		return `${day} ${monthName} ${year}`;
-	};
+	  };
 	return (
 		<SafeAreaView style={{ flex: 1 }}>
 			<KeyboardAvoidingView>
