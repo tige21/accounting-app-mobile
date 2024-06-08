@@ -44,13 +44,29 @@ import { ECatogories } from '@/constants/enums'
 import { CalendarPickModal, CommonInput } from '@/components'
 import CalendarPickButton from '@/components/CalendarPickModal/CalendarPickButton'
 import BackButton from '@/components/BackButton'
+import dayjs from "dayjs";
+import localeData from "dayjs/plugin/localeData";
+import "dayjs/locale/ru";
+dayjs.locale('ru')
+dayjs.extend(localeData);
 
+const INITIAL_DATE = new Date();
 
+const formatDate = (date: string): string => {
+	const dayjsDate = dayjs(date);
+	const day = dayjsDate.date();
+	const month = dayjsDate.month() + 1;
+	const year = dayjsDate.year();
+	const monthName = dayjsDate.localeData().monthsShort(dayjsDate);
+  
+	return `${day} ${monthName} ${year}`;
+};
 export default function AddScreen() {
 	const [selectedLanguage, setSelectedLanguage] = useState<
 		ECatogories.EXPENSES | ECatogories.INCOME
 	>(ECatogories.EXPENSES)
 	const [selectedCategory, setSelectedCategory] = useState(null)
+	const [selectedDate, setSelectedDate] = useState<string>(INITIAL_DATE.toISOString())
 
 	const bottomSheetRef = useRef<BottomSheetModal>(null)
 
@@ -94,6 +110,20 @@ export default function AddScreen() {
 	const handlePresent = () => {
 		bottomSheetRef.current?.present()
 	}
+
+	const handleDateChange = (date: string) => {
+		setSelectedDate(date)
+	}
+
+	const formatDate = (date: string): string => {
+		const dayjsDate = dayjs(date);
+		const day = dayjsDate.date();
+		const month = dayjsDate.month() + 1;
+		const year = dayjsDate.year();
+		const monthName = dayjsDate.localeData().monthsShort(dayjsDate);
+	  
+		return `${day} ${monthName} ${year}`;
+	};
 	return (
 		<SafeAreaView style={{ flex: 1 }}>
 			<KeyboardAvoidingView>
@@ -154,7 +184,7 @@ export default function AddScreen() {
 							style={{
 								flexDirection: 'row',
 								flexWrap: 'wrap',
-								gap: 24
+								gap: 23
 							}}
 						>
 							{categories[selectedLanguage].map(category => (
@@ -173,18 +203,19 @@ export default function AddScreen() {
 						<Text style={styles.subText}>Дата</Text>
 						<View style={styles.dateRow}>
 							<View style={{ flex: 1 }}>
-								<CommonInput placeholder='16 мая 2024' />
+								<CommonInput placeholder={formatDate(selectedDate)} />
 							</View>
 							<View style={{ marginLeft: 34 }}>
 								<CalendarPickButton handlePresent={handlePresent} />
 							</View>
 						</View>
 					</View>
+					<View>
+						<CommonButton placeholder='Сохранить' />
+					</View>
 				</View>
-				<View>
-					<CommonButton placeholder='Сохранить' />
-				</View>
-				<CalendarPickModal handleDismiss={handleDismiss} ref={bottomSheetRef} />
+
+				<CalendarPickModal handleDateChange={handleDateChange} selectedDate={selectedDate} handleDismiss={handleDismiss} ref={bottomSheetRef} />
 			</KeyboardAvoidingView>
 		</SafeAreaView>
 	)

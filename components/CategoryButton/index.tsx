@@ -23,7 +23,11 @@ const CategoryButton: React.FC<ICategoryButtonProps> = ({
 			style={[styles.categoryButton]}
 			onPress={() => handleCategory(id)}
 		>
-			<View style={isCategorySelected ? styles.iconViewActive : styles.iconView}>{icon}</View>
+			<View
+				style={isCategorySelected ? styles.iconViewActive : styles.iconView}
+			>
+				{icon}
+			</View>
 			<Text
 				style={
 					isCategorySelected ? styles.selectedText : styles.placeholderCategory

@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native'
 export default StyleSheet.create({
     buttonStyle: {
         paddingVertical: 14,
-        marginHorizontal: 32,
+        // marginHorizontal: 32,
         backgroundColor: Colors.blue,
         alignItems: 'center',
         justifyContent: 'center',
@@ -13,7 +13,6 @@ export default StyleSheet.create({
     
     buttonModalCancel: {
         paddingVertical: 14,
-
         borderRadius: 10,
         borderWidth: 1, 
         borderColor: Colors.red_1,

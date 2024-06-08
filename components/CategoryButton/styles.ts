@@ -7,7 +7,8 @@ export default StyleSheet.create({
         justifyContent: 'center',
         height: 60,
         width: 60,
-        borderRadius: 10
+        borderRadius: 10,
+        
     },
     iconViewActive: {
         backgroundColor: 'white',
@@ -20,16 +21,18 @@ export default StyleSheet.create({
         borderColor: Colors.blue
     },
     categoryButton: {
-        width: 68,
+        width: 60,
+        height: 60,
+        flexDirection: 'column',
         alignItems: 'center',
-        gap: 2,
+        gap: 4,
     },
     placeholderCategory: {
-        fontSize: 10,
+        fontSize: 8,
         color: Colors.grey_2
     },
     selectedText: {
-        fontSize: 10,
-        color: Colors.blue
+        fontSize: 8,
+        color: Colors.blue,
     },
 })
