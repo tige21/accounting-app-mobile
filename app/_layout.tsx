@@ -1,5 +1,5 @@
 if (__DEV__) {
-	require("../ReactotronConfig");
+	require('../ReactotronConfig')
 }
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
@@ -10,8 +10,8 @@ import { Stack, useRouter } from 'expo-router'
 import React, { useEffect, useState } from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import uuid from 'react-native-uuid'
-import { Provider } from 'react-redux'
 import '../constants/i18n/i18n.config'
+import { QueryClient, QueryClientProvider } from 'react-query'
 
 export { ErrorBoundary } from 'expo-router'
 
@@ -30,6 +30,8 @@ export default function RootLayout() {
 	let [locale, setLocale] = useState<string>(
 		Localization.getLocales()[0].languageCode || 'ru'
 	)
+
+	const queryClient = new QueryClient();
 
 	useEffect(() => {
 		if (error) throw error
@@ -101,6 +103,7 @@ export default function RootLayout() {
 	// }
 
 	return (
+		<QueryClientProvider client={queryClient}>
 			<GestureHandlerRootView style={{ flex: 1 }}>
 				<BottomSheetModalProvider>
 					{/* <ThemeProvider
@@ -114,5 +117,6 @@ export default function RootLayout() {
 					{/* </ThemeProvider> */}
 				</BottomSheetModalProvider>
 			</GestureHandlerRootView>
+		</QueryClientProvider>
 	)
 }
