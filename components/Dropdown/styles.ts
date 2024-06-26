@@ -2,50 +2,43 @@
 import Colors from '@/constants/Colors'
 
 const styles = StyleSheet.create({
-    container: {
-		width: '100%'
+	dropdownView: {
+		backgroundColor: Colors.white,
+		borderRadius: 10,
 	},
-	input: {
+	selectedContainer: {
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		alignItems: 'center',
-		padding: 10,
-		borderWidth: 1,
-		borderColor: '#ccc',
-		borderRadius: 5,
-		backgroundColor: 'white'
+		padding: 16,
 	},
-	placeholder: {
-		color: '#ccc'
+	placeholderText: {
+		color: Colors.grey_1,
+		fontSize: 17
 	},
 	selectedText: {
-		color: 'black'
+		color: Colors.black,
+		fontSize: 17
 	},
-	dropdown: {
-		marginTop: 5,
-		borderWidth: 1,
-		borderColor: '#ccc',
-		borderRadius: 5,
-		backgroundColor: 'white'
-	},
-	item: {
-		padding: 10,
+	dropdownOptions: {
 		flexDirection: 'row',
-		alignItems: 'center'
-	},
-	itemContent: {
-		flexDirection: 'row',
-		alignItems: 'center'
+		alignItems: 'center',
+		paddingBottom: 16
 	},
 	icon: {
-		marginRight: 10
+		marginRight: 16
 	},
 	itemText: {
-		color: '#ccc'
+		color: Colors.grey_1,
+		fontSize: 17
 	},
 	selectedItemText: {
-		color: 'black',
-		fontWeight: 'bold'
+		color: Colors.black
+	},
+	listView: {
+		backgroundColor: Colors.white,
+		paddingLeft: 16,
+		borderRadius: 10
 	}
 })
 
