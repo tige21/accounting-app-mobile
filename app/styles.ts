@@ -26,7 +26,7 @@ export default StyleSheet.create({
         width: '100%',
         flexDirection: 'column',
         paddingBottom: 20,
-        flex: 1
+        flex: 1,
     },
     transactionItem: {
         height: 60,

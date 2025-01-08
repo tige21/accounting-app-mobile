@@ -2,7 +2,7 @@ import EntertainmentIcon from '@/assets/svg/entertainment-icon'
 import HealthIcon from '@/assets/svg/health-icon'
 import HouseIcon from '@/assets/svg/house-icon'
 import Switcher from '@/components/Switcher'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import {
 	Platform,
 	ScrollView,
@@ -15,6 +15,26 @@ import {
 import { PieChart } from 'react-native-gifted-charts'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import styles from '../styles'
+import { useTransactionStore } from '@/store/transactionStore'
+import { getDateRange } from '@/utils/dateUtils';
+import TransportIcon from '@/assets/svg/transport-icon';
+import PetsIcon from '@/assets/svg/pets-icon';
+import BeautyIcon from '@/assets/svg/beauty-icon';
+import EducationIcon from '@/assets/svg/education-icon';
+import TransactionsIcon from '@/assets/svg/transactions-icon';
+import RestaurantsIcon from '@/assets/svg/restaurants-icon';
+import GroceriesIcon from '@/assets/svg/groceries-icon';
+import PassiveIncomeIcon from '@/assets/svg/passive-income-icon';
+import GiftIcon from '@/assets/svg/gift-icon';
+import SalaryIcon from '@/assets/svg/salary-icon';
+import StockIcon from '@/assets/svg/stock-icon';
+import AdvanceIcon from '@/assets/svg/advance-icon';
+import FreelanceIcon from '@/assets/svg/freelance-icon';
+import CashbackIcon from '@/assets/svg/cashback-icon';
+import OtherIcon from '@/assets/svg/other-icon';
+import { CATEGORIES } from '@/constants/categories'
+import { getCategoryColor } from '@/utils/categoryColors'
+
 interface IData {
 	category: string
 	price: number
@@ -22,96 +42,104 @@ interface IData {
 }
 
 export default function PieScreen() {
-	const dataDay = [
-		{
-			category: 'Здоровье',
-			price: 10,
-			color: '#fe6f7b',
-			icon: <HealthIcon color='white' />
-		},
-		{ category: 'Образование', price: 20, color: '#69bffe' }
-	]
+	const transactions = useTransactionStore(store => store.transactions);
+	const [selectedTimeFrame, setSelectedTimeFrame] = useState('day');
+	const [isEditing, setIsEditing] = useState(false);
+	const [text, setText] = useState('1000');
+  
+	const getFilteredData = () => {
+		const { start, end } = getDateRange(selectedTimeFrame as 'day' | 'week' | 'month' | 'year');
+		
+		return transactions.filter(t => {
+			const transactionDate = new Date(t.date);
+			return transactionDate >= start && transactionDate <= end && t.type === 'expense';
+		});
+	};
 
-	const dataWeek = [
-		{
-			category: 'Развлечения',
-			price: 30,
-			color: '#f584ff',
-			icon: <EntertainmentIcon color='white' />
-		},
-		{
-			category: 'Дом',
-			price: 40,
-			color: '#ffc047',
-			icon: <HouseIcon color='#ffc047' />
-		},
-		{ category: 'Кафе и рестораны', price: 50, color: '#93e850' }
-	]
+	const data = useMemo(() => {
+		const filteredTransactions = getFilteredData();
+		return filteredTransactions.reduce((acc, curr) => {
+			const existing = acc.find(item => item.category === curr.category);
+			if (existing) {
+				existing.price += curr.price;
+			} else {
+				acc.push({
+					category: curr.category,
+					price: curr.price,
+					color: getCategoryColor(curr.category)
+				});
+			}
+			return acc;
+		}, [] as Array<{ category: string; price: number; color: string }>);
+	}, [transactions, selectedTimeFrame]);
 
-	const dataMonth = [
-		{ category: 'Транспорт', price: 60, color: '#9e73fc' },
-		{ category: 'Продуты', price: 70, color: '#6871fc' }
-	]
-
-	const dataYear = [
-		{ category: 'Здоровье', price: 10, color: '#fe6f7b' },
-		{ category: 'Образование', price: 20, color: '#69bffe' },
-		{ category: 'Развлечения', price: 30, color: '#f584ff' },
-		{ category: 'Дом', price: 40, color: '#ffc047' },
-		{ category: 'Кафе и рестораны', price: 50, color: '#93e850' },
-		{ category: 'Транспорт', price: 60, color: '#9e73fc' },
-		{ category: 'Продуты', price: 70, color: '#6871fc' }
-	]
-
-	const dataPie = (data: IData[]) => {
-		return data.map((item: IData) => ({
+	const dataForPie = useMemo(() => {
+		return data.map(item => ({
 			value: item.price,
 			color: item.color
-		}))
-	}
-
-	const [selectedTimeFrame, setSelectedTimeFrame] = useState('day')
-	const [data, setData] = useState(dataDay)
-	const [dataForPie, setDataForPie] = useState(dataPie(data))
-	const [isEditing, setIsEditing] = useState(false)
-	const [text, setText] = useState('1000')
-
-	const handleEdit = () => {
-		setIsEditing(true)
-	}
-
-	const handleSave = () => {
-		setIsEditing(false)
-	}
-
-	const handleChange = (value: string) => {
-		setText(value)
-	}
+		}));
+	}, [data]);
 
 	const handleTimeFrameChange = (timeFrame: string) => {
-		setSelectedTimeFrame(timeFrame)
+		setSelectedTimeFrame(timeFrame);
+	};
 
-		switch (timeFrame) {
-			case 'day':
-				setData(dataDay)
-				break
-			case 'week':
-				setData(dataWeek)
-				break
-			case 'month':
-				setData(dataMonth)
-				break
-			case 'year':
-				setData(dataYear)
-				break
+	const handleEdit = () => {
+		setIsEditing(true);
+	};
+
+	const handleSave = () => {
+		setIsEditing(false);
+	};
+
+	const handleChange = (value: string) => {
+		setText(value);
+	};
+
+	const getIconForCategory = (category: string) => {
+		const color = getCategoryColor(category);
+		
+		switch (category) {
+			// Расходы
+			case CATEGORIES.EXPENSES.HEALTH:
+				return <HealthIcon color={color} />;
+			case CATEGORIES.EXPENSES.TRANSPORT:
+				return <TransportIcon color={color} />;
+			case CATEGORIES.EXPENSES.PETS:
+				return <PetsIcon color={color} />;
+			case CATEGORIES.EXPENSES.BEAUTY:
+				return <BeautyIcon color={color} />;
+			case CATEGORIES.EXPENSES.EDUCATION:
+				return <EducationIcon color={color} />;
+			case CATEGORIES.EXPENSES.TRANSFERS:
+				return <TransactionsIcon color={color} />;
+			case CATEGORIES.EXPENSES.CAFE:
+				return <RestaurantsIcon color={color} />;
+			case CATEGORIES.EXPENSES.ENTERTAINMENT:
+				return <EntertainmentIcon color={color} />;
+			case CATEGORIES.EXPENSES.GROCERIES:
+				return <GroceriesIcon color={color} />;
+			case CATEGORIES.EXPENSES.HOUSE:
+				return <HouseIcon color={color} />;
+			// Доходы
+			case CATEGORIES.INCOME.PASSIVE:
+				return <PassiveIncomeIcon color={color} />;
+			case CATEGORIES.INCOME.GIFT:
+				return <GiftIcon color={color} />;
+			case CATEGORIES.INCOME.SALARY:
+				return <SalaryIcon color={color} />;
+			case CATEGORIES.INCOME.STOCKS:
+				return <StockIcon color={color} />;
+			case CATEGORIES.INCOME.ADVANCE:
+				return <AdvanceIcon color={color} />;
+			case CATEGORIES.INCOME.FREELANCE:
+				return <FreelanceIcon color={color} />;
+			case CATEGORIES.INCOME.CASHBACK:
+				return <CashbackIcon color={color} />;
 			default:
-				setData(dataDay)
+				return <OtherIcon color={color} />;
 		}
-	}
-
-	useEffect(() => {
-		setDataForPie(dataPie(data))
-	}, [data])
+	};
 
 	return (
 		<SafeAreaView style={{ flex: 1, marginBottom: Platform.OS === 'ios' ? -55 : -20 }}>
@@ -146,16 +174,16 @@ export default function PieScreen() {
 				>
 					<View style={styles.graphicsNames}>
 						<TouchableOpacity onPress={() => handleTimeFrameChange('day')}>
-							<Text style={styles.graphicName}>День</Text>
+							<Text style={[styles.graphicName, selectedTimeFrame === 'day' && styles.selectedGraphicName]}>День</Text>
 						</TouchableOpacity>
 						<TouchableOpacity onPress={() => handleTimeFrameChange('week')}>
-							<Text style={styles.graphicName}>Неделя</Text>
+							<Text style={[styles.graphicName, selectedTimeFrame === 'week' && styles.selectedGraphicName]}>Неделя</Text>
 						</TouchableOpacity>
 						<TouchableOpacity onPress={() => handleTimeFrameChange('month')}>
-							<Text style={styles.graphicName}>Месяц</Text>
+							<Text style={[styles.graphicName, selectedTimeFrame === 'month' && styles.selectedGraphicName]}>Месяц</Text>
 						</TouchableOpacity>
 						<TouchableOpacity onPress={() => handleTimeFrameChange('year')}>
-							<Text style={styles.graphicName}>Год</Text>
+							<Text style={[styles.graphicName, selectedTimeFrame === 'year' && styles.selectedGraphicName]}>Год</Text>
 						</TouchableOpacity>
 					</View>
 					<View
@@ -175,7 +203,6 @@ export default function PieScreen() {
 							>
 								<View
 									style={{
-										backgroundColor: item.color,
 										borderRadius: 50,
 										height: 36,
 										width: 36,
@@ -183,7 +210,7 @@ export default function PieScreen() {
 										alignItems: 'center'
 									}}
 								>
-									{item.icon}
+									{getIconForCategory(item.category)}
 								</View>
 								<Text
 									style={{ color: '#333333', fontSize: 18, fontWeight: 500 }}

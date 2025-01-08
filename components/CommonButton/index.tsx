@@ -5,9 +5,10 @@ import styles from './styles'
 interface IButton {
 	placeholder: string
 	isCancel?: boolean
+	onPress: () => void
 }
 
-const CommonButton: React.FC<IButton> = ({ placeholder, isCancel }) => {
+const CommonButton: React.FC<IButton> = ({ placeholder, isCancel, onPress }) => {
 	let buttonStyle: object = isCancel
 		? styles.buttonModalCancel
 		: styles.buttonStyle
@@ -16,7 +17,7 @@ const CommonButton: React.FC<IButton> = ({ placeholder, isCancel }) => {
 		: styles.buttonTextStyle
 
 	return (
-		<TouchableOpacity style={buttonStyle}>
+		<TouchableOpacity style={buttonStyle} onPress={onPress}>
 			<Text style={textStyle}>{placeholder}</Text>
 		</TouchableOpacity>
 	)

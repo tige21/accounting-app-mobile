@@ -26,7 +26,7 @@ import GroceriesIcon from '@/assets/svg/groceries-icon'
 import OtherIcon from '@/assets/svg/other-icon'
 import BeautyIcon from '@/assets/svg/beauty-icon'
 import PetsIcon from '@/assets/svg/pets-icon'
-import TransactionsIcon from '@/assets/svg/transactions-icon '
+import TransactionsIcon from '@/assets/svg/transactions-icon'
 import PassiveIncomeIcon from '@/assets/svg/passive-income-icon'
 import GiftIcon from '@/assets/svg/gift-icon'
 import SalaryIcon from '@/assets/svg/salary-icon'
@@ -47,6 +47,10 @@ import BackButton from '@/components/BackButton'
 import dayjs from "dayjs";
 import localeData from "dayjs/plugin/localeData";
 import "dayjs/locale/ru";
+import { useTransactionStore } from '@/store/transactionStore';
+import { getCategoryColor } from '@/utils/categoryColors';
+import { CATEGORIES } from '@/constants/categories';
+
 dayjs.locale('ru')
 dayjs.extend(localeData);
 
@@ -67,32 +71,34 @@ export default function AddScreen() {
 	>(ECatogories.EXPENSES)
 	const [selectedCategory, setSelectedCategory] = useState(null)
 	const [selectedDate, setSelectedDate] = useState<string>(INITIAL_DATE.toISOString())
+	const [amount, setAmount] = useState('');
+	const addTransaction = useTransactionStore((state) => state.addTransaction);
 
 	const bottomSheetRef = useRef<BottomSheetModal>(null)
 
 	const categories = {
 		[ECatogories.EXPENSES]: [
-			{ id: 0, title: 'Здоровье', icon: <HealthIcon /> },
-			{ id: 1, title: 'Транспорт', icon: <TransportIcon /> },
-			{ id: 2, title: 'Животные', icon: <PetsIcon /> },
-			{ id: 3, title: 'Красота', icon: <BeautyIcon /> },
-			{ id: 4, title: 'Образование', icon: <EducationIcon /> },
-			{ id: 5, title: 'Переводы', icon: <TransactionsIcon /> },
-			{ id: 6, title: 'Кафе', icon: <RestaurantsIcon /> },
-			{ id: 7, title: 'Равзлечения', icon: <EntertainmentIcon /> },
-			{ id: 9, title: 'Продукты', icon: <GroceriesIcon /> },
-			{ id: 10, title: 'Дом', icon: <HouseIcon /> },
-			{ id: 8, title: 'Другое', icon: <OtherIcon /> }
+			{ id: 0, title: CATEGORIES.EXPENSES.HEALTH, icon: <HealthIcon /> },
+			{ id: 1, title: CATEGORIES.EXPENSES.TRANSPORT, icon: <TransportIcon /> },
+			{ id: 2, title: CATEGORIES.EXPENSES.PETS, icon: <PetsIcon /> },
+			{ id: 3, title: CATEGORIES.EXPENSES.BEAUTY, icon: <BeautyIcon /> },
+			{ id: 4, title: CATEGORIES.EXPENSES.EDUCATION, icon: <EducationIcon /> },
+			{ id: 5, title: CATEGORIES.EXPENSES.TRANSFERS, icon: <TransactionsIcon /> },
+			{ id: 6, title: CATEGORIES.EXPENSES.CAFE, icon: <RestaurantsIcon /> },
+			{ id: 7, title: CATEGORIES.EXPENSES.ENTERTAINMENT, icon: <EntertainmentIcon /> },
+			{ id: 8, title: CATEGORIES.EXPENSES.GROCERIES, icon: <GroceriesIcon /> },
+			{ id: 9, title: CATEGORIES.EXPENSES.HOUSE, icon: <HouseIcon /> },
+			{ id: 10, title: CATEGORIES.EXPENSES.OTHER, icon: <OtherIcon /> }
 		],
 		[ECatogories.INCOME]: [
-			{ id: 11, title: 'Пассвиный', icon: <PassiveIncomeIcon /> },
-			{ id: 12, title: 'Подарок', icon: <GiftIcon /> },
-			{ id: 13, title: 'Зарплата', icon: <SalaryIcon /> },
-			{ id: 14, title: 'Акции', icon: <StockIcon /> },
-			{ id: 15, title: 'Аванс', icon: <AdvanceIcon /> },
-			{ id: 16, title: 'Фриланс', icon: <FreelanceIcon /> },
-			{ id: 17, title: 'Кешбэк', icon: <CashbackIcon /> },
-			{ id: 18, title: 'Другое', icon: <OtherIcon /> }
+			{ id: 11, title: CATEGORIES.INCOME.PASSIVE, icon: <PassiveIncomeIcon /> },
+			{ id: 12, title: CATEGORIES.INCOME.GIFT, icon: <GiftIcon /> },
+			{ id: 13, title: CATEGORIES.INCOME.SALARY, icon: <SalaryIcon /> },
+			{ id: 14, title: CATEGORIES.INCOME.STOCKS, icon: <StockIcon /> },
+			{ id: 15, title: CATEGORIES.INCOME.ADVANCE, icon: <AdvanceIcon /> },
+			{ id: 16, title: CATEGORIES.INCOME.FREELANCE, icon: <FreelanceIcon /> },
+			{ id: 17, title: CATEGORIES.INCOME.CASHBACK, icon: <CashbackIcon /> },
+			{ id: 18, title: CATEGORIES.INCOME.OTHER, icon: <OtherIcon /> }
 		]
 	}
 
@@ -115,32 +121,85 @@ export default function AddScreen() {
 		setSelectedDate(date)
 	}
 
-	const formatDate = (dateString: string): string => {
-		const date = new Date(dateString);
-	  
-		const day = date.getDate();
-		const month = date.getMonth() + 1;
-		const year = date.getFullYear();
-	  
-		const monthNames = [
-		  "января",
-		  "февраля",
-		  "марта",
-		  "апреля",
-		  "мая",
-		  "июня",
-		  "июля",
-		  "августа",
-		  "сентября",
-		  "октября",
-		  "ноября",
-		  "декабря",
-		];
-	  
-		const monthName = monthNames[month - 1];
-	  
-		return `${day} ${monthName} ${year}`;
-	  };
+	const handleAmountChange = (text: string) => {
+		const sanitizedText = text.replace(/[^0-9.]/g, '');
+		
+		const hasDot = sanitizedText.includes('.');
+		
+		const [wholePart, decimalPart] = sanitizedText.split('.');
+		
+		let formattedText = sanitizedText;
+
+		if (hasDot) {
+			formattedText = `${wholePart}.${decimalPart?.slice(0, 2) || ''}`;
+		}
+
+		if (wholePart.length > 1 && wholePart[0] === '0') {
+			formattedText = wholePart.slice(1) + (hasDot ? `.${decimalPart?.slice(0, 2) || ''}` : '');
+		}
+
+		const numValue = parseFloat(formattedText);
+		if (numValue > 999999999) {
+			Alert.alert('Ошибка', 'Слишком большая сумма');
+			return;
+		}
+
+		setAmount(formattedText);
+	};
+
+	const validateAmount = () => {
+		if (amount.trim() === '') {
+			Alert.alert('Ошибка', 'Пожалуй��та, введите сумму');
+			return false;
+		}
+		
+		const numAmount = Number(amount);
+		
+		if (isNaN(numAmount)) {
+			Alert.alert('Ошибка', 'Пожалуйста, введите корректное число');
+			return false;
+		}
+		
+		if (numAmount <= 0) {
+			Alert.alert('Ошибка', 'Сумма должна быть больше нуля');
+			return false;
+		}
+		
+		if (amount.includes('.') && amount.split('.')[1].length > 2) {
+			Alert.alert('Ошибка', 'Максимум два знака после запятой');
+			return false;
+		}
+		
+		return true;
+	};
+
+	const handleSave = async () => {
+		if (!validateAmount()) return;
+		if (!selectedCategory) {
+			Alert.alert('Ошибка', 'Пожалуйста, выберите категорию');
+			return;
+		}
+
+		try {
+			const category = categories[selectedLanguage].find(c => c.id === selectedCategory);
+			const transaction = {
+				category: category?.title || 'Другое',
+				price: Number(amount),
+				color: getCategoryColor(category?.title || 'Другое'),
+				type: selectedLanguage === ECatogories.INCOME ? 'income' : 'expense',
+				date: new Date(selectedDate),
+				description: '',
+			};
+
+			addTransaction(transaction);
+			console.log('Transaction saved successfully');
+			router.push("(tabs)")
+		} catch (error) {
+			console.error('Error saving transaction:', error);
+			Alert.alert('Ошибка', 'Не удалось сохранить транзакцию');
+		}
+	};
+
 	return (
 		<SafeAreaView style={{ flex: 1 }}>
 			<KeyboardAvoidingView>
@@ -193,7 +252,12 @@ export default function AddScreen() {
 					<View>
 						<Text style={styles.subText}>Сумма</Text>
 
-						<CommonInput placeholder='1000' />
+						<CommonInput 
+							placeholder='1000' 
+							value={amount}
+							onChangeText={handleAmountChange}
+							keyboardType="numeric"
+						/>
 					</View>
 					<View>
 						<Text style={styles.subText}>Категория</Text>
@@ -228,7 +292,10 @@ export default function AddScreen() {
 						</View>
 					</View>
 					<View>
-						<CommonButton placeholder='Сохранить' />
+						<CommonButton 
+							placeholder='Сохранить' 
+							onPress={handleSave}
+						/>
 					</View>
 				</View>
 

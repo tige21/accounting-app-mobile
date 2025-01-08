@@ -19,6 +19,23 @@ import styles from '../styles'
 import {BottomSheetModal} from "@gorhom/bottom-sheet";
 import CustomBottomSheetModal from "@/components/CalendarPickModal";
 import Index from "@/components/CalendarPickModal";
+import { useTransactionStore } from '@/store/transactionStore';
+import { getDateRange } from '@/utils/dateUtils';
+import { getCategoryColor } from '@/utils/categoryColors';
+import PetsIcon from '@/assets/svg/pets-icon'
+import BeautyIcon from '@/assets/svg/beauty-icon'
+import TransactionsIcon from '@/assets/svg/transactions-icon'
+import EntertainmentIcon from '@/assets/svg/entertainment-icon'
+import GroceriesIcon from '@/assets/svg/groceries-icon'
+import PassiveIncomeIcon from '@/assets/svg/passive-income-icon'
+import GiftIcon from '@/assets/svg/gift-icon'
+import SalaryIcon from '@/assets/svg/salary-icon'
+import StockIcon from '@/assets/svg/stock-icon'
+import AdvanceIcon from '@/assets/svg/advance-icon'
+import FreelanceIcon from '@/assets/svg/freelance-icon'
+import CashbackIcon from '@/assets/svg/cashback-icon'
+import { CATEGORIES } from '@/constants/categories';
+
 interface IBarData {
 	category: string
 	price: number
@@ -27,8 +44,88 @@ interface IBarData {
 }
 
 export default function BarScreen() {
-	const [text, setText] = useState('1000')
-	const [isEditing, setIsEditing] = useState(false)
+	const { transactions } = useTransactionStore();
+	const [selectedTimeFrame, setSelectedTimeFrame] = useState('day');
+	const [text, setText] = useState('1000');
+	const [isEditing, setIsEditing] = useState(false);
+
+	const getFilteredData = () => {
+		const { start, end } = getDateRange(selectedTimeFrame as 'day' | 'week' | 'month' | 'year');
+		
+		return transactions.filter(t => {
+			const transactionDate = new Date(t.date);
+			return transactionDate >= start && transactionDate <= end && t.type === 'expense';
+		});
+	};
+
+	const transformData = () => {
+		const filteredTransactions = getFilteredData();
+		const groupedData = filteredTransactions.reduce((acc, curr) => {
+			const existing = acc.find(item => item.category === curr.category);
+			if (existing) {
+				existing.price += curr.price;
+			} else {
+				acc.push({
+					category: curr.category,
+					price: curr.price,
+					color: getCategoryColor(curr.category),
+					icon: getIconForCategory(curr.category)
+				});
+			}
+			return acc;
+		}, [] as IBarData[]);
+
+		return groupedData.map(item => ({
+			value: item.price,
+			topLabelComponent: () => item.icon,
+			frontColor: item.color
+		}));
+	};
+
+	const getIconForCategory = (category: string) => {
+		const color = getCategoryColor(category);
+		
+		switch (category) {
+			// Расходы
+			case CATEGORIES.EXPENSES.HEALTH:
+				return <HealthIcon color={color} />;
+			case CATEGORIES.EXPENSES.TRANSPORT:
+				return <TransportIcon color={color} />;
+			case CATEGORIES.EXPENSES.PETS:
+				return <PetsIcon color={color} />;
+			case CATEGORIES.EXPENSES.BEAUTY:
+				return <BeautyIcon color={color} />;
+			case CATEGORIES.EXPENSES.EDUCATION:
+				return <EducationIcon color={color} />;
+			case CATEGORIES.EXPENSES.TRANSFERS:
+				return <TransactionsIcon color={color} />;
+			case CATEGORIES.EXPENSES.CAFE:
+				return <RestaurantsIcon color={color} />;
+			case CATEGORIES.EXPENSES.ENTERTAINMENT:
+				return <EntertainmentIcon color={color} />;
+			case CATEGORIES.EXPENSES.GROCERIES:
+				return <GroceriesIcon color={color} />;
+			case CATEGORIES.EXPENSES.HOUSE:
+				return <HouseIcon color={color} />;
+			// Доходы
+			case CATEGORIES.INCOME.PASSIVE:
+				return <PassiveIncomeIcon color={color} />;
+			case CATEGORIES.INCOME.GIFT:
+				return <GiftIcon color={color} />;
+			case CATEGORIES.INCOME.SALARY:
+				return <SalaryIcon color={color} />;
+			case CATEGORIES.INCOME.STOCKS:
+				return <StockIcon color={color} />;
+			case CATEGORIES.INCOME.ADVANCE:
+				return <AdvanceIcon color={color} />;
+			case CATEGORIES.INCOME.FREELANCE:
+				return <FreelanceIcon color={color} />;
+			case CATEGORIES.INCOME.CASHBACK:
+				return <CashbackIcon color={color} />;
+			default:
+				return <OtherIcon color={color} />;
+		}
+	};
 
 	const handleEdit = () => {
 		setIsEditing(true)
@@ -41,19 +138,7 @@ export default function BarScreen() {
 	const handleChange = (value: string) => {
 		setText(value)
 	}
-	function transformData(dataDay: IBarData[]): {
-		value: number
-		topLabelComponent: () => JSX.Element
-		frontColor: string
-	}[] {
-		return dataDay.map(item => {
-			return {
-				value: item.price,
-				topLabelComponent: () => item.icon,
-				frontColor: item.color
-			}
-		})
-	}
+
 	const bottomSheetRef = useRef<BottomSheetModal>(null)
 
 	const handleDismiss = () => {
@@ -63,44 +148,12 @@ export default function BarScreen() {
 	const handlePresent = () => {
 		bottomSheetRef.current?.present()
 	}
-	const dataDay: IBarData[] = [
-		{
-			category: 'Здоровье',
-			price: 40,
-			color: '#fe6f7b',
-			icon: <HealthIcon color='red' />
-		},
-		{
-			category: 'Образование',
-			price: 20,
-			color: '#69bffe',
-			icon: <EducationIcon color='#69bffe' />
-		},
-		{
-			category: 'Дом',
-			price: 60,
-			color: '#FFC047',
-			icon: <HouseIcon color='#FFC047' />
-		},
-		{
-			category: 'Кофе и рестораны',
-			price: 80,
-			color: '#93E850',
-			icon: <RestaurantsIcon color='#93E850' />
-		},
-		{
-			category: 'Транспорт',
-			price: 10,
-			color: '#9E73FC',
-			icon: <TransportIcon color='#9E73FC' />
-		},
-		{
-			category: 'Транспорт',
-			price: 25,
-			color: '#969696',
-			icon: <OtherIcon color='#969696' />
-		}
-	]
+
+	const handleTimeFrameChange = (timeFrame: string) => {
+		setSelectedTimeFrame(timeFrame as 'day' | 'week' | 'month' | 'year');
+	};
+
+	const chartData = transformData();
 
 	return (
 		<SafeAreaView style={{ flex: 1, marginBottom: 5 }}>
@@ -134,7 +187,7 @@ export default function BarScreen() {
 					style={{
 						flex: 1,
 						width: '100%',
-						height: 280,
+						height: 290,
 						backgroundColor: '#ffffff',
 						borderRadius: 30,
 						marginTop: 20,
@@ -143,17 +196,17 @@ export default function BarScreen() {
 					}}
 				>
 					<View style={styles.graphicsNames}>
-						<TouchableOpacity>
-							<Text style={styles.graphicName}>День</Text>
+						<TouchableOpacity onPress={() => handleTimeFrameChange('day')}>
+							<Text style={[styles.graphicName, selectedTimeFrame === 'day' && styles.selectedGraphicName]}>День</Text>
 						</TouchableOpacity>
-						<TouchableOpacity>
-							<Text style={styles.graphicName}>Неделя</Text>
+						<TouchableOpacity onPress={() => handleTimeFrameChange('week')}>
+							<Text style={[styles.graphicName, selectedTimeFrame === 'week' && styles.selectedGraphicName]}>Неделя</Text>
 						</TouchableOpacity>
-						<TouchableOpacity>
-							<Text style={styles.graphicName}>Месяц</Text>
+						<TouchableOpacity onPress={() => handleTimeFrameChange('month')}>
+							<Text style={[styles.graphicName, selectedTimeFrame === 'month' && styles.selectedGraphicName]}>Месяц</Text>
 						</TouchableOpacity>
-						<TouchableOpacity>
-							<Text style={styles.graphicName}>Год</Text>
+						<TouchableOpacity onPress={() => handleTimeFrameChange('year')}>
+							<Text style={[styles.graphicName, selectedTimeFrame === 'year' && styles.selectedGraphicName]}>Год</Text>
 						</TouchableOpacity>
 					</View>
 					<View style={{ padding: 20, alignItems: 'center' }}>
@@ -163,15 +216,13 @@ export default function BarScreen() {
 							hideYAxisText
 							width={300}
 							height={360}
-							data={transformData(dataDay)}
+							data={chartData}
 							frontColor='#177AD5'
 							yAxisThickness={0}
 							xAxisThickness={0}
 						/>
 					</View>
-					<TouchableOpacity onPress={handlePresent}>
-						<Text>sfasdfasfsfds f</Text>
-					</TouchableOpacity>
+					
 				</View>
 
 
