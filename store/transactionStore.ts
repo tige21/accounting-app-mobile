@@ -20,10 +20,11 @@ interface TransactionStore {
   getTransactionsByMonth: (month: number, year: number) => Transaction[];
   getTotalExpenses: () => number;
   getTotalIncome: () => number;
+  clearTransactions: () => void;
 }
 
 export const useTransactionStore = create<TransactionStore>()(
-//   persist(
+  persist(
     (set, get) => ({
       transactions: [],
       
@@ -65,10 +66,12 @@ export const useTransactionStore = create<TransactionStore>()(
           .filter((t) => t.type === 'income')
           .reduce((sum, t) => sum + t.price, 0);
       },
+
+      clearTransactions: () => set({ transactions: [] }),
     }),
-//     {
-//       name: 'transactions-storage',
-//       storage: createJSONStorage(() => AsyncStorage),
-//     }
-//   )
+    {
+      name: 'transactions-storage',
+      storage: createJSONStorage(() => AsyncStorage),
+    }
+  )
 ); 

@@ -87,6 +87,7 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
 	iconContainer: {
+		width: 50,
 		flex: 1,
 		alignItems: 'center',
 		justifyContent: 'center'

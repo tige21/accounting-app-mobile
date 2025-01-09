@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import Colors from '@/constants/Colors';
-import { CommonInput } from '@/components';
 import BackButton from '@/components/BackButton';
 import { useTaskStore } from '@/store/taskStore';
 
@@ -14,12 +13,18 @@ interface Task {
   time: string;
   repeat: 'Никогда' | 'Ежедневно' | 'Еженедельно' | 'Ежемесячно' | 'Ежегодно';
   reminder: 'Нет' | 'За 1 час' | 'За 1 день' | 'За 1 неделю';
+  comment?: string;
+  isCompleted?: boolean;
 }
 
 export default function TaskDetailsScreen() {
   const params = useLocalSearchParams<Task>();
-  const [isCompleted, setIsCompleted] = useState(false);
+  const task = useTaskStore(state => 
+    state.tasks.find(t => t.id === params.id)
+  );
+  
   const deleteTask = useTaskStore(state => state.deleteTask);
+  const updateTask = useTaskStore(state => state.updateTask);
 
   const handleBack = () => {
     router.back();
@@ -47,7 +52,17 @@ export default function TaskDetailsScreen() {
   };
 
   const handleComplete = () => {
-    setIsCompleted(!isCompleted);
+    if (task) {
+      const newIsCompleted = !task.isCompleted;
+      updateTask(task.id, { ...task, isCompleted: newIsCompleted });
+    }
+  };
+
+  const handleEdit = () => {
+    router.push({
+      pathname: "/edit-task",
+      params: params
+    });
   };
 
   const formatDate = (dateString: string) => {
@@ -67,13 +82,24 @@ export default function TaskDetailsScreen() {
         <View style={styles.header}>
           <View style={styles.titleContainer}>
             <TouchableOpacity 
-              style={[styles.checkbox, isCompleted && styles.checkboxChecked]} 
+              style={[
+                styles.checkbox, 
+                task?.isCompleted && styles.checkboxChecked
+              ]} 
               onPress={handleComplete}
-            />
-            <Text style={[styles.title, isCompleted && styles.titleCompleted]}>
-              {params.title}
+            >
+              {task?.isCompleted && (
+                <Text style={styles.checkmark}>✓</Text>
+              )}
+            </TouchableOpacity>
+            <Text style={[
+              styles.title, 
+              task?.isCompleted && styles.titleCompleted
+            ]}>
+              {task?.title}
             </Text>
           </View>
+         
         </View>
 
         <View style={styles.section}>
@@ -96,9 +122,19 @@ export default function TaskDetailsScreen() {
           <Text style={styles.value}>{params.reminder}</Text>
         </View>
 
-        <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-          <Text style={styles.deleteButtonText}>Удалить задачу</Text>
-        </TouchableOpacity>
+        <View style={styles.section}>
+          <Text style={styles.label}>Комментарий</Text>
+          <Text style={styles.value}>{params.comment || 'Нет комментария'}</Text>
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
+            <Text style={styles.editButtonText}>Редактировать</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+            <Text style={styles.deleteButtonText}>Удалить задачу</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -137,7 +173,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: Colors.blue,
-    marginRight: 12
+    marginRight: 12,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   checkboxChecked: {
     backgroundColor: Colors.blue
@@ -155,17 +193,36 @@ const styles = StyleSheet.create({
     color: Colors.black,
     fontWeight: '500'
   },
+  buttonContainer: {
+    marginTop: 'auto',
+    marginBottom: 24,
+    gap: 12
+  },
+  editButton: {
+    backgroundColor: Colors.blue,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center'
+  },
+  editButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600'
+  },
   deleteButton: {
     backgroundColor: '#FF3B30',
     padding: 16,
     borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 'auto',
-    marginBottom: 24
+    alignItems: 'center'
   },
   deleteButtonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: '600'
+  },
+  checkmark: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold'
   }
 }); 

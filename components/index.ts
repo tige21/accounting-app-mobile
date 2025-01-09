@@ -1,6 +1,3 @@
-export {default as Button} from './CommonButton'
-export {default as Switcher} from './Switcher'
-export {default as CalendarPickModal} from './CalendarPickModal'
-export {default as CategoryButton} from './CategoryButton'
-export {default as CommonInput} from './CommonInput'
-export {default as TaskModal} from './TaskModal'
+export { default as CommonInput } from './CommonInput';
+export { default as CommonButton } from './CommonButton';
+export { default as BackButton } from './BackButton';
