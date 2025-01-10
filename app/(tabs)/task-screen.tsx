@@ -1,5 +1,5 @@
 ﻿import React, { useState, useRef, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, GestureResponderEvent } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, GestureResponderEvent, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import CommonInput from '@/components/CommonInput';
@@ -11,6 +11,7 @@ import "dayjs/locale/ru";
 import { router } from 'expo-router';
 import { useTaskStore } from '@/store/taskStore';
 import UserAvatar from '@/components/UserAvatar';
+import BottomSheetInput from '@/components/BottomSheetInput';
 
 interface Task {
   id: string;
@@ -130,151 +131,152 @@ export default function TaskScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <View style={styles.headerRow}>
-            <UserAvatar />
-            <Text style={styles.headerText}>Задачи</Text>
-          </View>
-          
-          <View style={styles.dateSelector}>
-            <View style={styles.dateDisplay}>
-              <Text style={styles.dateText}>
-                {dayjs(selectedDate).format('D MMMM')}
-              </Text>
+      <KeyboardAvoidingView style={{ flex: 1 }}>
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <View style={styles.headerRow}>
+              <UserAvatar />
+              <Text style={styles.headerText}>Задачи</Text>
             </View>
-            <CalendarPickButton handlePresent={handleCalendarPresent} />
+            
+            <View style={styles.dateSelector}>
+              <View style={styles.dateDisplay}>
+                <Text style={styles.dateText}>
+                  {dayjs(selectedDate).format('D MMMM')}
+                </Text>
+              </View>
+              <CalendarPickButton handlePresent={handleCalendarPresent} />
+            </View>
           </View>
+
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {filteredTasks.map((task) => (
+              <TouchableOpacity 
+                key={task.id} 
+                style={styles.taskItem}
+                onPress={() => handleTaskPress(task)}
+              >
+                <View style={styles.taskRow}>
+                  <TouchableOpacity 
+                    style={[
+                      styles.checkbox,
+                      task.isCompleted && styles.checkboxChecked
+                    ]} 
+                    onPress={(e) => handleTaskComplete(task, e)}
+                  >
+                    {task.isCompleted && (
+                      <Text style={styles.checkmark}>✓</Text>
+                    )}
+                  </TouchableOpacity>
+                  <Text style={[
+                    styles.taskTitle,
+                    task.isCompleted && styles.taskTitleCompleted
+                  ]}>
+                    {task.title}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <TouchableOpacity onPress={handleAddTask} style={styles.addButton}>
+            <Text style={styles.addButtonText}>Добавить задачу</Text>
+          </TouchableOpacity>
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {filteredTasks.map((task) => (
-            <TouchableOpacity 
-              key={task.id} 
-              style={styles.taskItem}
-              onPress={() => handleTaskPress(task)}
-            >
-              <View style={styles.taskRow}>
-                <TouchableOpacity 
-                  style={[
-                    styles.checkbox,
-                    task.isCompleted && styles.checkboxChecked
-                  ]} 
-                  onPress={(e) => handleTaskComplete(task, e)}
-                >
-                  {task.isCompleted && (
-                    <Text style={styles.checkmark}>✓</Text>
-                  )}
-                </TouchableOpacity>
-                <Text style={[
-                  styles.taskTitle,
-                  task.isCompleted && styles.taskTitleCompleted
-                ]}>
-                  {task.title}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        <TouchableOpacity onPress={handleAddTask} style={styles.addButton}>
-          <Text style={styles.addButtonText}>Добавить задачу</Text>
-        </TouchableOpacity>
-      </View>
-
-      <CalendarPickModal 
-        handleDateChange={handleDateSelect} 
-        selectedDate={selectedDate} 
-        handleDismiss={handleCalendarDismiss} 
-        ref={calendarRef}
-      />
-
-      <BottomSheetModal
-        ref={taskModalRef}
-        enableDynamicSizing
-        index={0}
-        enablePanDownToClose
-        backdropComponent={renderBackdrop()}
-      >
-        <BottomSheetScrollView style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>Задача</Text>
-          
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Название</Text>
-            <CommonInput 
-              placeholder="Введите название задачи" 
-              value={title}
-              onChangeText={(text) => setTitle(text)}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Комментарий</Text>
-            <CommonInput 
-              placeholder="Введите комментарий" 
-              value={comment}
-              onChangeText={setComment}
-              multiline
-            />
-          </View>
-
-          <View style={styles.dateContainer}>
-            <Text style={styles.label}>Дата</Text>
-            <View style={styles.dateRow}>
-              <View style={styles.dateInput}>
-                <CommonInput placeholder={formatDate(selectedDate)} />
-              </View>
-              <CalendarPickButton handlePresent={handlePresent} />
+        <BottomSheetModal
+          ref={taskModalRef}
+          enableDynamicSizing
+          index={0}
+          enablePanDownToClose
+          backdropComponent={renderBackdrop()}
+        >
+          <BottomSheetScrollView style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Задача</Text>
+            
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Название</Text>
+              <BottomSheetInput 
+                placeholder="Введите название задачи" 
+                value={title}
+                onChangeText={setTitle}
+              />
             </View>
-          </View>
 
-          {/* <View style={styles.inputContainer}>
-            <Text style={styles.label}>Повтор</Text>
-            {repeatOptions.map((option) => (
-              <TouchableOpacity
-                key={option}
-                style={[
-                  styles.optionButton,
-                  selectedRepeat === option && styles.selectedOption
-                ]}
-                onPress={() => setSelectedRepeat(option)}
-              >
-                <Text style={[
-                  styles.optionText,
-                  selectedRepeat === option && styles.selectedOptionText
-                ]}>
-                  {option}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Комментарий</Text>
+              <BottomSheetInput 
+                placeholder="Введите комментарий" 
+                value={comment}
+                onChangeText={setComment}
+              />
+            </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Напоминание</Text>
-            {reminderOptions.map((option) => (
-              <TouchableOpacity
-                key={option}
-                style={[
-                  styles.optionButton,
-                  selectedReminder === option && styles.selectedOption
-                ]}
-                onPress={() => setSelectedReminder(option)}
-              >
-                <Text style={[
-                  styles.optionText,
-                  selectedReminder === option && styles.selectedOptionText
-                ]}>
-                  {option}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View> */}
+            <View style={styles.dateContainer}>
+              <Text style={styles.label}>Дата</Text>
+              <View style={styles.dateRow}>
+                <View style={styles.dateInput}>
+                  <CommonInput editable={false} placeholder={formatDate(selectedDate)} />
+                </View>
+                <CalendarPickButton handlePresent={handleCalendarPresent} />
+              </View>
+            </View>
 
-          <TouchableOpacity style={styles.saveButton} onPress={handleSaveTask}>
-            <Text style={styles.saveButtonText}>Сохранить</Text>
-          </TouchableOpacity>
-        </BottomSheetScrollView>
-      </BottomSheetModal>
+            {/* <View style={styles.inputContainer}>
+              <Text style={styles.label}>Повтор</Text>
+              {repeatOptions.map((option) => (
+                <TouchableOpacity
+                  key={option}
+                  style={[
+                    styles.optionButton,
+                    selectedRepeat === option && styles.selectedOption
+                  ]}
+                  onPress={() => setSelectedRepeat(option)}
+                >
+                  <Text style={[
+                    styles.optionText,
+                    selectedRepeat === option && styles.selectedOptionText
+                  ]}>
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Напоминание</Text>
+              {reminderOptions.map((option) => (
+                <TouchableOpacity
+                  key={option}
+                  style={[
+                    styles.optionButton,
+                    selectedReminder === option && styles.selectedOption
+                  ]}
+                  onPress={() => setSelectedReminder(option)}
+                >
+                  <Text style={[
+                    styles.optionText,
+                    selectedReminder === option && styles.selectedOptionText
+                  ]}>
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View> */}
+
+            <TouchableOpacity style={styles.saveButton} onPress={handleSaveTask}>
+              <Text style={styles.saveButtonText}>Сохранить</Text>
+            </TouchableOpacity>
+          </BottomSheetScrollView>
+        </BottomSheetModal>
+
+        <CalendarPickModal 
+          ref={calendarRef}
+          handleDateChange={handleDateSelect} 
+          selectedDate={selectedDate} 
+          handleDismiss={handleCalendarDismiss} 
+        />
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

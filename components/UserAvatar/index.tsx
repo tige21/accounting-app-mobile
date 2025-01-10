@@ -1,7 +1,8 @@
 import React from 'react';
-import { TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import Colors from '@/constants/Colors';
+import { Logo } from '@/assets/images';
 
 export default function UserAvatar() {
   const handlePress = () => {
@@ -10,10 +11,7 @@ export default function UserAvatar() {
 
   return (
     <TouchableOpacity style={styles.container} onPress={handlePress}>
-      <Image 
-        source={require('@/assets/images/logo.png')} 
-        style={styles.avatar}
-      />
+      <Logo width={32} height={32} />
     </TouchableOpacity>
   );
 }
@@ -21,10 +19,7 @@ export default function UserAvatar() {
 const styles = StyleSheet.create({
   container: {
     marginRight: 12,
-  },
-  avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-  },
+  
+    alignItems: 'center'
+  }
 }); 

@@ -10,7 +10,8 @@ import {
 	Text,
 	TextInput,
 	TouchableOpacity,
-	View
+	View,
+	Alert
 } from 'react-native'
 import { PieChart } from 'react-native-gifted-charts'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -44,6 +45,7 @@ interface IData {
 
 export default function PieScreen() {
 	const transactions = useTransactionStore(store => store.transactions)
+	const deleteTransaction = useTransactionStore(store => store.deleteTransaction)
 	const [selectedTimeFrame, setSelectedTimeFrame] = useState('day')
 	const [isEditing, setIsEditing] = useState(false)
 	const [text, setText] = useState('1000')
@@ -151,6 +153,27 @@ export default function PieScreen() {
 		}
 	}
 
+	const handleLongPress = (category: string) => {
+		Alert.alert(
+			'Удаление транзакций',
+			'Вы уверены, что хотите удалить все транзакции этой категории?',
+			[
+				{
+					text: 'Отмена',
+					style: 'cancel'
+				},
+				{
+					text: 'Удалить',
+					onPress: () => {
+						const transactionsToDelete = getFilteredData().filter(t => t.category === category);
+						transactionsToDelete.forEach(t => deleteTransaction(t.id));
+					},
+					style: 'destructive'
+				}
+			]
+		);
+	};
+
 	if (!data.length) {
 		return (
 			<SafeAreaView style={styles.safeArea}>
@@ -228,7 +251,12 @@ export default function PieScreen() {
 				</View>
 				<ScrollView style={styles.transactions}>
 					{data.map((item, index) => (
-						<View key={index} style={styles.transactionItem}>
+						<TouchableOpacity
+							key={index}
+							style={styles.transactionItem}
+							onLongPress={() => handleLongPress(item.category)}
+							delayLongPress={500}
+						>
 							<View style={styles.categoryWrapper}>
 								<View style={styles.categoryIcon}>
 									{getIconForCategory(item.category)}
@@ -236,7 +264,7 @@ export default function PieScreen() {
 								<Text style={styles.categoryText}>{item.category}</Text>
 							</View>
 							<Text style={styles.priceText}>{item.price} P</Text>
-						</View>
+						</TouchableOpacity>
 					))}
 				</ScrollView>
 			</View>

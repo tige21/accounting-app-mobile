@@ -1,16 +1,15 @@
-﻿import React, { useState, useEffect, useRef } from 'react'
+﻿import React, { useState, useRef } from 'react'
 import {
 	View,
 	Text,
 	StyleSheet,
 	TouchableOpacity,
-	ScrollView
+	ScrollView,
+	Alert
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useFinanceStore } from '@/store/financeStore'
 import Colors from '@/constants/Colors'
-import { CommonInput } from '@/components'
-import { PieChart } from 'react-native-gifted-charts'
 import { useTransactionStore } from '@/store/transactionStore'
 import dayjs from 'dayjs'
 import { BottomSheetModal } from '@gorhom/bottom-sheet'
@@ -60,6 +59,18 @@ export default function AnalyticsScreen() {
 	const handleDateSelect = (date: string) => {
 		setSelectedDate(dayjs(date))
 		handleDismiss()
+	}
+	const handleBufferInfoPress = () => {
+		Alert.alert(
+			'Резерв на непредвиденные расходы',
+			'Изменить размер резерва можно в настройках профиля',
+			[
+				{
+					text: 'Понятно',
+					style: 'default'
+				}
+			]
+		)
 	}
 
 	const { calculateBudgetStats } = useBudgetCalculator()
@@ -188,7 +199,7 @@ export default function AnalyticsScreen() {
 							</Text>
 							<TouchableOpacity
 								onPress={() => {
-									/* Добавить показ информации */
+									handleBufferInfoPress()
 								}}
 							>
 								<Text style={styles.infoIcon}>ⓘ</Text>

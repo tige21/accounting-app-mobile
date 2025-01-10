@@ -118,6 +118,7 @@ export default function RootLayout() {
 						<Stack.Screen name='task-details' options={{ headerShown: false }} />
 						<Stack.Screen name='edit-task' options={{ headerShown: false }} />
 						<Stack.Screen name='profile' options={{ headerShown: false }} />
+						<Stack.Screen name='transaction-history' options={{ headerShown: false }} />
 					</Stack>
 					{/* </ThemeProvider> */}
 				</BottomSheetModalProvider>

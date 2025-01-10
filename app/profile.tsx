@@ -21,6 +21,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet'
 import CurrencyPickModal from '@/components/CurrencyPickModal'
 import { useSettingsStore } from '@/store/settingsStore'
 import BufferSettingsModal from '@/components/BufferSettingsModal'
+import { Logo } from '@/assets/images'
 
 export default function ProfileScreen() {
 	const { clearTransactions } = useTransactionStore()
@@ -92,94 +93,92 @@ export default function ProfileScreen() {
 		bufferModalRef.current?.dismiss()
 	}
 
+	const handleTransactionHistory = () => {
+		router.push('/transaction-history')
+	}
+
 	return (
 		<SafeAreaView style={styles.container}>
 			<BackButton handleBack={handleBack} />
 
-			<ScrollView style={styles.content}>
-				<Text style={styles.title}>Профиль</Text>
+			<View style={styles.mainContent}>
+				<ScrollView style={styles.scrollContent}>
+					<Text style={styles.title}>Профиль</Text>
 
-				{/* Аватар и основная информация */}
-				<View style={styles.avatarSection}>
-					<TouchableOpacity onPress={handleChangeAvatar}>
-						<Image
-							source={
-								avatarUri
-									? { uri: avatarUri }
-									: require('@/assets/images/logo.png')
-							}
-							style={styles.avatar}
-						/>
-					</TouchableOpacity>
-					<Text style={styles.username}>Пользователь</Text>
-				</View>
+					{/* Аватар и основная информация */}
+					<View style={styles.avatarSection}>
+						<Logo />
+						<Text style={styles.username}>Пользователь</Text>
+					</View>
 
-				{/* Финансовая сводка */}
-				<View style={styles.statsCard}>
-					<Text style={styles.sectionTitle}>Финансовая сводка</Text>
+					{/* Финансовая сводка */}
+					<View style={styles.statsCard}>
+						<Text style={styles.sectionTitle}>Финансовая сводка</Text>
 
-					<TouchableOpacity style={styles.statItem}>
-						<Text>История операций</Text>
-						<Text style={styles.arrowRight}>→</Text>
-					</TouchableOpacity>
-				</View>
+						<TouchableOpacity
+							style={[styles.statItem, styles.lastItem]}
+							onPress={handleTransactionHistory}
+						>
+							<Text>История операций</Text>
+							<Text style={styles.arrowRight}>→</Text>
+						</TouchableOpacity>
+					</View>
 
-				{/* Настройки */}
-				<View style={styles.settingsCard}>
-					<Text style={styles.sectionTitle}>Настройки</Text>
+					{/* Настройки */}
+					<View style={styles.settingsCard}>
+						<Text style={styles.sectionTitle}>Настройки</Text>
 
-					{/* <View style={styles.settingItem}>
-            <Text>Темная тема</Text>
-            <Switch 
-              value={isDarkMode}
-              onValueChange={toggleDarkMode}
-              trackColor={{ false: '#767577', true: Colors.blue }}
-            />
-          </View> */}
+						{/* <View style={styles.settingItem}>
+							<Text>Темная тема</Text>
+							<Switch 
+								value={isDarkMode}
+								onValueChange={toggleDarkMode}
+								trackColor={{ false: '#767577', true: Colors.blue }}
+							/>
+						</View> */}
 
-					{/* <View style={styles.settingItem}>
-            <Text>Уведомления</Text>
-            <Switch 
-              value={notificationsEnabled}
-              onValueChange={setNotificationsEnabled}
-              trackColor={{ false: '#767577', true: Colors.blue }}
-            />
-          </View> */}
+						{/* <View style={styles.settingItem}>
+							<Text>Уведомления</Text>
+							<Switch 
+								value={notificationsEnabled}
+								onValueChange={setNotificationsEnabled}
+								trackColor={{ false: '#767577', true: Colors.blue }}
+							/>
+						</View> */}
 
-					{/* <View style={styles.settingItem}>
-						<Text>Биометрическая защита</Text>
-						<Switch
-							value={biometricEnabled}
-							onValueChange={setBiometricEnabled}
-							trackColor={{ false: '#767577', true: Colors.blue }}
-						/>
-					</View> */}
+						{/* <View style={styles.settingItem}>
+							<Text>Биометрическая защита</Text>
+							<Switch
+								value={biometricEnabled}
+								onValueChange={setBiometricEnabled}
+								trackColor={{ false: '#767577', true: Colors.blue }}
+							/>
+						</View> */}
 
-					<TouchableOpacity 
-						style={styles.settingItem}
-						onPress={handleBufferPress}
-					>
-						<Text>Резервный буфер</Text>
-						<Text style={styles.settingValue}>
-							{safetyBufferPercent}% →
-						</Text>
-					</TouchableOpacity>
+						<TouchableOpacity
+							style={styles.settingItem}
+							onPress={handleBufferPress}
+						>
+							<Text>Резервный буфер</Text>
+							<Text style={styles.settingValue}>{safetyBufferPercent}% →</Text>
+						</TouchableOpacity>
 
-					<TouchableOpacity 
-						style={styles.settingItem}
-						onPress={handleCurrencyPress}
-					>
-						<Text>Валюта</Text>
-						<Text style={styles.settingValue}>
-							{currency.code} {currency.symbol} →
-						</Text>
-					</TouchableOpacity>
+						<TouchableOpacity
+							style={[styles.settingItem, styles.lastItem]}
+							onPress={handleCurrencyPress}
+						>
+							<Text>Валюта</Text>
+							<Text style={styles.settingValue}>
+								{currency.code} {currency.symbol} →
+							</Text>
+						</TouchableOpacity>
 
-					{/* <TouchableOpacity style={styles.settingItem}>
-            <Text>Категории расходов</Text>
-            <Text style={styles.arrowRight}>→</Text>
-          </TouchableOpacity> */}
-				</View>
+						{/* <TouchableOpacity style={styles.settingItem}>
+							<Text>Категории расходов</Text>
+							<Text style={styles.arrowRight}>→</Text>
+						</TouchableOpacity> */}
+					</View>
+				</ScrollView>
 
 				{/* Опасная зона */}
 				<View style={styles.dangerZone}>
@@ -190,14 +189,14 @@ export default function ProfileScreen() {
 						<Text style={styles.resetButtonText}>Сбросить все данные</Text>
 					</TouchableOpacity>
 				</View>
-			</ScrollView>
+			</View>
 
 			<CurrencyPickModal
 				ref={currencyModalRef}
 				handleDismiss={handleCurrencyDismiss}
 			/>
 
-			<BufferSettingsModal 
+			<BufferSettingsModal
 				ref={bufferModalRef}
 				handleDismiss={handleBufferDismiss}
 			/>
@@ -210,7 +209,12 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: '#F8F8F8'
 	},
-	content: {
+	mainContent: {
+		flex: 1,
+		display: 'flex',
+		flexDirection: 'column'
+	},
+	scrollContent: {
 		flex: 1,
 		padding: 16
 	},
@@ -227,7 +231,7 @@ const styles = StyleSheet.create({
 	avatar: {
 		width: 100,
 		height: 100,
-		borderRadius: 50,
+		borderRadius: 50
 	},
 	editBadge: {
 		position: 'absolute',
@@ -290,7 +294,8 @@ const styles = StyleSheet.create({
 		fontSize: 18
 	},
 	dangerZone: {
-		marginVertical:24
+		padding: 16,
+		paddingBottom: 32
 	},
 	resetButton: {
 		backgroundColor: '#FF3B30',
@@ -302,5 +307,8 @@ const styles = StyleSheet.create({
 		color: 'white',
 		fontSize: 16,
 		fontWeight: '600'
+	},
+	lastItem: {
+		borderBottomWidth: 0
 	}
 })
