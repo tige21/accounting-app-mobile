@@ -15,6 +15,8 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { initTaskCleaning } from '@/store/taskStore'
 import AnimateSplashScreen from '@/screens/AnimateSplashScreen'
 
+SplashScreen.hideAsync()
+
 export { ErrorBoundary } from 'expo-router'
 
 export const unstable_settings = {
@@ -74,7 +76,6 @@ export default function RootLayout() {
 
 	useEffect(() => {
 		if (loaded || error) {
-			SplashScreen.hideAsync()
 
 			const user = getData()
 			console.log(user)

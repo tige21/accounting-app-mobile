@@ -36,6 +36,11 @@ import OtherIcon from '@/assets/svg/other-icon'
 import { CATEGORIES } from '@/constants/categories'
 import { getCategoryColor } from '@/utils/categoryColors'
 import UserAvatar from '@/components/UserAvatar'
+import Animated, {
+	useAnimatedStyle,
+	useSharedValue,
+	withTiming
+} from 'react-native-reanimated'
 
 interface IData {
 	category: string
@@ -45,11 +50,13 @@ interface IData {
 
 export default function PieScreen() {
 	const transactions = useTransactionStore(store => store.transactions)
-	const deleteTransaction = useTransactionStore(store => store.deleteTransaction)
+	const deleteTransaction = useTransactionStore(
+		store => store.deleteTransaction
+	)
 	const [selectedTimeFrame, setSelectedTimeFrame] = useState('day')
 	const [isEditing, setIsEditing] = useState(false)
 	const [text, setText] = useState('1000')
-
+	const opacity = useSharedValue(0)
 	const getFilteredData = () => {
 		const { start, end } = getDateRange(
 			selectedTimeFrame as 'day' | 'week' | 'month' | 'year'
@@ -165,38 +172,50 @@ export default function PieScreen() {
 				{
 					text: 'Удалить',
 					onPress: () => {
-						const transactionsToDelete = getFilteredData().filter(t => t.category === category);
-						transactionsToDelete.forEach(t => deleteTransaction(t.id));
+						const transactionsToDelete = getFilteredData().filter(
+							t => t.category === category
+						)
+						transactionsToDelete.forEach(t => deleteTransaction(t.id))
 					},
 					style: 'destructive'
 				}
 			]
-		);
-	};
+		)
+	}
+
+	useEffect(() => {
+		opacity.value = withTiming(1, { duration: 500 })
+	}, [])
+
+	const animatedStyle = useAnimatedStyle(() => {
+		return {
+			opacity: opacity.value
+		}
+	})
 
 	if (!data.length) {
 		return (
 			<SafeAreaView style={styles.safeArea}>
-				<View style={styles.container}>
+				<Animated.View style={[styles.container, animatedStyle]}>
 					<View style={styles.headerRow}>
 						<UserAvatar />
 						<Text style={styles.title}>Расходы</Text>
 					</View>
-					
+
 					<View style={styles.emptyStateContainer}>
 						<Text style={styles.emptyStateText}>
 							У вас пока нет расходов.{'\n'}
 							Добавьте первую транзакцию, чтобы увидеть статистику.
 						</Text>
 					</View>
-				</View>
+				</Animated.View>
 			</SafeAreaView>
 		)
 	}
 
 	return (
 		<SafeAreaView style={styles.safeArea}>
-			<View style={styles.container}>
+			<Animated.View style={[styles.container, animatedStyle]}>
 				<View style={styles.headerRow}>
 					<UserAvatar />
 					<Text style={styles.title}>Расходы</Text>
@@ -267,7 +286,7 @@ export default function PieScreen() {
 						</TouchableOpacity>
 					))}
 				</ScrollView>
-			</View>
+			</Animated.View>
 		</SafeAreaView>
 	)
 }

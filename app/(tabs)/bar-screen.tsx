@@ -5,7 +5,7 @@ import OtherIcon from '@/assets/svg/other-icon'
 import RestaurantsIcon from '@/assets/svg/restaurants-icon'
 import TransportIcon from '@/assets/svg/transport-icon'
 import Switcher from '@/components/Switcher'
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
 	ScrollView,
 	StyleSheet,
@@ -38,6 +38,11 @@ import FreelanceIcon from '@/assets/svg/freelance-icon'
 import CashbackIcon from '@/assets/svg/cashback-icon'
 import { CATEGORIES } from '@/constants/categories'
 import UserAvatar from '@/components/UserAvatar'
+import Animated, {
+	useAnimatedStyle,
+	useSharedValue,
+	withTiming
+} from 'react-native-reanimated'
 
 interface IBarData {
 	category: string
@@ -51,6 +56,17 @@ export default function BarScreen() {
 	const [selectedTimeFrame, setSelectedTimeFrame] = useState('day')
 	const [text, setText] = useState('1000')
 	const [isEditing, setIsEditing] = useState(false)
+	const opacity = useSharedValue(0)
+
+	useEffect(() => {
+		opacity.value = withTiming(1, { duration: 500 })
+	}, [])
+
+	const animatedStyle = useAnimatedStyle(() => {
+		return {
+			opacity: opacity.value
+		}
+	})
 
 	const getFilteredData = () => {
 		const { start, end } = getDateRange(
@@ -199,19 +215,21 @@ export default function BarScreen() {
 				{
 					text: 'Удалить',
 					onPress: () => {
-						const transactionsToDelete = getFilteredData().filter(t => t.category === category);
-						transactionsToDelete.forEach(t => deleteTransaction(t.id));
+						const transactionsToDelete = getFilteredData().filter(
+							t => t.category === category
+						)
+						transactionsToDelete.forEach(t => deleteTransaction(t.id))
 					},
 					style: 'destructive'
 				}
 			]
-		);
-	};
+		)
+	}
 
 	if (!data.length) {
 		return (
 			<SafeAreaView style={styles.safeArea}>
-				<View style={styles.container}>
+				<Animated.View style={[styles.container, animatedStyle]}>
 					<View style={styles.headerRow}>
 						<UserAvatar />
 						<Text style={styles.title}>Статистика</Text>
@@ -223,14 +241,14 @@ export default function BarScreen() {
 							Добавьте первую транзакцию, чтобы увидеть статистику.
 						</Text>
 					</View>
-				</View>
+				</Animated.View>
 			</SafeAreaView>
 		)
 	}
 
 	return (
 		<SafeAreaView style={styles.safeArea}>
-			<View style={{ flex: 1, marginHorizontal: 16, marginVertical: 18 }}>
+			<Animated.View style={[styles.container, animatedStyle]}>
 				<View style={styles.headerRow}>
 					<UserAvatar />
 					<Text style={styles.title}>Статистика</Text>
@@ -315,7 +333,7 @@ export default function BarScreen() {
 						</TouchableOpacity>
 					))}
 				</ScrollView>
-			</View>
+			</Animated.View>
 		</SafeAreaView>
 	)
 }

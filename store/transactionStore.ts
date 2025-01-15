@@ -21,6 +21,7 @@ interface TransactionStore {
   getTotalExpenses: () => number;
   getTotalIncome: () => number;
   clearTransactions: () => void;
+  getMonthlyIncome: (month: number, year: number) => number;
 }
 
 export const useTransactionStore = create<TransactionStore>()(
@@ -68,6 +69,18 @@ export const useTransactionStore = create<TransactionStore>()(
       },
 
       clearTransactions: () => set({ transactions: [] }),
+
+      getMonthlyIncome: (month: number, year: number) => {
+        const { transactions } = get();
+        return transactions
+          .filter((t) => {
+            const date = new Date(t.date);
+            return t.type === 'income' && 
+                   date.getMonth() === month && 
+                   date.getFullYear() === year;
+          })
+          .reduce((sum, t) => sum + t.price, 0);
+      },
     }),
     {
       name: 'transactions-storage',

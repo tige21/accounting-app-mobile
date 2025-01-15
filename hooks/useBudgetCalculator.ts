@@ -41,7 +41,7 @@ export const useBudgetCalculator = () => {
       .reduce((sum, t) => sum + t.price, 0);
 
     const totalBalance = monthlyIncome - monthlyExpenses;
-    const safetyBuffer = totalBalance * (safetyBufferPercent / 100);
+    const safetyBuffer = monthlyIncome * (safetyBufferPercent / 100);
     const availableTotal = totalBalance - safetyBuffer;
 
     // 3. Рассчитываем базовый дневной бюджет

@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 16,
+    padding: 20,
   },
   title: {
     fontSize: 24,

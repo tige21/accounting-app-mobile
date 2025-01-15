@@ -13,9 +13,6 @@ export default function TabLayout() {
 				tabBarActiveTintColor: Colors.blue,
 				tabBarInactiveTintColor: Colors.grey_2,
 				headerShown: false,
-				tabBarStyle: {
-					paddingTop: 5
-				}
 			}}
 		>
 			<Tabs.Screen
@@ -43,7 +40,7 @@ export default function TabLayout() {
 			<Tabs.Screen
 				name='index'
 				options={{
-					href: 'transaction',
+					href: '/transaction',
 					headerShown: false,
 					tabBarIcon: ({}) => (
 						<View style={styles.plusIconContainer}>
@@ -55,7 +52,7 @@ export default function TabLayout() {
 				listeners={() => ({
 					tabPress: (e) => {
 						e.preventDefault()
-						router.push("transaction")
+						router.push("/transaction")
 					},
 				})}
 			/>

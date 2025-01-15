@@ -33,8 +33,8 @@ export default StyleSheet.create({
 		borderRadius: 10,
 		alignItems: 'center',
 		backgroundColor: '#ffffff',
-		padding: 20,
 		marginBottom: 20,
+		paddingHorizontal: 20,
 		flexDirection: 'row',
 		justifyContent: 'space-between'
 	},
@@ -45,8 +45,7 @@ export default StyleSheet.create({
 	},
 	container: {
 		flex: 1,
-		marginHorizontal: 16,
-		marginVertical: 18
+		margin: 20
 	},
 	safeArea: {
 		flex: 1,
@@ -88,13 +87,13 @@ export default StyleSheet.create({
 		marginBottom: 24
 	},
 	headerRow: {
-		flexDirection: 'row'
+		flexDirection: 'row',
+		alignItems: 'center',
 	},
 	title: {
 		fontSize: 28,
 		fontWeight: '600',
 		color: Colors.black,
-		marginBottom: 24
 	},
 	chartContainer: {
 		height: 280,

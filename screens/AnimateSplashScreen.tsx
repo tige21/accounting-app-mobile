@@ -19,7 +19,7 @@ const AnimateSplashScreen = ({ onAnimationFinish }: ISplashScreen) => {
 				ref={animation}
 				autoPlay
 				// source={require('@/assets/images/Oanimation.json')}
-				source={require('@/assets/images/animation.json')}
+				source={require('@/assets/images/anim.json')}
 			/>
 		</View>
 	)

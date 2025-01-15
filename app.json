@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "accounting-app",
-    "slug": "accounting-app",
+    "name": "Wallet Watch",
+    "slug": "walletwatch",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.png",
+    "icon": "./assets/images/appstore.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
@@ -16,14 +16,13 @@
       "**/*"
     ],
     "ios": {
+      "icon": "./assets/images/appstore.png",
       "supportsTablet": true,
-      "bundleIdentifier": "com.walletwatch"
+      "bundleIdentifier": "com.walletwatch",
+      "buildNumber": "2"
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo.png",
-        "backgroundColor": "#f3f3f3"
-      },
+      "icon": "./assets/images/playstore.png",
       "package": "com.walletwatch"
     },
     "web": {
@@ -44,7 +43,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "0f96b575-4c01-4ddd-8e04-f46648056689"
+        "projectId": "bdcbfad9-33d0-4c5b-98e0-fc8046ffd3c0"
       }
     }
   }

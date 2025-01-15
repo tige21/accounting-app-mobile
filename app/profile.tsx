@@ -15,7 +15,6 @@ import Colors from '@/constants/Colors'
 import BackButton from '@/components/BackButton'
 import { useTransactionStore } from '@/store/transactionStore'
 import { useFinanceStore } from '@/store/financeStore'
-import * as ImagePicker from 'expo-image-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { BottomSheetModal } from '@gorhom/bottom-sheet'
 import CurrencyPickModal from '@/components/CurrencyPickModal'
@@ -56,20 +55,6 @@ export default function ProfileScreen() {
 				}
 			]
 		)
-	}
-
-	const handleChangeAvatar = async () => {
-		const result = await ImagePicker.launchImageLibraryAsync({
-			mediaTypes: ImagePicker.MediaTypeOptions.Images,
-			allowsEditing: true,
-			aspect: [1, 1],
-			quality: 1
-		})
-
-		if (!result.canceled) {
-			setAvatarUri(result.assets[0].uri)
-			await AsyncStorage.setItem('userAvatar', result.assets[0].uri)
-		}
 	}
 
 	const toggleDarkMode = () => {

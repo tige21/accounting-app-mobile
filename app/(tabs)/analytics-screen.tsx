@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef } from 'react'
+﻿import React, { useState, useRef, useEffect } from 'react'
 import {
 	View,
 	Text,
@@ -18,6 +18,8 @@ import CalendarPickModal from '@/components/CalendarPickModal'
 import UserAvatar from '@/components/UserAvatar'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useBudgetCalculator } from '@/hooks/useBudgetCalculator'
+import AntDesign from '@expo/vector-icons/AntDesign'
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 
 interface Transaction {
 	id: string
@@ -47,6 +49,18 @@ export default function AnalyticsScreen() {
 	const currentDay = dayjs().date()
 
 	const bottomSheetRef = useRef<BottomSheetModal>(null)
+
+	const opacity = useSharedValue(0)
+
+	useEffect(() => {
+		opacity.value = withTiming(1, { duration: 500 })
+	}, [])
+
+	const animatedStyle = useAnimatedStyle(() => {
+		return {
+			opacity: opacity.value
+		}
+	})
 
 	const handlePresent = () => {
 		bottomSheetRef.current?.present()
@@ -116,24 +130,23 @@ export default function AnalyticsScreen() {
 	return (
 		<SafeAreaView style={styles.container}>
 			<ScrollView style={styles.content}>
-				<View style={styles.headerRow}>
+				<Animated.View style={[styles.headerRow, animatedStyle]}>
 					<UserAvatar />
 					<Text style={styles.title}>Аналитика</Text>
-				</View>
+				</Animated.View>
 
-				{/* Навигация по датам */}
-				<View style={styles.dateNavigator}>
+				<Animated.View style={[styles.dateNavigator, animatedStyle]}>
 					<TouchableOpacity
 						style={styles.dateButton}
 						onPress={() => handleDateChange(-1)}
-					>
-						<Text style={styles.dateButtonText}>←</Text>
+						>
+						<AntDesign name='arrowleft' size={24} color='white' />
 					</TouchableOpacity>
 
 					<View style={styles.dateSelector}>
 						<View style={styles.dateDisplay}>
 							<Text style={styles.dateText}>
-								{selectedDate.format('D MMMM')}
+								{selectedDate.locale('ru').format('D MMMM')}
 							</Text>
 						</View>
 						<CalendarPickButton handlePresent={handlePresent} />
@@ -143,11 +156,11 @@ export default function AnalyticsScreen() {
 						style={styles.dateButton}
 						onPress={() => handleDateChange(1)}
 					>
-						<Text style={styles.dateButtonText}>→</Text>
+						<AntDesign name='arrowright' size={24} color='white' />
 					</TouchableOpacity>
-				</View>
+				</Animated.View>
 
-				<View style={styles.dailyBudgetCard}>
+				<Animated.View style={[styles.dailyBudgetCard, animatedStyle]}>
 					<Text style={styles.label}>Доступно сегодня</Text>
 					<Text style={styles.amount}>
 						{stats.dailyLimit.toFixed(0)} {currency.symbol}
@@ -212,9 +225,9 @@ export default function AnalyticsScreen() {
 							Эта сумма автоматически резервируется для непредвиденных трат
 						</Text>
 					</View>
-				</View>
+				</Animated.View>
 
-				<View style={styles.transactionsCard}>
+				<Animated.View style={[styles.transactionsCard, animatedStyle]}>
 					<Text style={styles.cardTitle}>Транзакции за день</Text>
 
 					{getDayTransactions(selectedDate).length > 0 ? (
@@ -245,9 +258,7 @@ export default function AnalyticsScreen() {
 					) : (
 						<Text style={styles.noDataText}>Нет транзакций за этот день</Text>
 					)}
-				</View>
-
-				{/* Остальные секции... */}
+				</Animated.View>
 
 				<CalendarPickModal
 					handleDateChange={handleDateSelect}
@@ -267,13 +278,12 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		flex: 1,
-		padding: 16
+		padding: 20
 	},
 	title: {
 		fontSize: 28,
 		fontWeight: '600',
-		color: Colors.black,
-		marginBottom: 24
+		color: Colors.black
 	},
 	budgetCard: {
 		backgroundColor: 'white',
@@ -398,7 +408,8 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'space-between',
-		marginBottom: 16
+		marginBottom: 16,
+		marginTop: 16
 	},
 	dateSelector: {
 		flex: 1,
@@ -499,7 +510,8 @@ const styles = StyleSheet.create({
 		marginBottom: 24
 	},
 	headerRow: {
-		flexDirection: 'row'
+		flexDirection: 'row',
+		alignItems: 'center'
 	},
 	bufferInfo: {
 		marginTop: 16,

@@ -8,7 +8,9 @@ import {
 	View,
 	StyleSheet,
 	Alert,
-	TextInput
+	TextInput,
+	TouchableWithoutFeedback,
+	Keyboard
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import HealthIcon from '@/assets/svg/health-icon'
@@ -111,7 +113,7 @@ const styles = StyleSheet.create({
 	},
 	contentToDisplay: {
 		flex: 1,
-		padding: 16,
+		padding: 20,
 		gap: 24
 	},
 	dateRow: {
@@ -144,8 +146,7 @@ const styles = StyleSheet.create({
 	},
 	categoriesContainer: {
 		flexDirection: 'row',
-		flexWrap: 'wrap',
-		gap: 23
+		flexWrap: 'wrap'
 	}
 })
 
@@ -198,71 +199,63 @@ export default function AddScreen() {
 	// 	)
 	// })
 
-	const renderScene = ({route}: {route: {key: string}}) => {
+	const renderScene = ({ route }: { route: { key: string } }) => {
 		switch (route.key) {
 			case 'expenses':
-				return <TransactionForm type='expenses' selectedDate={selectedDate} handlePresent={handlePresent} />
+				return (
+					<TransactionForm
+						type='expenses'
+						selectedDate={selectedDate}
+						handlePresent={handlePresent}
+					/>
+				)
 			case 'income':
-				return <TransactionForm type='income' selectedDate={selectedDate} handlePresent={handlePresent} />
+				return (
+					<TransactionForm
+						type='income'
+						selectedDate={selectedDate}
+						handlePresent={handlePresent}
+					/>
+				)
 		}
 	}
 
 	const renderTabBar = (props: any) => (
-        <TabBar
-            {...props}
-            style={styles.tabBar}
-            indicatorStyle={{ backgroundColor: Colors.blue, color: Colors.blue }}
-            activeColor={Colors.blue}
-            inactiveColor={Colors.grey_2}
-            pressColor='transparent'
-            onTabPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
-        />
-    )
+		<TabBar
+			{...props}
+			style={styles.tabBar}
+			indicatorStyle={{ backgroundColor: Colors.blue, color: Colors.blue }}
+			activeColor={Colors.blue}
+			inactiveColor={Colors.grey_2}
+			pressColor='transparent'
+			onTabPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+		/>
+	)
 
-    return (
-        <SafeAreaView style={{ flex: 1 }}>
-            <KeyboardAvoidingView style={{ flex: 1 }}>
-                <BackButton handleBack={handleBack} />
-
-                <TabView
-                    navigationState={{ index, routes }}
-                    renderScene={renderScene}
-                    onIndexChange={setIndex}
-                    initialLayout={{ width: layout.width }}
-                    renderTabBar={renderTabBar}
-                    style={{ flex: 1 }}
-                />
-
-                <CalendarPickModal
-                    handleDateChange={handleDateChange}
-                    selectedDate={selectedDate}
-                    handleDismiss={handleDismiss}
-                    ref={bottomSheetRef}
-                />
-            </KeyboardAvoidingView>
-        </SafeAreaView>
-    )
 	return (
 		<SafeAreaView style={{ flex: 1 }}>
-			<BackButton handleBack={() => router.back()} />
+			<KeyboardAvoidingView style={{ flex: 1 }}>
+				<BackButton handleBack={handleBack} />
 
-			<TabView
-				navigationState={{ index, routes }}
-				renderScene={renderScene}
-				onIndexChange={setIndex}
-				initialLayout={{ width: layout.width }}
-				renderTabBar={renderTabBar}
-				style={{ flex: 1 }}
-			/>
+				<TabView
+					navigationState={{ index, routes }}
+					renderScene={renderScene}
+					onIndexChange={setIndex}
+					initialLayout={{ width: layout.width }}
+					renderTabBar={renderTabBar}
+					style={{ flex: 1 }}
+				/>
 
-			<CalendarPickModal
-				ref={bottomSheetRef}
-				handleDateChange={handleDateChange}
-				selectedDate={selectedDate}
-				handleDismiss={handleDismiss}
-			/>
+				<CalendarPickModal
+					handleDateChange={handleDateChange}
+					selectedDate={selectedDate}
+					handleDismiss={handleDismiss}
+					ref={bottomSheetRef}
+				/>
+			</KeyboardAvoidingView>
 		</SafeAreaView>
 	)
+
 }
 
 interface TransactionFormProps {
@@ -335,7 +328,8 @@ export function TransactionForm({
 			}
 
 			addTransaction(transaction)
-			router.push('(tabs)')
+			router.push('/(tabs)')
+			Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
 		} catch (error) {
 			console.error('Error saving transaction:', error)
 			Alert.alert('Ошибка', 'Не удалось сохранить транзакцию')
@@ -343,53 +337,57 @@ export function TransactionForm({
 	}
 
 	return (
-		<View style={styles.contentToDisplay}>
-			<View>
-				<Text style={styles.subText}>Сумма</Text>
-				<CommonInput
-					placeholder='Введите сумму'
-					value={amount}
-					onChangeText={handleAmountChange}
-					keyboardType='numeric'
-				/>
-			</View>
-
-			<View style={{ flex: 1 }}>
-				<Text style={styles.subText}>Категория</Text>
-				<View style={styles.categoriesContainer}>
-					{categories[
-						type === 'expenses' ? ECatogories.EXPENSES : ECatogories.INCOME
-					].map(category => (
-						<CategoryButton
-							key={category.id}
-							id={category.id}
-							title={category.title}
-							handleCategory={handleCategoryChange}
-							selectedCategory={selectedCategory}
-							icon={category.icon}
-						/>
-					))}
+		<TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+			<View style={styles.contentToDisplay}>
+				<View>
+					<Text style={styles.subText}>Сумма</Text>
+					<CommonInput
+						placeholder='Введите сумму'
+						value={amount}
+						onChangeText={handleAmountChange}
+						keyboardType='numeric'
+					/>
 				</View>
-			</View>
 
-			<View>
-				<Text style={styles.subText}>Дата</Text>
-				<View style={styles.dateRow}>
-					<View style={{ flex: 1 }}>
-						<CommonInput
-							editable={false}
-							pointerEvents='none'
-							placeholder={formatDate(selectedDate)}
-						/>
-					</View>
-					<View style={{ marginLeft: 34 }}>
-						<CalendarPickButton handlePresent={handlePresent} />
+				<View style={{ flex: 1 }}>
+					<Text style={styles.subText}>Категория</Text>
+					<View style={[styles.categoriesContainer, { width: '100%' }]}>
+						{categories[
+							type === 'expenses' ? ECatogories.EXPENSES : ECatogories.INCOME
+						].map(category => (
+							<View key={category.id} style={{ width: 100 / 5 + '%' }}>
+								<CategoryButton
+									key={category.id}
+									id={category.id}
+									title={category.title}
+									handleCategory={handleCategoryChange}
+									selectedCategory={selectedCategory}
+									icon={category.icon}
+								/>
+							</View>
+						))}
 					</View>
 				</View>
+
+				<View>
+					<Text style={styles.subText}>Дата</Text>
+					<View style={styles.dateRow}>
+						<View style={{ flex: 1 }}>
+							<CommonInput
+								editable={false}
+								pointerEvents='none'
+								placeholder={formatDate(selectedDate)}
+							/>
+						</View>
+						<View style={{ marginLeft: 34 }}>
+							<CalendarPickButton handlePresent={handlePresent} />
+						</View>
+					</View>
+				</View>
+				<View>
+					<CommonButton placeholder='Сохранить' onPress={handleSave} />
+				</View>
 			</View>
-			<View>
-				<CommonButton placeholder='Сохранить' onPress={handleSave} />
-			</View>
-		</View>
+		</TouchableWithoutFeedback>
 	)
 }
