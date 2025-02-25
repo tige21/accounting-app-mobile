@@ -27,11 +27,11 @@ export default StyleSheet.create({
 		gap: 2
 	},
 	placeholderCategory: {
-		fontSize: 8,
+		fontSize: 10,
 		color: Colors.grey_2
 	},
 	selectedText: {
-		fontSize: 8,
+		fontSize: 10,
 		color: Colors.blue
 	}
 })

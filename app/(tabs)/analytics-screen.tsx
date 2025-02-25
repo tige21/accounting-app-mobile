@@ -19,7 +19,14 @@ import UserAvatar from '@/components/UserAvatar'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useBudgetCalculator } from '@/hooks/useBudgetCalculator'
 import AntDesign from '@expo/vector-icons/AntDesign'
-import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated'
+import Animated, {
+	useSharedValue,
+	useAnimatedStyle,
+	withTiming
+} from 'react-native-reanimated'
+import * as Haptics from 'expo-haptics'
+import { useConvertCurrency } from '@/hooks/useConvertCurrency'
+import { useFormatting } from '@/hooks/useFormatting'
 
 interface Transaction {
 	id: string
@@ -32,13 +39,14 @@ interface Transaction {
 }
 
 export default function AnalyticsScreen() {
-	const { transactions, getTotalExpenses, getTotalIncome } =
+	const { transactions, getTotalExpenses, getTotalIncome, deleteTransaction } =
 		useTransactionStore()
 
 	const { monthlyBudget, setMonthlyBudget, getCurrentBalance } =
 		useFinanceStore()
+	const { convertAmount } = useConvertCurrency()
 
-	const { currency } = useSettingsStore()
+	const { formatCurrency } = useFormatting()
 
 	const [selectedDate, setSelectedDate] = useState(dayjs())
 	const [isEditing, setIsEditing] = useState(false)
@@ -89,7 +97,7 @@ export default function AnalyticsScreen() {
 
 	const { calculateBudgetStats } = useBudgetCalculator()
 	const stats = calculateBudgetStats(selectedDate)
-
+	
 	const handleDateChange = (days: number) => {
 		const newDate = selectedDate.add(days, 'day')
 		if (newDate.month() === dayjs().month()) {
@@ -97,35 +105,67 @@ export default function AnalyticsScreen() {
 		}
 	}
 
-	const renderTransactionItem = (transaction: Transaction) => (
-		<View
+	const handleLongPress = (transaction: Transaction) => {
+		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
+		Alert.alert(
+			'Удаление транзакции',
+			'Вы уверены, что хотите удалить эту транзакцию?',
+			[
+				{
+					text: 'Отмена',
+					style: 'cancel'
+				},
+				{
+					text: 'Удалить',
+					onPress: () => {
+						deleteTransaction(transaction.id)
+					},
+					style: 'destructive'
+				}
+			]
+		)
+	}
+
+	const renderTransactionItem = (transaction: Transaction) => {
+		const convertedAmount = convertAmount(transaction.price)
+		
+		return (
+		  <TouchableOpacity
 			key={transaction.id}
 			style={[styles.transactionItem, { borderLeftColor: transaction.color }]}
-		>
+			onLongPress={() => handleLongPress(transaction)}
+			delayLongPress={500}
+		  >
 			<View style={styles.transactionInfo}>
-				<Text style={styles.transactionCategory}>{transaction.category}</Text>
-				<Text style={styles.transactionDescription}>
-					{transaction.description}
-				</Text>
+			  <Text style={styles.transactionCategory}>{transaction.category}</Text>
+			  <Text style={styles.transactionDescription}>
+				{transaction.description}
+			  </Text>
 			</View>
 			<Text
-				style={[
-					styles.transactionAmount,
-					transaction.type === 'income' ? styles.positive : styles.negative
-				]}
+			  style={[
+				styles.transactionAmount,
+				transaction.type === 'income' ? styles.positive : styles.negative
+			  ]}
 			>
-				{transaction.type === 'income' ? '+' : '-'}
-				{transaction.price} ₽
+			  {transaction.type === 'income' ? '+' : '-'}
+			  {formatCurrency(convertedAmount)}
 			</Text>
-		</View>
-	)
+		  </TouchableOpacity>
+		)
+	  }
 
 	// Получение транзакций за выбранный день
 	const getDayTransactions = (date: dayjs.Dayjs) => {
-		return transactions.filter(
-			t => dayjs(t.date).format('YYYY-MM-DD') === date.format('YYYY-MM-DD')
-		)
-	}
+		return transactions
+		  .filter(t => dayjs(t.date).format('YYYY-MM-DD') === date.format('YYYY-MM-DD'))
+		  .map(transaction => ({
+			...transaction,
+			convertedPrice: convertAmount(transaction.price)
+		  }))
+	  }
+
+
 
 	return (
 		<SafeAreaView style={styles.container}>
@@ -139,7 +179,7 @@ export default function AnalyticsScreen() {
 					<TouchableOpacity
 						style={styles.dateButton}
 						onPress={() => handleDateChange(-1)}
-						>
+					>
 						<AntDesign name='arrowleft' size={24} color='white' />
 					</TouchableOpacity>
 
@@ -162,13 +202,11 @@ export default function AnalyticsScreen() {
 
 				<Animated.View style={[styles.dailyBudgetCard, animatedStyle]}>
 					<Text style={styles.label}>Доступно сегодня</Text>
-					<Text style={styles.amount}>
-						{stats.dailyLimit.toFixed(0)} {currency.symbol}
-					</Text>
+					<Text style={styles.amount}>{formatCurrency(stats.dailyLimit)}</Text>
 
 					{stats.debt > 0 && (
 						<Text style={styles.debtText}>
-							Накопленный долг: {stats.debt.toFixed(0)} {currency.symbol}
+							Накопленный долг: {formatCurrency(stats.debt)}
 						</Text>
 					)}
 
@@ -188,7 +226,7 @@ export default function AnalyticsScreen() {
 						<View>
 							<Text style={styles.statsLabel}>Потрачено сегодня</Text>
 							<Text style={[styles.statsValue, styles.negative]}>
-								{stats.todaySpent} {currency.symbol}
+								{formatCurrency(stats.todaySpent)}
 							</Text>
 						</View>
 
@@ -200,7 +238,7 @@ export default function AnalyticsScreen() {
 									stats.totalBalance >= 0 ? styles.positive : styles.negative
 								]}
 							>
-								{stats.totalBalance} {currency.symbol}
+								{formatCurrency(stats.totalBalance)}
 							</Text>
 						</View>
 					</View>
@@ -219,7 +257,7 @@ export default function AnalyticsScreen() {
 							</TouchableOpacity>
 						</View>
 						<Text style={styles.statsValue}>
-							{stats.safetyBuffer.toFixed(0)} {currency.symbol}
+							{formatCurrency(stats.safetyBuffer)}
 						</Text>
 						<Text style={styles.bufferDescription}>
 							Эта сумма автоматически резервируется для непредвиденных трат
@@ -228,37 +266,38 @@ export default function AnalyticsScreen() {
 				</Animated.View>
 
 				<Animated.View style={[styles.transactionsCard, animatedStyle]}>
-					<Text style={styles.cardTitle}>Транзакции за день</Text>
+          <Text style={styles.cardTitle}>Транзакции за день</Text>
 
-					{getDayTransactions(selectedDate).length > 0 ? (
-						<>
-							{/* Доходы */}
-							{getDayTransactions(selectedDate).filter(t => t.type === 'income')
-								.length > 0 && (
-								<>
-									<Text style={styles.transactionTypeHeader}>Доходы</Text>
-									{getDayTransactions(selectedDate)
-										.filter(t => t.type === 'income')
-										.map(renderTransactionItem)}
-								</>
-							)}
+          {getDayTransactions(selectedDate).length > 0 ? (
+            <>
+              {/* Доходы */}
+              {getDayTransactions(selectedDate)
+                .filter(t => t.type === 'income')
+                .length > 0 && (
+                <>
+                  <Text style={styles.transactionTypeHeader}>Доходы</Text>
+                  {getDayTransactions(selectedDate)
+                    .filter(t => t.type === 'income')
+                    .map(renderTransactionItem)}
+                </>
+              )}
 
-							{/* Расходы */}
-							{getDayTransactions(selectedDate).filter(
-								t => t.type === 'expense'
-							).length > 0 && (
-								<>
-									<Text style={styles.transactionTypeHeader}>Расходы</Text>
-									{getDayTransactions(selectedDate)
-										.filter(t => t.type === 'expense')
-										.map(renderTransactionItem)}
-								</>
-							)}
-						</>
-					) : (
-						<Text style={styles.noDataText}>Нет транзакций за этот день</Text>
-					)}
-				</Animated.View>
+              {/* Расходы */}
+              {getDayTransactions(selectedDate)
+                .filter(t => t.type === 'expense')
+                .length > 0 && (
+                <>
+                  <Text style={styles.transactionTypeHeader}>Расходы</Text>
+                  {getDayTransactions(selectedDate)
+                    .filter(t => t.type === 'expense')
+                    .map(renderTransactionItem)}
+                </>
+              )}
+            </>
+          ) : (
+            <Text style={styles.noDataText}>Нет транзакций за этот день</Text>
+          )}
+        </Animated.View>
 
 				<CalendarPickModal
 					handleDateChange={handleDateSelect}

@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "Wallet Watch",
+    "name": "wallet Watch",
     "slug": "walletwatch",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/appstore.png",
     "scheme": "myapp",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
@@ -19,11 +19,20 @@
       "icon": "./assets/images/appstore.png",
       "supportsTablet": true,
       "bundleIdentifier": "com.walletwatch",
-      "buildNumber": "2"
+      "buildNumber": "4",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
+      }
     },
     "android": {
       "icon": "./assets/images/playstore.png",
-      "package": "com.walletwatch"
+      "package": "com.walletwatch",
+      "permissions": [
+        "NOTIFICATIONS",
+        "SCHEDULE_EXACT_ALARM"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -33,7 +42,17 @@
     "plugins": [
       "expo-router",
       "expo-localization",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#ffffff",
+          "sounds": [
+            "./assets/notification-sound.wav"
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

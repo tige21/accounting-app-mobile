@@ -91,7 +91,7 @@ const CalendarPickModal = forwardRef<Ref, CustomBottomSheetModalProps>(
 		const snapPoints = useMemo(() => ['60%'], [])
 		const [date, setDate] = useState<DateData>(initDateData);
 
-		const [markedDates, setMarkedDates] = useState<MarkedDates>({})
+		const [markedDates, setMarkedDates] = useState<MarkedDates>({} as MarkedDates)
 		let currentDate = new Date();
 		let dateArray = [
 		  new Date(currentDate.getTime() + (1 * 24 * 60 * 60 * 1000)),
@@ -109,13 +109,13 @@ const CalendarPickModal = forwardRef<Ref, CustomBottomSheetModalProps>(
 		useEffect(() => {
 			const newMarkedDates = dateArray.reduce((acc, date) => {
 				const dateData = dateDataFromDate(date);
-				acc[dateData.dateString] = {
-					customStyles: {
-						text: {
-						  color: Colors.blue,
-						}
-					  }
-				}
+				// acc[dateData.dateString] = {
+				// 	customStyles: {
+				// 		text: {
+				// 		  color: Colors.blue,
+				// 		}
+				// 	  }
+				// }
 				acc[selectedDate] = {
 					customStyles: {
 						container: {

@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useCallback, useEffect } from 'react'
+﻿import React, { useState, useRef, useCallback, useEffect, memo } from 'react'
 import {
 	View,
 	Text,
@@ -7,13 +7,15 @@ import {
 	StyleSheet,
 	GestureResponderEvent,
 	KeyboardAvoidingView,
-	Platform
+	Platform,
+	Switch
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import {
 	BottomSheetBackdrop,
 	BottomSheetModal,
-	BottomSheetScrollView
+	BottomSheetScrollView,
+	BottomSheetView
 } from '@gorhom/bottom-sheet'
 import CommonInput from '@/components/CommonInput'
 import Colors from '@/constants/Colors'
@@ -28,6 +30,10 @@ import BottomSheetInput from '@/components/BottomSheetInput'
 import * as Haptics from 'expo-haptics'
 import Feather from '@expo/vector-icons/Feather'
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated'
+import { bottomSheetModalStyles } from '@/components/CalendarPickModal/styles'
+import { scheduleTaskNotification } from '@/utils/notifications'
+import TimePickerModal from '@/components/TimePickerModal'
+import { Task, TaskParams } from '@/types/task'
 
 interface Task {
 	id: string
@@ -38,6 +44,8 @@ interface Task {
 	reminder: 'Нет' | 'За 1 час' | 'За 1 день' | 'За 1 неделю'
 	comment?: string
 	isCompleted?: boolean
+	notificationTime?: string // время уведомления в формате "HH:mm"
+	notificationId?: string // ID запланированного уведомления
 }
 
 const renderBackdrop = () =>
@@ -60,9 +68,319 @@ const formatDate = (date: string): string => {
 	return `${day} ${monthName} ${year}`
 }
 
+// Header компонент
+const Header = memo(({ 
+	selectedDate,
+	onCalendarPress 
+}: { 
+	selectedDate: string
+	onCalendarPress: () => void 
+}) => {
+	return (
+		<View style={styles.header}>
+			<View style={styles.headerRow}>
+				<UserAvatar />
+				<Text style={styles.headerText}>Задачи</Text>
+			</View>
+
+			<View style={styles.dateSelector}>
+				<View style={styles.dateDisplay}>
+					<Text style={styles.dateText}>
+						{dayjs(selectedDate).locale('ru').format('D MMMM')}
+					</Text>
+				</View>
+				<CalendarPickButton handlePresent={onCalendarPress} />
+			</View>
+		</View>
+	)
+})
+
+// TaskItem компонент
+const TaskItem = memo(({ 
+	task, 
+	onPress, 
+	onComplete 
+}: { 
+	task: Task
+	onPress: (task: Task) => void
+	onComplete: (task: Task, e: GestureResponderEvent) => void
+}) => {
+	const handlePress = useCallback(() => {
+		onPress(task)
+	}, [task, onPress])
+
+	const handleComplete = useCallback((e: GestureResponderEvent) => {
+		onComplete(task, e)
+	}, [task, onComplete])
+
+	return (
+		<TouchableOpacity
+			style={styles.taskItem}
+			onPress={handlePress}
+		>
+			<View style={styles.taskRow}>
+				<TouchableOpacity
+					style={[
+						styles.checkbox,
+						task.isCompleted && styles.checkboxChecked
+					]}
+					onPress={handleComplete}
+				>
+					{task.isCompleted && (
+						<Feather name='check' size={16} color='white' />
+					)}
+				</TouchableOpacity>
+				<Text
+					style={[
+						styles.taskTitle,
+						task.isCompleted && styles.taskTitleCompleted
+					]}
+				>
+					{task.title}
+				</Text>
+			</View>
+		</TouchableOpacity>
+	)
+})
+
+// TaskList компонент
+const TaskList = memo(({ 
+	tasks, 
+	onTaskPress, 
+	onTaskComplete 
+}: { 
+	tasks: Task[]
+	onTaskPress: (task: Task) => void
+	onTaskComplete: (task: Task, e: GestureResponderEvent) => void
+}) => {
+	return (
+		<ScrollView showsVerticalScrollIndicator={false}>
+			{tasks.map(task => (
+				<TaskItem
+					key={task.id}
+					task={task}
+					onPress={onTaskPress}
+					onComplete={onTaskComplete}
+				/>
+			))}
+		</ScrollView>
+	)
+})
+
+// AddTaskModal компонент
+const AddTaskModal = memo(({ 
+	selectedDate,
+	onSave,
+	onCalendarPress,
+	bottomSheetRef,
+	repeatOptions,
+}: {
+	selectedDate: string
+	onSave: (task: {
+		title: string
+		comment: string
+		repeat: Task['repeat']
+		notificationTime?: string
+		notificationId?: string
+	}) => void
+	onCalendarPress: () => void
+	bottomSheetRef: React.RefObject<BottomSheetModal>
+	repeatOptions: Array<{ value: string; label: string }>
+}) => {
+	const [title, setTitle] = useState('')
+	const [comment, setComment] = useState('')
+	const [selectedRepeat, setSelectedRepeat] = useState<Task['repeat']>('Никогда')
+	const [notificationTime, setNotificationTime] = useState<string | undefined>()
+	const [isNotificationEnabled, setIsNotificationEnabled] = useState(false)
+
+	const timePickerRef = useRef<BottomSheetModal>(null)
+	const repeatBottomSheetRef = useRef<BottomSheetModal>(null)
+
+	const handleTimePress = () => {
+		timePickerRef.current?.present()
+	}
+
+	const handleRepeatPress = () => {
+		repeatBottomSheetRef.current?.present()
+	}
+
+	const handleRepeatSelect = (value: string) => {
+		setSelectedRepeat(value as Task['repeat'])
+		repeatBottomSheetRef.current?.dismiss()
+	}
+
+	const handleSave = () => {
+		if (!title.trim()) return
+
+		onSave({
+			title: title.trim(),
+			comment: comment.trim(),
+			repeat: selectedRepeat,
+			notificationTime: isNotificationEnabled ? notificationTime : undefined
+		})
+
+		// Очищаем форму
+		setTitle('')
+		setComment('')
+		setSelectedRepeat('Никогда')
+		setNotificationTime(undefined)
+		setIsNotificationEnabled(false)
+	}
+
+	return (
+		<BottomSheetScrollView style={styles.modalContainer}>
+			<Text style={styles.modalTitle}>Задача</Text>
+
+			<View style={styles.inputContainer}>
+				<Text style={styles.label}>Название</Text>
+				<CommonInput
+					isModal={Platform.OS === 'ios'}
+					placeholder='Введите название задачи'
+					value={title}
+					onChangeText={setTitle}
+				/>
+			</View>
+
+			<View style={styles.inputContainer}>
+				<Text style={styles.label}>Комментарий</Text>
+				<CommonInput
+					isModal={Platform.OS === 'ios'}
+					placeholder='Введите комментарий'
+					value={comment}
+					onChangeText={setComment}
+				/>
+			</View>
+
+			<View style={styles.inputContainer}>
+				<Text style={styles.label}>Повтор</Text>
+				<TouchableOpacity 
+					style={styles.repeatButton}
+					onPress={handleRepeatPress}
+				>
+					<Text style={styles.repeatButtonText}>
+						{repeatOptions.find(option => option.value === selectedRepeat)?.label || 'Не повторять'}
+					</Text>
+					<Feather name="chevron-down" size={20} color={Colors.grey_2} />
+				</TouchableOpacity>
+			</View>
+
+			<View style={styles.dateContainer}>
+				<Text style={styles.label}>Дата</Text>
+				<View style={styles.dateRow}>
+					<View style={styles.dateInput}>
+						<CommonInput
+							editable={false}
+							placeholder={formatDate(selectedDate)}
+						/>
+					</View>
+					<CalendarPickButton handlePresent={onCalendarPress} />
+				</View>
+			</View>
+
+			<View style={styles.inputContainer}>
+				<Text style={styles.label}>Уведомление</Text>
+				<View style={styles.notificationContainer}>
+					<Switch
+						value={isNotificationEnabled}
+						onValueChange={setIsNotificationEnabled}
+					/>
+					{isNotificationEnabled && (
+						<TouchableOpacity 
+							style={styles.timeButton}
+							onPress={handleTimePress}
+						>
+							<Text style={styles.timeText}>
+								{notificationTime || 'Выберите время'}
+							</Text>
+						</TouchableOpacity>
+					)}
+				</View>
+			</View>
+
+			<TouchableOpacity
+				style={styles.saveButton}
+				onPress={handleSave}
+			>
+				<Text style={styles.saveButtonText}>Сохранить</Text>
+			</TouchableOpacity>
+
+			<TimePickerModal
+				ref={timePickerRef}
+				value={notificationTime}
+				onChange={setNotificationTime}
+				onDismiss={() => timePickerRef.current?.dismiss()}
+			/>
+
+			<BottomSheetModal
+				ref={repeatBottomSheetRef}
+				enableDynamicSizing
+				index={0}
+				enablePanDownToClose
+				backgroundStyle={bottomSheetModalStyles.bottomSheetModal}
+				backdropComponent={renderBackdrop()}
+			>
+				<RepeatModal
+					selectedRepeat={selectedRepeat}
+					repeatOptions={repeatOptions}
+					onRepeatSelect={handleRepeatSelect}
+					bottomSheetRef={repeatBottomSheetRef}
+				/>
+			</BottomSheetModal>
+		</BottomSheetScrollView>
+	)
+})
+
+// RepeatModal компонент
+const RepeatModal = memo(({
+	selectedRepeat,
+	repeatOptions,
+	onRepeatSelect,
+	bottomSheetRef
+}: {
+	selectedRepeat: Task['repeat']
+	repeatOptions: Array<{ value: string; label: string }>
+	onRepeatSelect: (value: string) => void
+	bottomSheetRef: React.RefObject<BottomSheetModal>
+}) => {
+	return (
+		<BottomSheetView style={styles.repeatModalContainer}>
+			<View style={styles.repeatModalHeader}>
+				<Text style={styles.repeatModalTitle}>Повтор</Text>
+				<TouchableOpacity 
+					onPress={() => bottomSheetRef.current?.dismiss()}
+					style={styles.closeButton}
+				>
+					<Feather name="x" size={24} color={Colors.grey_2} />
+				</TouchableOpacity>
+			</View>
+
+			{repeatOptions.map((option) => (
+				<TouchableOpacity
+					key={option.value}
+					style={styles.repeatOption}
+					onPress={() => onRepeatSelect(option.value)}
+				>
+					<Text style={styles.repeatOptionText}>{option.label}</Text>
+					{selectedRepeat === option.value && (
+						<View style={styles.radioOuter}>
+							<Feather name='check' size={16} color={Colors.blue} />
+						</View>
+					)}
+				</TouchableOpacity>
+			))}
+
+			<TouchableOpacity 
+				style={styles.saveButton}
+				onPress={() => bottomSheetRef.current?.dismiss()}
+			>
+				<Text style={styles.saveButtonText}>Сохранить</Text>
+			</TouchableOpacity>
+		</BottomSheetView>
+	)
+})
+
 export default function TaskScreen() {
 	const { tasks, addTask, updateTask } = useTaskStore()
-
 	const [selectedDate, setSelectedDate] = useState<string>(
 		new Date().toISOString()
 	)
@@ -73,12 +391,23 @@ export default function TaskScreen() {
 	const [selectedReminder, setSelectedReminder] =
 		useState<Task['reminder']>('Нет')
 	const [comment, setComment] = useState('')
+	const [notificationTime, setNotificationTime] = useState<string | undefined>()
+	const [isNotificationEnabled, setIsNotificationEnabled] = useState(false)
 
 	const bottomSheetRef = useRef<BottomSheetModal>(null)
 	const taskModalRef = useRef<BottomSheetModal>(null)
 	const calendarRef = useRef<BottomSheetModal>(null)
+	const repeatBottomSheetRef = useRef<BottomSheetModal>(null)
 
 	const opacity = useSharedValue(0)
+
+	const repeatOptions = [
+		{ value: 'Никогда', label: 'Не повторять' },
+		{ value: 'Ежедневно', label: 'Каждый день' },
+		{ value: 'Еженедельно', label: 'Каждую неделю' },
+		{ value: 'Ежемесячно', label: 'Каждый месяц' },
+		{ value: 'Ежегодно', label: 'Каждый год' }
+	]
 
 	useEffect(() => {
 		opacity.value = withTiming(1, { duration: 500 })
@@ -89,20 +418,6 @@ export default function TaskScreen() {
 			opacity: opacity.value
 		}
 	})
-
-	const repeatOptions: Task['repeat'][] = [
-		'Никогда',
-		'Ежедневно',
-		'Еженедельно',
-		'Ежемесячно',
-		'Ежегодно'
-	]
-	const reminderOptions: Task['reminder'][] = [
-		'Нет',
-		'За 1 час',
-		'За 1 день',
-		'За 1 неделю'
-	]
 
 	const handleDismiss = () => {
 		bottomSheetRef.current?.dismiss()
@@ -120,41 +435,71 @@ export default function TaskScreen() {
 		taskModalRef.current?.present()
 	}
 
-	const handleSaveTask = () => {
-		if (!title.trim()) {
-			return
-		}
+	const handleRepeatPress = () => {
+		repeatBottomSheetRef.current?.present()
+	}
 
+	const handleRepeatSelect = (value: string) => {
+		setSelectedRepeat(value as Task['repeat'])
+		repeatBottomSheetRef.current?.dismiss()
+	}
+
+	const handleSaveTask = async (taskData: {
+		title: string
+		comment: string
+		repeat: Task['repeat']
+		notificationTime?: string
+	}) => {
 		const newTask: Task = {
 			id: Date.now().toString(),
-			title,
-			date: selectedDate,
+			title: taskData.title,
+			date: dayjs(selectedDate).toISOString(),
 			time: '12:00',
-			repeat: selectedRepeat,
-			reminder: selectedReminder,
-			comment: comment.trim()
+			repeat: taskData.repeat,
+			reminder: 'Нет',
+			comment: taskData.comment,
+			isCompleted: false,
+			notificationTime: taskData.notificationTime
+		}
+
+		// Если включено уведомление, планируем его
+		if (taskData.notificationTime) {
+			const notificationId = await scheduleTaskNotification({
+				id: newTask.id,
+				title: newTask.title,
+				date: newTask.date,
+				notificationTime: taskData.notificationTime
+			})
+			if (notificationId) {
+				newTask.notificationId = notificationId
+			}
 		}
 
 		addTask(newTask)
 		taskModalRef.current?.dismiss()
-		setTitle('')
-		setComment('')
-		setSelectedRepeat('Никогда')
-		setSelectedReminder('Нет')
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
 	}
 
-	const handleTaskPress = (task: Task) => {
+	const handleTaskPress = useCallback((task: Task) => {
 		router.push({
 			pathname: '/task-details',
-			params: task
+			params: {
+				id: task.id,
+				title: task.title,
+				date: task.date,
+				time: task.time,
+				repeat: task.repeat,
+				reminder: task.reminder,
+				comment: task.comment,
+				isCompleted: task.isCompleted ? 'true' : 'false'
+			}
 		})
-	}
+	}, [])
 
-	const handleTaskComplete = (task: Task, e: GestureResponderEvent) => {
+	const handleTaskComplete = useCallback((task: Task, e: GestureResponderEvent) => {
 		e.stopPropagation()
 		updateTask(task.id, { ...task, isCompleted: !task.isCompleted })
-	}
+	}, [updateTask])
 
 	const handleCalendarPresent = () => {
 		calendarRef.current?.present()
@@ -169,11 +514,38 @@ export default function TaskScreen() {
 		handleCalendarDismiss()
 	}
 
-	const filteredTasks = tasks.filter(
-		task =>
-			dayjs(task.date).format('YYYY-MM-DD') ===
-			dayjs(selectedDate).format('YYYY-MM-DD')
-	)
+	const filteredTasks = tasks.filter(task => {
+		const taskDate = dayjs(task.date).startOf('day')
+		const selectedDay = dayjs(selectedDate).startOf('day')
+		const today = dayjs().startOf('day')
+		
+		// Проверяем базовое совпадение дат
+		if (taskDate.isSame(selectedDay)) {
+			return true
+		}
+
+		// Если выбранная дата меньше даты создания задачи, не показываем
+		if (selectedDay.isBefore(taskDate)) {
+			return false
+		}
+
+		// Проверяем повторяющиеся задачи
+		switch (task.repeat) {
+			case 'Ежедневно':
+				// Показываем только если выбранная дата не раньше даты создания
+				return !selectedDay.isBefore(taskDate)
+			case 'Еженедельно':
+				return taskDate.day() === selectedDay.day() && !selectedDay.isBefore(taskDate)
+			case 'Ежемесячно':
+				return taskDate.date() === selectedDay.date() && !selectedDay.isBefore(taskDate)
+			case 'Ежегодно':
+				return taskDate.month() === selectedDay.month() && 
+					   taskDate.date() === selectedDay.date() && 
+					   !selectedDay.isBefore(taskDate)
+			default:
+				return false
+		}
+	})
 
 	return (
 		<SafeAreaView style={styles.container}>
@@ -182,53 +554,16 @@ export default function TaskScreen() {
 				style={{ flex: 1 }}
 			>
 				<Animated.View style={[styles.content, animatedStyle]}>
-					<View style={styles.header}>
-						<View style={styles.headerRow}>
-							<UserAvatar />
-							<Text style={styles.headerText}>Задачи</Text>
-						</View>
-
-						<View style={styles.dateSelector}>
-							<View style={styles.dateDisplay}>
-								<Text style={styles.dateText}>
-									{dayjs(selectedDate).locale('ru').format('D MMMM')}
-								</Text>
-							</View>
-							<CalendarPickButton handlePresent={handleCalendarPresent} />
-						</View>
-					</View>
-
-					<ScrollView showsVerticalScrollIndicator={false}>
-						{filteredTasks.map(task => (
-							<TouchableOpacity
-								key={task.id}
-								style={styles.taskItem}
-								onPress={() => handleTaskPress(task)}
-							>
-								<View style={styles.taskRow}>
-									<TouchableOpacity
-										style={[
-											styles.checkbox,
-											task.isCompleted && styles.checkboxChecked
-										]}
-										onPress={e => handleTaskComplete(task, e)}
-									>
-										{task.isCompleted && (
-											<Feather name='check' size={16} color='white' />
-										)}
-									</TouchableOpacity>
-									<Text
-										style={[
-											styles.taskTitle,
-											task.isCompleted && styles.taskTitleCompleted
-										]}
-									>
-										{task.title}
-									</Text>
-								</View>
-							</TouchableOpacity>
-						))}
-					</ScrollView>
+					<Header 
+						selectedDate={selectedDate} 
+						onCalendarPress={handleCalendarPresent}
+					/>
+					
+					<TaskList
+						tasks={filteredTasks}
+						onTaskPress={handleTaskPress}
+						onTaskComplete={handleTaskComplete}
+					/>
 
 					<TouchableOpacity onPress={handleAddTask} style={styles.addButton}>
 						<Text style={styles.addButtonText}>Добавить задачу</Text>
@@ -240,51 +575,32 @@ export default function TaskScreen() {
 					enableDynamicSizing
 					index={0}
 					enablePanDownToClose
+					backgroundStyle={bottomSheetModalStyles.bottomSheetModal}
 					backdropComponent={renderBackdrop()}
 				>
-					<BottomSheetScrollView style={styles.modalContainer}>
-						<Text style={styles.modalTitle}>Задача</Text>
+					<AddTaskModal
+						selectedDate={selectedDate}
+						onSave={handleSaveTask}
+						onCalendarPress={handleCalendarPresent}
+						bottomSheetRef={taskModalRef}
+						repeatOptions={repeatOptions}
+					/>
+				</BottomSheetModal>
 
-						<View style={styles.inputContainer}>
-							<Text style={styles.label}>Название</Text>
-							<CommonInput
-								isModal={Platform.OS === 'ios' ? true : false}
-								placeholder='Введите название задачи'
-								value={title}
-								onChangeText={setTitle}
-							/>
-						</View>
-
-						<View style={styles.inputContainer}>
-							<Text style={styles.label}>Комментарий</Text>
-							<CommonInput
-								isModal={Platform.OS === 'ios' ? true : false}
-								placeholder='Введите комментарий'
-								value={comment}
-								onChangeText={setComment}
-							/>
-						</View>
-
-						<View style={styles.dateContainer}>
-							<Text style={styles.label}>Дата</Text>
-							<View style={styles.dateRow}>
-								<View style={styles.dateInput}>
-									<CommonInput
-										editable={false}
-										placeholder={formatDate(selectedDate)}
-									/>
-								</View>
-								<CalendarPickButton handlePresent={handleCalendarPresent} />
-							</View>
-						</View>
-
-						<TouchableOpacity
-							style={styles.saveButton}
-							onPress={handleSaveTask}
-						>
-							<Text style={styles.saveButtonText}>Сохранить</Text>
-						</TouchableOpacity>
-					</BottomSheetScrollView>
+				<BottomSheetModal
+					ref={repeatBottomSheetRef}
+					enableDynamicSizing
+					index={0}
+					enablePanDownToClose
+					backgroundStyle={bottomSheetModalStyles.bottomSheetModal}
+					backdropComponent={renderBackdrop()}
+				>
+					<RepeatModal
+						selectedRepeat={selectedRepeat}
+						repeatOptions={repeatOptions}
+						onRepeatSelect={handleRepeatSelect}
+						bottomSheetRef={repeatBottomSheetRef}
+					/>
 				</BottomSheetModal>
 
 				<CalendarPickModal
@@ -308,7 +624,7 @@ const styles = StyleSheet.create({
 		margin: 20
 	},
 	header: {
-		marginBottom: 20,
+		marginBottom: 10,
 		gap: 20
 	},
 	headerText: {
@@ -405,6 +721,58 @@ const styles = StyleSheet.create({
 	selectedOptionText: {
 		color: 'white'
 	},
+	repeatButton: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		padding: 12,
+		borderRadius: 8
+	  },
+	  repeatButtonText: {
+		fontSize: 16,
+		color: Colors.black
+	  },
+	  repeatModalContainer: {
+		padding: 16,
+	  },
+	  repeatModalHeader: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		marginBottom: 24
+	  },
+	  repeatModalTitle: {
+		fontSize: 20,
+		fontWeight: '600',
+		color: Colors.black
+	  },
+	  closeButton: {
+		padding: 4
+	  },
+	  repeatOption: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		paddingVertical: 16,
+		paddingHorizontal: 4
+	  },
+	  repeatOptionText: {
+		fontSize: 16,
+		color: Colors.black
+	  },
+	  radioOuter: {
+		width: 20,
+		height: 20,
+		
+		alignItems: 'center',
+		justifyContent: 'center'
+	  },
+	  radioInner: {
+		width: 12,
+		height: 12,
+		borderRadius: 6,
+		backgroundColor: Colors.blue
+	  },
 	saveButton: {
 		backgroundColor: Colors.blue,
 		padding: 16,
@@ -442,5 +810,19 @@ const styles = StyleSheet.create({
 	headerRow: {
 		flexDirection: 'row',
 		alignItems: 'center'
+	},
+	notificationContainer: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		backgroundColor: 'white',
+		paddingTop: 12,
+	},
+	timeButton: {
+		borderRadius: 8,
+		marginLeft: 12
+	},
+	timeText: {
+		fontSize: 16,
+		color: Colors.black
 	}
 })

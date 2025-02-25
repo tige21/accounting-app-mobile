@@ -45,7 +45,7 @@ export default StyleSheet.create({
 	},
 	container: {
 		flex: 1,
-		margin: 20
+		margin: 20,
 	},
 	safeArea: {
 		flex: 1,
@@ -59,7 +59,7 @@ export default StyleSheet.create({
 
 	pieChartWrapper: {
 		alignItems: 'center',
-		marginBottom: 30
+		marginBottom: 30,
 	},
 	categoryIcon: {
 		borderRadius: 50,
@@ -118,14 +118,12 @@ export default StyleSheet.create({
 	},
 	emptyStateContainer: {
 		flex: 1,
-		justifyContent: 'center',
 		alignItems: 'center',
-		padding: 20
+		justifyContent: 'center'
 	},
 	emptyStateText: {
 		fontSize: 18,
 		color: '#666',
-		textAlign: 'center',
 		lineHeight: 24
-	}    
+	}
 })

@@ -3,14 +3,16 @@ import Colors from '@/constants/Colors'
 import { BottomSheetModal } from '@gorhom/bottom-sheet'
 import React, { useRef, useState } from 'react'
 import {
-	KeyboardAvoidingView,
 	Text,
 	View,
 	StyleSheet,
 	Alert,
 	TextInput,
 	TouchableWithoutFeedback,
-	Keyboard
+	Keyboard,
+	Platform,
+	ScrollView,
+	KeyboardAvoidingView
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import HealthIcon from '@/assets/svg/health-icon'
@@ -48,6 +50,7 @@ import CalendarPickModal from '@/components/CalendarPickModal'
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view'
 import { useWindowDimensions } from 'react-native'
 import * as Haptics from 'expo-haptics'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 dayjs.locale('ru')
 dayjs.extend(localeData)
@@ -56,35 +59,133 @@ const INITIAL_DATE = new Date()
 
 const categories = {
 	[ECatogories.EXPENSES]: [
-		{ id: 19, title: CATEGORIES.EXPENSES.HEALTH, icon: <HealthIcon /> },
-		{ id: 1, title: CATEGORIES.EXPENSES.TRANSPORT, icon: <TransportIcon /> },
-		{ id: 2, title: CATEGORIES.EXPENSES.PETS, icon: <PetsIcon /> },
-		{ id: 3, title: CATEGORIES.EXPENSES.BEAUTY, icon: <BeautyIcon /> },
-		{ id: 4, title: CATEGORIES.EXPENSES.EDUCATION, icon: <EducationIcon /> },
+		{
+			id: 19,
+			title: CATEGORIES.EXPENSES.HEALTH,
+			icon: <HealthIcon color={getCategoryColor(CATEGORIES.EXPENSES.HEALTH)} />
+		},
+		{
+			id: 1,
+			title: CATEGORIES.EXPENSES.TRANSPORT,
+			icon: (
+				<TransportIcon
+					color={getCategoryColor(CATEGORIES.EXPENSES.TRANSPORT)}
+				/>
+			)
+		},
+		{
+			id: 2,
+			title: CATEGORIES.EXPENSES.PETS,
+			icon: <PetsIcon color={getCategoryColor(CATEGORIES.EXPENSES.PETS)} />
+		},
+		{
+			id: 3,
+			title: CATEGORIES.EXPENSES.BEAUTY,
+			icon: <BeautyIcon color={getCategoryColor(CATEGORIES.EXPENSES.BEAUTY)} />
+		},
+		{
+			id: 4,
+			title: CATEGORIES.EXPENSES.EDUCATION,
+			icon: (
+				<EducationIcon
+					color={getCategoryColor(CATEGORIES.EXPENSES.EDUCATION)}
+				/>
+			)
+		},
 		{
 			id: 5,
 			title: CATEGORIES.EXPENSES.TRANSFERS,
-			icon: <TransactionsIcon />
+			icon: (
+				<TransactionsIcon
+					color={getCategoryColor(CATEGORIES.EXPENSES.TRANSFERS)}
+				/>
+			)
 		},
-		{ id: 6, title: CATEGORIES.EXPENSES.CAFE, icon: <RestaurantsIcon /> },
+		{
+			id: 6,
+			title: CATEGORIES.EXPENSES.CAFE,
+			icon: (
+				<RestaurantsIcon color={getCategoryColor(CATEGORIES.EXPENSES.CAFE)} />
+			)
+		},
 		{
 			id: 7,
 			title: CATEGORIES.EXPENSES.ENTERTAINMENT,
-			icon: <EntertainmentIcon />
+			icon: (
+				<EntertainmentIcon
+					color={getCategoryColor(CATEGORIES.EXPENSES.ENTERTAINMENT)}
+				/>
+			)
 		},
-		{ id: 8, title: CATEGORIES.EXPENSES.GROCERIES, icon: <GroceriesIcon /> },
-		{ id: 9, title: CATEGORIES.EXPENSES.HOUSE, icon: <HouseIcon /> },
-		{ id: 10, title: CATEGORIES.EXPENSES.OTHER, icon: <OtherIcon /> }
+		{
+			id: 8,
+			title: CATEGORIES.EXPENSES.GROCERIES,
+			icon: (
+				<GroceriesIcon
+					color={getCategoryColor(CATEGORIES.EXPENSES.GROCERIES)}
+				/>
+			)
+		},
+		{
+			id: 9,
+			title: CATEGORIES.EXPENSES.HOUSE,
+			icon: <HouseIcon color={getCategoryColor(CATEGORIES.EXPENSES.HOUSE)} />
+		},
+		{
+			id: 10,
+			title: CATEGORIES.EXPENSES.OTHER,
+			icon: <OtherIcon color={getCategoryColor(CATEGORIES.EXPENSES.OTHER)} />
+		}
 	],
 	[ECatogories.INCOME]: [
-		{ id: 11, title: CATEGORIES.INCOME.PASSIVE, icon: <PassiveIncomeIcon /> },
-		{ id: 12, title: CATEGORIES.INCOME.GIFT, icon: <GiftIcon /> },
-		{ id: 13, title: CATEGORIES.INCOME.SALARY, icon: <SalaryIcon /> },
-		{ id: 14, title: CATEGORIES.INCOME.STOCKS, icon: <StockIcon /> },
-		{ id: 15, title: CATEGORIES.INCOME.ADVANCE, icon: <AdvanceIcon /> },
-		{ id: 16, title: CATEGORIES.INCOME.FREELANCE, icon: <FreelanceIcon /> },
-		{ id: 17, title: CATEGORIES.INCOME.CASHBACK, icon: <CashbackIcon /> },
-		{ id: 18, title: CATEGORIES.INCOME.OTHER, icon: <OtherIcon /> }
+		{
+			id: 11,
+			title: CATEGORIES.INCOME.PASSIVE,
+			icon: (
+				<PassiveIncomeIcon
+					color={getCategoryColor(CATEGORIES.INCOME.PASSIVE)}
+				/>
+			)
+		},
+		{
+			id: 12,
+			title: CATEGORIES.INCOME.GIFT,
+			icon: <GiftIcon color={getCategoryColor(CATEGORIES.INCOME.GIFT)} />
+		},
+		{
+			id: 13,
+			title: CATEGORIES.INCOME.SALARY,
+			icon: <SalaryIcon color={getCategoryColor(CATEGORIES.INCOME.SALARY)} />
+		},
+		{
+			id: 14,
+			title: CATEGORIES.INCOME.STOCKS,
+			icon: <StockIcon color={getCategoryColor(CATEGORIES.INCOME.STOCKS)} />
+		},
+		{
+			id: 15,
+			title: CATEGORIES.INCOME.ADVANCE,
+			icon: <AdvanceIcon color={getCategoryColor(CATEGORIES.INCOME.ADVANCE)} />
+		},
+		{
+			id: 16,
+			title: CATEGORIES.INCOME.FREELANCE,
+			icon: (
+				<FreelanceIcon color={getCategoryColor(CATEGORIES.INCOME.FREELANCE)} />
+			)
+		},
+		{
+			id: 17,
+			title: CATEGORIES.INCOME.CASHBACK,
+			icon: (
+				<CashbackIcon color={getCategoryColor(CATEGORIES.INCOME.CASHBACK)} />
+			)
+		},
+		{
+			id: 18,
+			title: CATEGORIES.INCOME.OTHER,
+			icon: <OtherIcon color={getCategoryColor(CATEGORIES.INCOME.OTHER)} />
+		}
 	]
 }
 
@@ -114,7 +215,8 @@ const styles = StyleSheet.create({
 	contentToDisplay: {
 		flex: 1,
 		padding: 20,
-		gap: 24
+		gap: 24,
+		height: '100%'
 	},
 	dateRow: {
 		width: '100%',
@@ -147,6 +249,9 @@ const styles = StyleSheet.create({
 	categoriesContainer: {
 		flexDirection: 'row',
 		flexWrap: 'wrap'
+	},
+	categoriesButton: {
+		width: `${100 / 5}%`
 	}
 })
 
@@ -234,28 +339,25 @@ export default function AddScreen() {
 
 	return (
 		<SafeAreaView style={{ flex: 1 }}>
-			<KeyboardAvoidingView style={{ flex: 1 }}>
-				<BackButton handleBack={handleBack} />
+			<BackButton handleBack={handleBack} />
 
-				<TabView
-					navigationState={{ index, routes }}
-					renderScene={renderScene}
-					onIndexChange={setIndex}
-					initialLayout={{ width: layout.width }}
-					renderTabBar={renderTabBar}
-					style={{ flex: 1 }}
-				/>
+			<TabView
+				navigationState={{ index, routes }}
+				renderScene={renderScene}
+				onIndexChange={setIndex}
+				initialLayout={{ width: layout.width }}
+				renderTabBar={renderTabBar}
+				style={{ flex: 1 }}
+			/>
 
-				<CalendarPickModal
-					handleDateChange={handleDateChange}
-					selectedDate={selectedDate}
-					handleDismiss={handleDismiss}
-					ref={bottomSheetRef}
-				/>
-			</KeyboardAvoidingView>
+			<CalendarPickModal
+				handleDateChange={handleDateChange}
+				selectedDate={selectedDate}
+				handleDismiss={handleDismiss}
+				ref={bottomSheetRef}
+			/>
 		</SafeAreaView>
 	)
-
 }
 
 interface TransactionFormProps {
@@ -270,7 +372,7 @@ export function TransactionForm({
 	handlePresent
 }: TransactionFormProps) {
 	const [amount, setAmount] = useState('')
-	const [selectedCategory, setSelectedCategory] = useState(null)
+	const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
 	const addTransaction = useTransactionStore(state => state.addTransaction)
 
 	const handleCategoryChange = (categoryId: number) => {
@@ -337,57 +439,72 @@ export function TransactionForm({
 	}
 
 	return (
-		<TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-			<View style={styles.contentToDisplay}>
-				<View>
-					<Text style={styles.subText}>Сумма</Text>
-					<CommonInput
-						placeholder='Введите сумму'
-						value={amount}
-						onChangeText={handleAmountChange}
-						keyboardType='numeric'
-					/>
-				</View>
-
-				<View style={{ flex: 1 }}>
-					<Text style={styles.subText}>Категория</Text>
-					<View style={[styles.categoriesContainer, { width: '100%' }]}>
-						{categories[
-							type === 'expenses' ? ECatogories.EXPENSES : ECatogories.INCOME
-						].map(category => (
-							<View key={category.id} style={{ width: 100 / 5 + '%' }}>
-								<CategoryButton
-									key={category.id}
-									id={category.id}
-									title={category.title}
-									handleCategory={handleCategoryChange}
-									selectedCategory={selectedCategory}
-									icon={category.icon}
-								/>
-							</View>
-						))}
-					</View>
-				</View>
-
-				<View>
-					<Text style={styles.subText}>Дата</Text>
-					<View style={styles.dateRow}>
-						<View style={{ flex: 1 }}>
+		<KeyboardAvoidingView
+			style={{ flex: 1 }}
+			behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+		>
+			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+				<ScrollView
+					contentContainerStyle={{ flexGrow: 1 }}
+					keyboardShouldPersistTaps='handled'
+				>
+					<View style={styles.contentToDisplay}>
+						<View>
+							<Text style={styles.subText}>Сумма</Text>
 							<CommonInput
-								editable={false}
-								pointerEvents='none'
-								placeholder={formatDate(selectedDate)}
+								placeholder='Введите сумму'
+								value={amount}
+								onChangeText={handleAmountChange}
+								keyboardType='numeric'
 							/>
 						</View>
-						<View style={{ marginLeft: 34 }}>
-							<CalendarPickButton handlePresent={handlePresent} />
+
+						<View style={{ flex: 1 }}>
+							<Text style={styles.subText}>Категория</Text>
+							<View style={[styles.categoriesContainer, { width: '100%' }]}>
+								{categories[
+									type === 'expenses'
+										? ECatogories.EXPENSES
+										: ECatogories.INCOME
+								].map(category => (
+									<View key={category.id} style={styles.categoriesButton}>
+										<CategoryButton
+											key={category.id}
+											id={category.id}
+											title={category.title}
+											handleCategory={handleCategoryChange}
+											selectedCategory={selectedCategory}
+											icon={category.icon}
+										/>
+									</View>
+								))}
+							</View>
+						</View>
+
+						{/* Блок с датой */}
+						<View>
+							<Text style={styles.subText}>Дата</Text>
+							<View style={styles.dateRow}>
+								<View style={{ flex: 1 }}>
+									<CommonInput
+										editable={false}
+										pointerEvents='none'
+										placeholder={formatDate(selectedDate)}
+									/>
+								</View>
+								<View style={{ marginLeft: 34 }}>
+									<CalendarPickButton handlePresent={handlePresent} />
+								</View>
+							</View>
+						</View>
+
+						{/* Кнопка "Сохранить" */}
+						<View>
+							<CommonButton placeholder='Сохранить' onPress={handleSave} />
 						</View>
 					</View>
-				</View>
-				<View>
-					<CommonButton placeholder='Сохранить' onPress={handleSave} />
-				</View>
-			</View>
-		</TouchableWithoutFeedback>
+				</ScrollView>
+			</TouchableWithoutFeedback>
+		</KeyboardAvoidingView>
 	)
 }

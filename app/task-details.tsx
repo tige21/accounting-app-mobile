@@ -6,6 +6,7 @@ import Colors from '@/constants/Colors'
 import BackButton from '@/components/BackButton'
 import { useTaskStore } from '@/store/taskStore'
 import Feather from '@expo/vector-icons/Feather'
+import { Task, TaskParams } from '@/types/task'
 
 interface Task {
 	id: string
@@ -16,10 +17,32 @@ interface Task {
 	reminder: 'Нет' | 'За 1 час' | 'За 1 день' | 'За 1 неделю'
 	comment?: string
 	isCompleted?: boolean
+	notificationTime?: string
+}
+
+const repeatOptions = [
+	{ value: 'Никогда', label: 'Не повторять' },
+	{ value: 'Ежедневно', label: 'Каждый день' },
+	{ value: 'Еженедельно', label: 'Каждую неделю' },
+	{ value: 'Ежемесячно', label: 'Каждый месяц' },
+	{ value: 'Ежегодно', label: 'Каждый год' }
+]
+
+type RepeatType = Task['repeat']
+
+interface TaskParams extends Record<string, string | undefined> {
+	id: string
+	title: string
+	date: string
+	time: string
+	repeat: Task['repeat']
+	reminder: string
+	comment?: string
+	isCompleted?: string
 }
 
 export default function TaskDetailsScreen() {
-	const params = useLocalSearchParams<Task>()
+	const params = useLocalSearchParams<TaskParams>()
 	const task = useTaskStore(state => state.tasks.find(t => t.id === params.id))
 
 	const deleteTask = useTaskStore(state => state.deleteTask)
@@ -60,7 +83,10 @@ export default function TaskDetailsScreen() {
 	const handleEdit = () => {
 		router.push({
 			pathname: '/edit-task',
-			params: params
+			params: {
+				...params,
+				repeat: task?.repeat || 'Никогда'
+			}
 		})
 	}
 
@@ -104,27 +130,31 @@ export default function TaskDetailsScreen() {
 					<Text style={styles.value}>{formatDate(params.date)}</Text>
 				</View>
 
-				<View style={styles.section}>
+				{/* <View style={styles.section}>
 					<Text style={styles.label}>Время</Text>
 					<Text style={styles.value}>{params.time}</Text>
-				</View>
+				</View> */}
 
 				<View style={styles.section}>
 					<Text style={styles.label}>Повтор</Text>
-					<Text style={styles.value}>{params.repeat}</Text>
-				</View>
-
-				<View style={styles.section}>
-					<Text style={styles.label}>Напоминание</Text>
-					<Text style={styles.value}>{params.reminder}</Text>
+					<Text style={styles.value}>
+						{repeatOptions.find(option => option.value === task?.repeat)?.label || 'Не повторять'}
+					</Text>
 				</View>
 
 				<View style={styles.section}>
 					<Text style={styles.label}>Комментарий</Text>
 					<Text style={styles.value}>
-						{params.comment || 'Нет комментария'}
+						{task?.comment || 'Нет комментария'}
 					</Text>
 				</View>
+
+				{task?.notificationTime && (
+					<View style={styles.section}>
+						<Text style={styles.label}>Уведомление</Text>
+						<Text style={styles.value}>{task.notificationTime}</Text>
+					</View>
+				)}
 
 				<View style={styles.buttonContainer}>
 					<TouchableOpacity style={styles.editButton} onPress={handleEdit}>

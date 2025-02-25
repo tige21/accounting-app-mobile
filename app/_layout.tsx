@@ -11,9 +11,12 @@ import React, { useEffect, useState } from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import uuid from 'react-native-uuid'
 import '../constants/i18n/i18n.config'
-import { QueryClient, QueryClientProvider } from 'react-query'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { initTaskCleaning } from '@/store/taskStore'
 import AnimateSplashScreen from '@/screens/AnimateSplashScreen'
+import { useCurrencyRates } from '@/features/hooks/useCurrencyRates'
+import { useSettingsStore } from '@/store/settingsStore'
+import { NotificationsProvider } from '@/components/NotificationsProvider'
 
 SplashScreen.hideAsync()
 
@@ -21,6 +24,28 @@ export { ErrorBoundary } from 'expo-router'
 
 export const unstable_settings = {
 	initialRouteName: '(tabs)'
+}
+
+function CurrencyRatesInitializer() {
+	const { data: ratesData } = useCurrencyRates()
+	const updateCurrencyRates = useSettingsStore(
+		state => state.updateCurrencyRates
+	)
+
+	useEffect(() => {
+		if (ratesData) {
+			const rates = Object.entries(ratesData.Valute).reduce(
+				(acc, [code, data]) => ({
+					...acc,
+					[code]: data.Value
+				}),
+				{}
+			)
+			updateCurrencyRates(rates)
+		}
+	}, [ratesData])
+
+	return null
 }
 
 export default function RootLayout() {
@@ -35,7 +60,7 @@ export default function RootLayout() {
 		Localization.getLocales()[0].languageCode || 'ru'
 	)
 
-	const queryClient = new QueryClient();
+	const queryClient = new QueryClient()
 
 	useEffect(() => {
 		if (error) throw error
@@ -76,7 +101,6 @@ export default function RootLayout() {
 
 	useEffect(() => {
 		if (loaded || error) {
-
 			const user = getData()
 			console.log(user)
 			if (!user) {
@@ -107,23 +131,32 @@ export default function RootLayout() {
 	}
 
 	return (
-		<QueryClientProvider client={queryClient}>
-			<GestureHandlerRootView style={{ flex: 1 }}>
-				<BottomSheetModalProvider>
-					{/* <ThemeProvider
-						value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
-					> */}
-					<Stack>
-						<Stack.Screen name='(tabs)' options={{ headerShown: false }} />
-						<Stack.Screen name='transaction' options={{ headerShown: false }} />
-						<Stack.Screen name='task-details' options={{ headerShown: false }} />
-						<Stack.Screen name='edit-task' options={{ headerShown: false }} />
-						<Stack.Screen name='profile' options={{ headerShown: false }} />
-						<Stack.Screen name='transaction-history' options={{ headerShown: false }} />
-					</Stack>
-					{/* </ThemeProvider> */}
-				</BottomSheetModalProvider>
-			</GestureHandlerRootView>
-		</QueryClientProvider>
+		<NotificationsProvider>
+			<QueryClientProvider client={queryClient}>
+				<CurrencyRatesInitializer />
+				<GestureHandlerRootView style={{ flex: 1 }}>
+					<BottomSheetModalProvider>
+						{/* <ThemeProvider
+							value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
+						> */}
+						<Stack>
+							<Stack.Screen name='(tabs)' options={{ headerShown: false }} />
+							<Stack.Screen name='transaction' options={{ headerShown: false }} />
+							<Stack.Screen
+								name='task-details'
+								options={{ headerShown: false }}
+							/>
+							<Stack.Screen name='edit-task' options={{ headerShown: false }} />
+							<Stack.Screen name='profile' options={{ headerShown: false }} />
+							<Stack.Screen
+								name='transaction-history'
+								options={{ headerShown: false }}
+							/>
+						</Stack>
+						{/* </ThemeProvider> */}
+					</BottomSheetModalProvider>
+				</GestureHandlerRootView>
+			</QueryClientProvider>
+		</NotificationsProvider>
 	)
 }

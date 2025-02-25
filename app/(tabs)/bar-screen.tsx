@@ -6,15 +6,7 @@ import RestaurantsIcon from '@/assets/svg/restaurants-icon'
 import TransportIcon from '@/assets/svg/transport-icon'
 import Switcher from '@/components/Switcher'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import {
-	ScrollView,
-	StyleSheet,
-	Text,
-	TextInput,
-	TouchableOpacity,
-	View,
-	Alert
-} from 'react-native'
+import { ScrollView, Text, TouchableOpacity, View, Alert } from 'react-native'
 import { BarChart } from 'react-native-gifted-charts'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import styles from '../styles'
@@ -43,6 +35,8 @@ import Animated, {
 	useSharedValue,
 	withTiming
 } from 'react-native-reanimated'
+import * as Haptics from 'expo-haptics'
+import TransactionListItem from '@/components/TransactionListItem'
 
 interface IBarData {
 	category: string
@@ -204,6 +198,7 @@ export default function BarScreen() {
 	const chartData = transformData()
 
 	const handleLongPress = (category: string) => {
+		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
 		Alert.alert(
 			'Удаление транзакций',
 			'Вы уверены, что хотите удалить все транзакции этой категории?',
@@ -226,7 +221,12 @@ export default function BarScreen() {
 		)
 	}
 
-	if (!data.length) {
+	// Проверяем наличие всех транзакций типа expense
+	const hasAnyExpenses = transactions.some(t => t.type === 'expense')
+	// Проверяем наличие транзакций за выбранный период
+	const hasExpensesForPeriod = data.length > 0
+
+	if (!hasAnyExpenses) {
 		return (
 			<SafeAreaView style={styles.safeArea}>
 				<Animated.View style={[styles.container, animatedStyle]}>
@@ -297,40 +297,47 @@ export default function BarScreen() {
 							</Text>
 						</TouchableOpacity>
 					</View>
-					<View style={{ padding: 20 }}>
-						<BarChart
-							data={chartData}
-							barWidth={17}
-							spacing={20}
-							hideRules
-							hideYAxisText
-							hideAxesAndRules
-							maxValue={Math.max(...chartData.map(item => item.value)) * 1.2}
-							noOfSections={3}
-							width={300}
-							height={250}
-							yAxisThickness={0}
-							xAxisThickness={0}
-							barBorderRadius={4}
-						/>
-					</View>
+
+					{hasExpensesForPeriod ? (
+						<View style={{ padding: 20 }}>
+							<BarChart
+								data={chartData}
+								barWidth={17}
+								spacing={20}
+								hideRules
+								hideYAxisText
+								hideAxesAndRules
+								maxValue={Math.max(...chartData.map(item => item.value)) * 1.2}
+								noOfSections={3}
+								width={300}
+								height={250}
+								yAxisThickness={0}
+								xAxisThickness={0}
+								barBorderRadius={4}
+							/>
+						</View>
+					) : (
+						<View style={styles.emptyStateContainer}>
+							<Text style={styles.emptyStateText}>
+								За выбранный период нет расходов
+							</Text>
+						</View>
+					)}
 				</View>
 				<ScrollView style={styles.transactions}>
 					{data.map((item, index) => (
-						<TouchableOpacity
-							key={index}
-							style={styles.transactionItem}
+						<TransactionListItem
 							onLongPress={() => handleLongPress(item.category)}
 							delayLongPress={500}
-						>
-							<View style={styles.categoryWrapper}>
-								<View style={styles.categoryIcon}>
-									{getIconForCategory(item.category)}
-								</View>
-								<Text style={styles.categoryText}>{item.category}</Text>
-							</View>
-							<Text style={styles.priceText}>{item.price} P</Text>
-						</TouchableOpacity>
+							key={index}
+							icon={getIconForCategory(item.category)}
+							category={item.category}
+							amount={item.price}
+							percentage={Math.round(
+								(item.price / data.reduce((acc, curr) => acc + curr.price, 0)) *
+									100
+							)}
+						/>
 					))}
 				</ScrollView>
 			</Animated.View>

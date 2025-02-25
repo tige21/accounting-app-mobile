@@ -41,6 +41,8 @@ import Animated, {
 	useSharedValue,
 	withTiming
 } from 'react-native-reanimated'
+import * as Haptics from 'expo-haptics'
+import TransactionListItem from '@/components/TransactionListItem'
 
 interface IData {
 	category: string
@@ -161,6 +163,7 @@ export default function PieScreen() {
 	}
 
 	const handleLongPress = (category: string) => {
+		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
 		Alert.alert(
 			'Удаление транзакций',
 			'Вы уверены, что хотите удалить все транзакции этой категории?',
@@ -193,7 +196,12 @@ export default function PieScreen() {
 		}
 	})
 
-	if (!data.length) {
+	// Проверяем наличие всех транзакций типа expense
+	const hasAnyExpenses = transactions.some(t => t.type === 'expense')
+    // Проверяем наличие транзакций за выбранный период
+    const hasExpensesForPeriod = data.length > 0
+
+	if (!hasAnyExpenses) {
 		return (
 			<SafeAreaView style={styles.safeArea}>
 				<Animated.View style={[styles.container, animatedStyle]}>
@@ -264,26 +272,30 @@ export default function PieScreen() {
 							</Text>
 						</TouchableOpacity>
 					</View>
-					<View style={styles.pieChartWrapper}>
-						<PieChart innerRadius={55} radius={90} data={dataForPie} donut />
-					</View>
+
+					{ hasExpensesForPeriod ? (
+						<View style={styles.pieChartWrapper}>
+							<PieChart innerRadius={55} radius={90} data={dataForPie} donut />
+						</View>
+					) : (
+						<View style={styles.emptyStateContainer}>
+							<Text style={styles.emptyStateText}>
+								За выбранный период нет расходов
+							</Text>
+						</View>
+					)}
 				</View>
 				<ScrollView style={styles.transactions}>
 					{data.map((item, index) => (
-						<TouchableOpacity
-							key={index}
-							style={styles.transactionItem}
+						<TransactionListItem
 							onLongPress={() => handleLongPress(item.category)}
 							delayLongPress={500}
-						>
-							<View style={styles.categoryWrapper}>
-								<View style={styles.categoryIcon}>
-									{getIconForCategory(item.category)}
-								</View>
-								<Text style={styles.categoryText}>{item.category}</Text>
-							</View>
-							<Text style={styles.priceText}>{item.price} P</Text>
-						</TouchableOpacity>
+							key={index}
+							icon={getIconForCategory(item.category)}
+							category={item.category}
+							amount={item.price}
+							percentage={Math.round((item.price / data.reduce((acc, curr) => acc + curr.price, 0)) * 100)}
+						/>
 					))}
 				</ScrollView>
 			</Animated.View>
