@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications'
 import { Platform } from 'react-native'
+import dayjs from 'dayjs'
 
 // Конфигурация уведомлений
 Notifications.setNotificationHandler({
@@ -17,32 +18,63 @@ export async function requestNotificationsPermissions() {
 }
 
 // Планирование уведомления
-export async function scheduleTaskNotification(task: {
+export const scheduleTaskNotification = async ({
+  id,
+  title,
+  date,
+  notificationTime,
+  repeat = 'Никогда'
+}: {
   id: string
   title: string
   date: string
-  notificationTime?: string // время уведомления в формате "HH:mm"
-}) {
-  if (!task.notificationTime) return null
-
-  const [hours, minutes] = task.notificationTime.split(':').map(Number)
-  const notificationDate = new Date(task.date)
-  notificationDate.setHours(hours, minutes, 0)
-
-  // Если дата уже прошла, не создаем уведомление
-  if (notificationDate.getTime() <= Date.now()) return null
-
+  notificationTime: string
+  repeat?: string
+}) => {
   try {
+    const [hours, minutes] = notificationTime.split(':').map(Number)
+    const notificationDate = dayjs(date)
+      .hour(hours)
+      .minute(minutes)
+      .toDate()
+
+    let trigger: any = {
+      hour: hours,
+      minute: minutes,
+    }
+
+    // Добавляем повторение в зависимости от выбранного варианта
+    switch (repeat) {
+      case 'Ежедневно':
+        trigger.repeats = true
+        break
+      case 'Еженедельно':
+        trigger.repeats = true
+        trigger.weekday = notificationDate.getDay() + 1 // 1-7
+        break
+      case 'Ежемесячно':
+        trigger.repeats = true
+        trigger.day = notificationDate.getDate()
+        break
+      case 'Ежегодно':
+        trigger.repeats = true
+        trigger.day = notificationDate.getDate()
+        trigger.month = notificationDate.getMonth() + 1 // 1-12
+        break
+      default:
+        // Для "Никогда" используем конкретную дату
+        trigger = notificationDate
+    }
+
     const notificationId = await Notifications.scheduleNotificationAsync({
       content: {
-        title: 'Напоминание о задаче',
-        body: task.title,
-        data: { taskId: task.id },
+        title,
+        body: title,
+        data: { taskId: id },
       },
-      trigger: {
-        date: notificationDate,
-      },
+      trigger,
     })
+
     return notificationId
   } catch (error) {
     console.error('Error scheduling notification:', error)

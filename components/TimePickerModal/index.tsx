@@ -1,8 +1,9 @@
-import React, { forwardRef } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
-import { BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet'
+import React, { forwardRef, useCallback } from 'react'
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native'
+import { BottomSheetModal } from '@gorhom/bottom-sheet'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import Colors from '@/constants/Colors'
+import dayjs from 'dayjs'
 
 interface TimePickerModalProps {
   value?: string
@@ -12,33 +13,40 @@ interface TimePickerModalProps {
 
 const TimePickerModal = forwardRef<BottomSheetModal, TimePickerModalProps>(
   ({ value, onChange, onDismiss }, ref) => {
-    const handleTimeChange = (_: any, date?: Date) => {
+    const initialDate = value 
+      ? dayjs(`2000-01-01 ${value}`).toDate()
+      : new Date()
+
+    const handleTimeChange = useCallback((_: any, date?: Date) => {
       if (date) {
-        const hours = date.getHours().toString().padStart(2, '0')
-        const minutes = date.getMinutes().toString().padStart(2, '0')
-        onChange(`${hours}:${minutes}`)
+        const timeString = dayjs(date).format('HH:mm')
+        onChange(timeString)
       }
-    }
+    }, [onChange])
 
     return (
       <BottomSheetModal
         ref={ref}
-        index={0}
-        snapPoints={['40%']}
+        snapPoints={['25%']}
         enablePanDownToClose
+        index={0}
       >
-        <BottomSheetView style={styles.container}>
-          <Text style={styles.title}>Выберите время</Text>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Выберите время</Text>
+            <TouchableOpacity onPress={onDismiss}>
+              <Text style={styles.doneButton}>Готово</Text>
+            </TouchableOpacity>
+          </View>
+
           <DateTimePicker
-            value={value ? new Date(`2000-01-01T${value}`) : new Date()}
+            value={initialDate}
             mode="time"
-            is24Hour={true}
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
             onChange={handleTimeChange}
+            style={styles.picker}
           />
-          <TouchableOpacity style={styles.button} onPress={onDismiss}>
-            <Text style={styles.buttonText}>Готово</Text>
-          </TouchableOpacity>
-        </BottomSheetView>
+        </View>
       </BottomSheetModal>
     )
   }
@@ -46,24 +54,27 @@ const TimePickerModal = forwardRef<BottomSheetModal, TimePickerModalProps>(
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     padding: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   title: {
     fontSize: 20,
     fontWeight: '600',
-    marginBottom: 16,
+    color: Colors.black,
   },
-  button: {
-    backgroundColor: Colors.blue,
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
+  doneButton: {
+    fontSize: 17,
+    color: Colors.blue,
     fontWeight: '600',
+  },
+  picker: {
+    flex: 1,
   },
 })
 

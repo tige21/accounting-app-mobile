@@ -152,6 +152,7 @@ export default function RootLayout() {
 								name='transaction-history'
 								options={{ headerShown: false }}
 							/>
+							<Stack.Screen name='note-details' options={{ headerShown: false }} />
 						</Stack>
 						{/* </ThemeProvider> */}
 					</BottomSheetModalProvider>

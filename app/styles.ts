@@ -119,7 +119,6 @@ export default StyleSheet.create({
 	emptyStateContainer: {
 		flex: 1,
 		alignItems: 'center',
-		justifyContent: 'center'
 	},
 	emptyStateText: {
 		fontSize: 18,

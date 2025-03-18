@@ -252,6 +252,9 @@ const styles = StyleSheet.create({
 	},
 	categoriesButton: {
 		width: `${100 / 5}%`
+	},
+	amountInput: {
+		// Add appropriate styles for the amount input
 	}
 })
 
@@ -380,17 +383,9 @@ export function TransactionForm({
 	}
 
 	const handleAmountChange = (text: string) => {
-		if (isNaN(Number(text))) {
-			Alert.alert('Ошибка', 'Пожалуйста, введите число')
-			return
-		}
-
-		if (Number(text) > 999999999) {
-			Alert.alert('Ошибка', 'Слишком большая сумма')
-			return
-		}
-
-		setAmount(text)
+		// Удаляем все нечисловые символы
+		const numericValue = text.replace(/[^0-9]/g, '')
+		setAmount(numericValue)
 	}
 
 	const validateAmount = () => {
@@ -452,10 +447,13 @@ export function TransactionForm({
 						<View>
 							<Text style={styles.subText}>Сумма</Text>
 							<CommonInput
-								placeholder='Введите сумму'
+								placeholder="0"
 								value={amount}
 								onChangeText={handleAmountChange}
-								keyboardType='numeric'
+								style={styles.amountInput}
+								keyboardType="numeric"
+								maxLength={10}
+								autoFocus
 							/>
 						</View>
 

@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications'
 import { Platform } from 'react-native'
+import dayjs from 'dayjs'
 
 // Конфигурация уведомлений
 Notifications.setNotificationHandler({
@@ -21,18 +22,12 @@ export async function scheduleTaskNotification(task: {
   id: string
   title: string
   date: string
-  notificationTime?: string // время уведомления в формате "HH:mm"
+  repeat: 'Никогда' | 'Ежедневно' | 'Еженедельно' | 'Ежемесячно' | 'Ежегодно'
+  notificationTime?: string
 }) {
   if (!task.notificationTime) return null
 
   try {
-    const [hours, minutes] = task.notificationTime.split(':').map(Number)
-    const notificationDate = new Date(task.date)
-    notificationDate.setHours(hours, minutes, 0, 0)
-
-    // Если дата уже прошла, не создаем уведомление
-    if (notificationDate.getTime() <= Date.now()) return null
-
     // Отменяем существующие уведомления для этой задачи
     await Notifications.getAllScheduledNotificationsAsync().then(notifications => {
       notifications.forEach(notification => {
@@ -42,31 +37,92 @@ export async function scheduleTaskNotification(task: {
       })
     })
 
-    const notificationId = await Notifications.scheduleNotificationAsync({
-      content: {
-        title: 'Напоминание о задаче',
-        body: task.title,
-        data: { taskId: task.id },
-        sound: true,
-      },
-      trigger: {
-        date: notificationDate,
-        seconds: 1, // минимальная задержка
-      },
-    })
+    const [hours, minutes] = task.notificationTime.split(':').map(Number)
+    let notificationDates: Date[] = []
+    const baseDate = dayjs(task.date).hour(hours).minute(minutes).second(0)
 
-    return notificationId
+    // Создаем массив дат уведомлений в зависимости от типа повторения
+    switch (task.repeat) {
+      case 'Ежедневно':
+        // Планируем на 30 дней вперед
+        for (let i = 0; i < 30; i++) {
+          notificationDates.push(baseDate.add(i, 'day').toDate())
+        }
+        break
+      
+      case 'Еженедельно':
+        // Планируем на 12 недель вперед
+        for (let i = 0; i < 12; i++) {
+          notificationDates.push(baseDate.add(i, 'week').toDate())
+        }
+        break
+      
+      case 'Ежемесячно':
+        // Планируем на 12 месяцев вперед
+        for (let i = 0; i < 12; i++) {
+          notificationDates.push(baseDate.add(i, 'month').toDate())
+        }
+        break
+      
+      case 'Ежегодно':
+        // Планируем на 3 года вперед
+        for (let i = 0; i < 3; i++) {
+          notificationDates.push(baseDate.add(i, 'year').toDate())
+        }
+        break
+      
+      default:
+        // Для одноразовых задач
+        notificationDates = [baseDate.toDate()]
+    }
+
+    // Фильтруем прошедшие даты
+    notificationDates = notificationDates.filter(date => date.getTime() > Date.now())
+
+    // Планируем уведомления для всех дат
+    const notificationIds = await Promise.all(
+      notificationDates.map(async (date) => {
+        try {
+          return await Notifications.scheduleNotificationAsync({
+            content: {
+              title: 'Напоминание о задаче',
+              body: task.title,
+              data: { 
+                taskId: task.id,
+                repeat: task.repeat 
+              },
+              sound: true,
+            },
+            trigger: {
+              date,
+            },
+          })
+        } catch (error) {
+          console.error('Error scheduling single notification:', error)
+          return null
+        }
+      })
+    )
+
+    // Возвращаем первый ID для сохранения в задаче
+    return notificationIds[0]
   } catch (error) {
-    console.error('Error scheduling notification:', error)
+    console.error('Error scheduling notifications:', error)
     return null
   }
 }
 
-// Отмена уведомления
-export async function cancelTaskNotification(notificationId: string) {
+// Отмена уведомлений
+export async function cancelTaskNotification(taskId: string) {
   try {
-    await Notifications.cancelScheduledNotificationAsync(notificationId)
+    // Отменяем все уведомления для задачи
+    const notifications = await Notifications.getAllScheduledNotificationsAsync()
+    for (const notification of notifications) {
+      if (notification.content.data?.taskId === taskId) {
+        await Notifications.cancelScheduledNotificationAsync(notification.identifier)
+      }
+    }
   } catch (error) {
-    console.error('Error canceling notification:', error)
+    console.error('Error canceling notifications:', error)
   }
 } 

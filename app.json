@@ -2,7 +2,7 @@
   "expo": {
     "name": "wallet Watch",
     "slug": "walletwatch",
-    "version": "1.0.1",
+    "version": "1.2.3",
     "orientation": "portrait",
     "icon": "./assets/images/appstore.png",
     "scheme": "myapp",
@@ -19,7 +19,7 @@
       "icon": "./assets/images/appstore.png",
       "supportsTablet": true,
       "bundleIdentifier": "com.walletwatch",
-      "buildNumber": "4",
+      "buildNumber": "6",
       "infoPlist": {
         "UIBackgroundModes": [
           "remote-notification"
@@ -46,11 +46,8 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/notification-icon.png",
-          "color": "#ffffff",
-          "sounds": [
-            "./assets/notification-sound.wav"
-          ]
+          "icon": "./assets/images/appstore.png",
+          "color": "#ffffff"
         }
       ]
     ],
@@ -60,9 +57,6 @@
     "extra": {
       "router": {
         "origin": false
-      },
-      "eas": {
-        "projectId": "bdcbfad9-33d0-4c5b-98e0-fc8046ffd3c0"
       }
     }
   }

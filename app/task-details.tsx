@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router, useLocalSearchParams } from 'expo-router'
 import Colors from '@/constants/Colors'
@@ -144,9 +144,15 @@ export default function TaskDetailsScreen() {
 
 				<View style={styles.section}>
 					<Text style={styles.label}>Комментарий</Text>
-					<Text style={styles.value}>
-						{task?.comment || 'Нет комментария'}
-					</Text>
+					<View style={styles.commentContainer}>
+						<ScrollView 
+							style={styles.commentScroll}
+						>
+							<Text style={styles.commentText}>
+								{task?.comment || 'Нет комментария'}
+							</Text>
+						</ScrollView>
+					</View>
 				</View>
 
 				{task?.notificationTime && (
@@ -210,21 +216,36 @@ const styles = StyleSheet.create({
 		backgroundColor: Colors.blue
 	},
 	section: {
-		marginBottom: 24
+		marginBottom: 24,
+		width: '100%'
 	},
 	label: {
 		fontSize: 16,
 		color: Colors.grey_2,
 		marginBottom: 8
 	},
+	commentContainer: {
+		borderRadius: 12,
+		minHeight: 55,
+		maxHeight: 200,
+	},
+	commentScroll: {
+		padding: 12,
+	},
+	commentText: {
+		fontSize: 16,
+		color: Colors.black,
+		flexWrap: 'wrap',
+		lineHeight: 22,
+	},
 	value: {
 		fontSize: 18,
 		color: Colors.black,
-		fontWeight: '500'
+		fontWeight: '500',
+		flexWrap: 'wrap'
 	},
 	buttonContainer: {
 		marginTop: 'auto',
-		marginBottom: 24,
 		gap: 12
 	},
 	editButton: {

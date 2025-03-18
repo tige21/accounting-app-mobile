@@ -33,7 +33,10 @@ import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-na
 import { bottomSheetModalStyles } from '@/components/CalendarPickModal/styles'
 import { scheduleTaskNotification } from '@/utils/notifications'
 import TimePickerModal from '@/components/TimePickerModal'
-import { Task, TaskParams } from '@/types/task'
+import { TaskParams } from '@/types/task'
+import { Note } from '@/types/note'
+import NotebookModal from '@/components/NotebookModal'
+import { useNoteStore } from '@/store/noteStore'
 
 interface Task {
 	id: string
@@ -248,6 +251,10 @@ const AddTaskModal = memo(({
 					placeholder='Введите комментарий'
 					value={comment}
 					onChangeText={setComment}
+					multiline={true}
+					textAlignVertical="top"
+					style={[styles.commentInput]}
+					blurOnSubmit={false}
 				/>
 			</View>
 
@@ -379,8 +386,51 @@ const RepeatModal = memo(({
 	)
 })
 
+// ModeSwitcher компонент
+const ModeSwitcher = memo(({ 
+	currentMode, 
+	onModeChange 
+}: { 
+	currentMode: 'tasks' | 'notes'
+	onModeChange: (mode: 'tasks' | 'notes') => void 
+}) => {
+	return (
+		<View style={styles.switcherContainer}>
+			<TouchableOpacity 
+				style={[
+					styles.switcherButton, 
+					currentMode === 'tasks' && styles.switcherButtonActive
+				]}
+				onPress={() => onModeChange('tasks')}
+			>
+				<Text style={[
+					styles.switcherText,
+					currentMode === 'tasks' && styles.switcherTextActive
+				]}>
+					Задачи
+				</Text>
+			</TouchableOpacity>
+			<TouchableOpacity 
+				style={[
+					styles.switcherButton,
+					currentMode === 'notes' && styles.switcherButtonActive
+				]}
+				onPress={() => onModeChange('notes')}
+			>
+				<Text style={[
+					styles.switcherText,
+					currentMode === 'notes' && styles.switcherTextActive
+				]}>
+					Заметки
+				</Text>
+			</TouchableOpacity>
+		</View>
+	)
+})
+
 export default function TaskScreen() {
 	const { tasks, addTask, updateTask } = useTaskStore()
+	const { notes, addNote } = useNoteStore()
 	const [selectedDate, setSelectedDate] = useState<string>(
 		new Date().toISOString()
 	)
@@ -393,11 +443,13 @@ export default function TaskScreen() {
 	const [comment, setComment] = useState('')
 	const [notificationTime, setNotificationTime] = useState<string | undefined>()
 	const [isNotificationEnabled, setIsNotificationEnabled] = useState(false)
+	const [mode, setMode] = useState<'tasks' | 'notes'>('tasks')
 
 	const bottomSheetRef = useRef<BottomSheetModal>(null)
 	const taskModalRef = useRef<BottomSheetModal>(null)
 	const calendarRef = useRef<BottomSheetModal>(null)
 	const repeatBottomSheetRef = useRef<BottomSheetModal>(null)
+	const notebookModalRef = useRef<BottomSheetModal>(null)
 
 	const opacity = useSharedValue(0)
 
@@ -514,6 +566,43 @@ export default function TaskScreen() {
 		handleCalendarDismiss()
 	}
 
+	const handleAddPress = () => {
+		if (mode === 'tasks') {
+			handleAddTask()
+		} else {
+			notebookModalRef.current?.present()
+		}
+	}
+
+	const handleSaveNote = (noteData: { title: string; content: string }) => {
+		addNote({
+			title: noteData.title,
+			content: noteData.content,
+		})
+		notebookModalRef.current?.dismiss()
+	}
+
+	const handleToggleNote = (noteId: string) => {
+		setNotes(prev => 
+			prev.map(note => 
+				note.id === noteId 
+					? { ...note, isCompleted: !note.isCompleted }
+					: note
+			)
+		)
+	}
+
+	const handleNotePress = (note: Note) => {
+		router.push({
+			pathname: '/note-details',
+			params: {
+				id: note.id,
+				title: note.title,
+				content: note.content,
+			},
+		})
+	}
+
 	const filteredTasks = tasks.filter(task => {
 		const taskDate = dayjs(task.date).startOf('day')
 		const selectedDay = dayjs(selectedDate).startOf('day')
@@ -559,14 +648,61 @@ export default function TaskScreen() {
 						onCalendarPress={handleCalendarPresent}
 					/>
 					
-					<TaskList
-						tasks={filteredTasks}
-						onTaskPress={handleTaskPress}
-						onTaskComplete={handleTaskComplete}
+					<ModeSwitcher 
+						currentMode={mode}
+						onModeChange={setMode}
 					/>
 
-					<TouchableOpacity onPress={handleAddTask} style={styles.addButton}>
-						<Text style={styles.addButtonText}>Добавить задачу</Text>
+					{mode === 'tasks' ? (
+						<TaskList
+							tasks={filteredTasks}
+							onTaskPress={handleTaskPress}
+							onTaskComplete={handleTaskComplete}
+						/>
+					) : (
+						<ScrollView style={styles.notesList}>
+							{notes.length === 0 ? (
+								<View style={styles.emptyState}>
+									<Text style={styles.emptyStateText}>
+										У вас пока нет заметок
+									</Text>
+								</View>
+							) : (
+								notes.map(note => (
+									<TouchableOpacity
+										key={note.id}
+										style={styles.noteItem}
+										onPress={() => handleNotePress(note)}
+									>
+										<View style={styles.noteContent}>
+											<Text 
+												style={styles.noteTitle}
+												numberOfLines={1}
+											>
+												{note.title}
+											</Text>
+											<Text 
+												style={styles.notePreview}
+												numberOfLines={2}
+											>
+												{note.content}
+											</Text>
+										</View>
+									</TouchableOpacity>
+								))
+							)}
+						</ScrollView>
+					)}
+
+					<TouchableOpacity
+						style={styles.addButton}
+						onPress={handleAddPress}
+					>
+						<Feather 
+							name={mode === 'tasks' ? 'plus' : 'edit-2'} 
+							size={24} 
+							color="white" 
+						/>
 					</TouchableOpacity>
 				</Animated.View>
 
@@ -609,6 +745,18 @@ export default function TaskScreen() {
 					selectedDate={selectedDate}
 					handleDismiss={handleCalendarDismiss}
 				/>
+
+				<BottomSheetModal
+					ref={notebookModalRef}
+					snapPoints={['90%']}
+					enablePanDownToClose
+					backdropComponent={renderBackdrop()}
+				>
+					<NotebookModal
+						onSave={handleSaveNote}
+						onDismiss={() => notebookModalRef.current?.dismiss()}
+					/>
+				</BottomSheetModal>
 			</KeyboardAvoidingView>
 		</SafeAreaView>
 	)
@@ -617,11 +765,15 @@ export default function TaskScreen() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: '#F8F8F8'
+		backgroundColor: '#F8F8F8',
+	
+		marginBottom: Platform.OS === 'ios' ? -55 : -20
+
 	},
 	content: {
 		flex: 1,
-		margin: 20
+		margin: 20,
+	
 	},
 	header: {
 		marginBottom: 10,
@@ -665,16 +817,24 @@ const styles = StyleSheet.create({
 		color: Colors.black
 	},
 	addButton: {
+		position: 'absolute',
+		bottom: 20,
+		right: 20,
+		width: 56,
+		height: 56,
+		borderRadius: 28,
 		backgroundColor: Colors.blue,
-		padding: 16,
-		borderRadius: 12,
 		alignItems: 'center',
-		marginBottom: Platform.OS === 'ios' ? 0 : 24
-	},
-	addButtonText: {
-		color: 'white',
-		fontSize: 16,
-		fontWeight: '600'
+		justifyContent: 'center',
+		shadowColor: '#000',
+		shadowOffset: {
+			width: 0,
+			height: 2,
+		},
+		shadowOpacity: 0.25,
+		shadowRadius: 3.84,
+		elevation: 5,
+		zIndex: 1,
 	},
 	modalContainer: {
 		flex: 1,
@@ -824,5 +984,83 @@ const styles = StyleSheet.create({
 	timeText: {
 		fontSize: 16,
 		color: Colors.black
-	}
+	},
+	commentInput: {
+		minHeight: 55,
+		paddingTop: 12,
+		textAlignVertical: 'top',
+		paddingHorizontal: 12,
+		backgroundColor: 'white',
+		borderRadius: 12,
+		fontSize: 16,
+	},
+	flexibleInput: {
+		flex: 1,
+		flexWrap: 'wrap'
+	},
+	switcherContainer: {
+		flexDirection: 'row',
+		backgroundColor: '#F8F8F8',
+		padding: 4,
+		borderRadius: 12,
+		marginBottom: 16,
+	},
+	switcherButton: {
+		flex: 1,
+		paddingVertical: 8,
+		paddingHorizontal: 16,
+		borderRadius: 8,
+		alignItems: 'center',
+	},
+	switcherButtonActive: {
+		backgroundColor: Colors.blue,
+	},
+	switcherText: {
+		fontSize: 16,
+		color: Colors.grey_2,
+		fontWeight: '500',
+	},
+	switcherTextActive: {
+		color: 'white',
+	},
+	notesList: {
+		flex: 1,
+	},
+	noteItem: {
+		backgroundColor: 'white',
+		padding: 16,
+		borderRadius: 12,
+		marginBottom: 12,
+		flexDirection: 'row',
+		alignItems: 'center',
+	},
+	noteContent: {
+		flex: 1,
+		marginRight: 12,
+	},
+	noteTitle: {
+		fontSize: 17,
+		fontWeight: '600',
+		color: Colors.black,
+		marginBottom: 4,
+	},
+	notePreview: {
+		fontSize: 15,
+		color: Colors.grey_2,
+	},
+	completedText: {
+		textDecorationLine: 'line-through',
+		color: Colors.grey_2,
+	},
+	emptyState: {
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center',
+		marginTop: 40,
+	},
+	emptyStateText: {
+		fontSize: 16,
+		color: Colors.grey_2,
+		fontWeight: '500',
+	},
 })
