@@ -15,9 +15,7 @@ export default function CommonInput({ isModal, ...props }: CommonInputProps) {
 			borderRadius: 12,
 			padding: 12,
 			fontSize: 16,
-			color: colors.inputText,
-			borderWidth: 1,
-			borderColor: colors.inputBorder,
+			color: colors.inputText
 		},
 		placeholder: {
 			color: colors.inputPlaceholder,

@@ -10,7 +10,6 @@ import {
 	View,
 	FlatList,
 	TouchableOpacity,
-	StyleSheet,
 	GestureResponderEvent,
 	KeyboardAvoidingView,
 	Platform,
@@ -26,7 +25,6 @@ import {
 } from '@gorhom/bottom-sheet'
 import CommonInput from '@/components/CommonInput'
 import ThemedText from '@/components/ThemedText'
-import Colors from '@/constants/Colors'
 import CalendarPickButton from '@/components/CalendarPickModal/CalendarPickButton'
 import CalendarPickModal from '@/components/CalendarPickModal'
 import dayjs from 'dayjs'
@@ -48,6 +46,7 @@ import { Note } from '@/types/note'
 import NotebookModal from '@/components/NotebookModal'
 import { useNoteStore } from '@/store/noteStore'
 import BackdropComponent from '@/components/BackdropComponent'
+import { useDynamicStyles, useThemeColor } from '@/hooks'
 
 interface Task {
 	id: string
@@ -80,14 +79,26 @@ const Header = memo(
 		onCalendarPress: () => void
 	}) => {
 		return (
-			<ThemedView style={styles.header}>
-				<ThemedView style={styles.headerRow}>
+			<ThemedView style={{ marginBottom: 10, gap: 20 }}>
+				<ThemedView style={{ flexDirection: 'row', alignItems: 'center' }}>
 					<UserAvatar />
 					<ThemedText type='heading'>Задачи</ThemedText>
 				</ThemedView>
 
-				<ThemedView colorName='surface' style={styles.dateSelector}>
-					<ThemedView style={styles.dateDisplay}>
+				<ThemedView
+					colorName='surface'
+					style={{
+						flexDirection: 'row',
+						alignItems: 'center',
+						padding: 12,
+						borderRadius: 12,
+						marginBottom: 16
+					}}
+				>
+					<ThemedView
+						colorName='transparent'
+						style={{ flex: 1, marginRight: 12 }}
+					>
 						<ThemedText>
 							{dayjs(selectedDate).locale('ru').format('D MMMM')}
 						</ThemedText>
@@ -110,6 +121,10 @@ const TaskItem = memo(
 		onPress: (task: Task) => void
 		onComplete: (task: Task, e: GestureResponderEvent) => void
 	}) => {
+		const primaryColor = useThemeColor({}, 'primary')
+		const onPrimaryColor = useThemeColor({}, 'onPrimary')
+		const textSecondaryColor = useThemeColor({}, 'textSecondary')
+
 		const handlePress = useCallback(() => {
 			onPress(task)
 		}, [task.id, onPress]) // Используем task.id вместо всего объекта
@@ -122,25 +137,47 @@ const TaskItem = memo(
 		)
 
 		return (
-			<TouchableOpacity style={styles.taskItem} onPress={handlePress}>
-				<ThemedView style={styles.taskRow}>
-					<TouchableOpacity
-						style={[
-							styles.checkbox,
-							task.isCompleted && styles.checkboxChecked
-						]}
-						onPress={handleComplete}
+			<TouchableOpacity onPress={handlePress}>
+				<ThemedView
+					colorName='surface'
+					style={{ padding: 16, borderRadius: 12, marginBottom: 12 }}
+				>
+					<ThemedView
+						colorName='transparent'
+						style={{ flexDirection: 'row', alignItems: 'center' }}
 					>
-						{task.isCompleted && (
-							<Feather name='check' size={16} color='white' />
-						)}
-					</TouchableOpacity>
-					<ThemedText
-						type='defaultSemiBold'
-						style={[task.isCompleted && styles.taskTitleCompleted]}
-					>
-						{task.title}
-					</ThemedText>
+						<TouchableOpacity
+							style={[
+								{
+									width: 24,
+									height: 24,
+									borderRadius: 12,
+									borderWidth: 2,
+									borderColor: primaryColor,
+									marginRight: 12,
+									alignItems: 'center',
+									justifyContent: 'center'
+								},
+								task.isCompleted && { backgroundColor: primaryColor }
+							]}
+							onPress={handleComplete}
+						>
+							{task.isCompleted && (
+								<Feather name='check' size={16} color={onPrimaryColor} />
+							)}
+						</TouchableOpacity>
+						<ThemedText
+							type='defaultSemiBold'
+							style={[
+								task.isCompleted && {
+									textDecorationLine: 'line-through',
+									color: textSecondaryColor
+								}
+							]}
+						>
+							{task.title}
+						</ThemedText>
+					</ThemedView>
 				</ThemedView>
 			</TouchableOpacity>
 		)
@@ -200,7 +237,7 @@ const TaskList = memo(
 				renderItem={renderTask}
 				keyExtractor={keyExtractor}
 				showsVerticalScrollIndicator={false}
-				contentContainerStyle={styles.taskListContent}
+				contentContainerStyle={{ paddingBottom: 100 }}
 				// getItemLayout={getItemLayout} // Раскомментировать для фиксированной высоты элементов
 				maxToRenderPerBatch={10} // Рендерим по 10 элементов за раз
 				windowSize={10} // Количество экранов для предзагрузки
@@ -208,11 +245,18 @@ const TaskList = memo(
 				updateCellsBatchingPeriod={50} // Батчинг обновлений
 				removeClippedSubviews={true} // Удаляем элементы вне области видимости
 				ListEmptyComponent={
-					<ThemedView style={styles.emptyTaskState}>
+					<ThemedView
+						colorName='background'
+						style={{
+							flex: 1,
+							alignItems: 'center',
+							justifyContent: 'center',
+							marginTop: 40
+						}}
+					>
 						<ThemedText
-							type='default'
-							lightColor={Colors.grey_2}
-							style={styles.emptyStateText}
+							type='secondary'
+							style={{ fontSize: 16, fontWeight: '500' }}
 						>
 							На сегодня задач нет
 						</ThemedText>
@@ -242,6 +286,10 @@ const AddTaskModal = memo(
 		onCalendarPress: () => void
 		repeatOptions: Array<{ value: string; label: string }>
 	}) => {
+		const primaryColor = useThemeColor({}, 'primary')
+		const onPrimaryColor = useThemeColor({}, 'onPrimary')
+		const textSecondaryColor = useThemeColor({}, 'textSecondary')
+
 		const [title, setTitle] = useState('')
 		const [comment, setComment] = useState('')
 		const [selectedRepeat, setSelectedRepeat] =
@@ -286,13 +334,13 @@ const AddTaskModal = memo(
 		}
 
 		return (
-			<BottomSheetScrollView style={styles.modalContainer}>
+			<BottomSheetScrollView
+				style={{ flex: 1, padding: 16, paddingBottom: 100 }}
+			>
 				<ThemedText type='heading'>Задача</ThemedText>
 
-				<View style={styles.inputContainer}>
-					<ThemedText type='body' lightColor={Colors.grey_2}>
-						Название
-					</ThemedText>
+				<View style={{ marginBottom: 24 }}>
+					<ThemedText type='secondary'>Название</ThemedText>
 					<CommonInput
 						isModal={Platform.OS === 'ios'}
 						placeholder='Введите название задачи'
@@ -301,10 +349,8 @@ const AddTaskModal = memo(
 					/>
 				</View>
 
-				<View style={styles.inputContainer}>
-					<ThemedText type='body' lightColor={Colors.grey_2}>
-						Комментарий
-					</ThemedText>
+				<View style={{ marginBottom: 24 }}>
+					<ThemedText type='secondary'>Комментарий</ThemedText>
 					<CommonInput
 						isModal={Platform.OS === 'ios'}
 						placeholder='Введите комментарий'
@@ -312,32 +358,43 @@ const AddTaskModal = memo(
 						onChangeText={setComment}
 						multiline={true}
 						textAlignVertical='top'
-						style={[styles.commentInput]}
+						style={[
+							{
+								minHeight: 55,
+								paddingTop: 12,
+								textAlignVertical: 'top',
+								paddingHorizontal: 12,
+								borderRadius: 12,
+								fontSize: 16
+							}
+						]}
 					/>
 				</View>
 
-				<View style={styles.inputContainer}>
-					<ThemedText type='body' lightColor={Colors.grey_2}>
-						Повтор
-					</ThemedText>
+				<View style={{ marginBottom: 24 }}>
+					<ThemedText type='secondary'>Повтор</ThemedText>
 					<TouchableOpacity
-						style={styles.repeatButton}
+						style={{
+							flexDirection: 'row',
+							alignItems: 'center',
+							justifyContent: 'space-between',
+							padding: 12,
+							borderRadius: 8
+						}}
 						onPress={handleRepeatPress}
 					>
 						<ThemedText type='default'>
 							{repeatOptions.find(option => option.value === selectedRepeat)
 								?.label || 'Не повторять'}
 						</ThemedText>
-						<Feather name='chevron-down' size={20} color={Colors.grey_2} />
+						<Feather name='chevron-down' size={20} color={textSecondaryColor} />
 					</TouchableOpacity>
 				</View>
 
-				<View style={styles.dateContainer}>
-					<ThemedText type='body' lightColor={Colors.grey_2}>
-						Дата
-					</ThemedText>
-					<View style={styles.dateRow}>
-						<View style={styles.dateInput}>
+				<View style={{ marginBottom: 24 }}>
+					<ThemedText type='secondary'>Дата</ThemedText>
+					<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+						<View style={{ flex: 1, marginRight: 16 }}>
 							<CommonInput
 								editable={false}
 								placeholder={formatDate(selectedDate)}
@@ -347,18 +404,22 @@ const AddTaskModal = memo(
 					</View>
 				</View>
 
-				<View style={styles.inputContainer}>
-					<ThemedText type='body' lightColor={Colors.grey_2}>
-						Уведомление
-					</ThemedText>
-					<View style={styles.notificationContainer}>
+				<View style={{ marginBottom: 24 }}>
+					<ThemedText type='secondary'>Уведомление</ThemedText>
+					<View
+						style={{
+							flexDirection: 'row',
+							alignItems: 'center',
+							paddingTop: 12
+						}}
+					>
 						<Switch
 							value={isNotificationEnabled}
 							onValueChange={setIsNotificationEnabled}
 						/>
 						{isNotificationEnabled && (
 							<TouchableOpacity
-								style={styles.timeButton}
+								style={{ borderRadius: 8, marginLeft: 12 }}
 								onPress={handleTimePress}
 							>
 								<ThemedText type='default'>
@@ -369,8 +430,20 @@ const AddTaskModal = memo(
 					</View>
 				</View>
 
-				<TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-					<ThemedText type='defaultSemiBold' lightColor='white'>
+				<TouchableOpacity
+					style={{
+						backgroundColor: primaryColor,
+						padding: 16,
+						borderRadius: 12,
+						alignItems: 'center',
+						marginTop: 24,
+						marginBottom: 50
+					}}
+					onPress={handleSave}
+				>
+					<ThemedText
+						style={{ color: onPrimaryColor, fontSize: 16, fontWeight: '600' }}
+					>
 						Сохранить
 					</ThemedText>
 				</TouchableOpacity>
@@ -415,38 +488,71 @@ const RepeatModal = memo(
 		onRepeatSelect: (value: string) => void
 		bottomSheetRef: React.RefObject<BottomSheetModal | null>
 	}) => {
+		const primaryColor = useThemeColor({}, 'primary')
+		const onPrimaryColor = useThemeColor({}, 'onPrimary')
+		const textSecondaryColor = useThemeColor({}, 'textSecondary')
+
 		return (
-			<BottomSheetView style={styles.repeatModalContainer}>
-				<View style={styles.repeatModalHeader}>
+			<BottomSheetView style={{ padding: 16 }}>
+				<View
+					style={{
+						flexDirection: 'row',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+						marginBottom: 24
+					}}
+				>
 					<ThemedText type='heading'>Повтор</ThemedText>
 					<TouchableOpacity
 						onPress={() => bottomSheetRef.current?.dismiss()}
-						style={styles.closeButton}
+						style={{ padding: 4 }}
 					>
-						<Feather name='x' size={24} color={Colors.grey_2} />
+						<Feather name='x' size={24} color={textSecondaryColor} />
 					</TouchableOpacity>
 				</View>
 
 				{repeatOptions.map(option => (
 					<TouchableOpacity
 						key={option.value}
-						style={styles.repeatOption}
+						style={{
+							flexDirection: 'row',
+							alignItems: 'center',
+							justifyContent: 'space-between',
+							paddingVertical: 16,
+							paddingHorizontal: 4
+						}}
 						onPress={() => onRepeatSelect(option.value)}
 					>
 						<ThemedText type='default'>{option.label}</ThemedText>
 						{selectedRepeat === option.value && (
-							<View style={styles.radioOuter}>
-								<Feather name='check' size={16} color={Colors.blue} />
+							<View
+								style={{
+									width: 20,
+									height: 20,
+									alignItems: 'center',
+									justifyContent: 'center'
+								}}
+							>
+								<Feather name='check' size={16} color={primaryColor} />
 							</View>
 						)}
 					</TouchableOpacity>
 				))}
 
 				<TouchableOpacity
-					style={styles.saveButton}
+					style={{
+						backgroundColor: primaryColor,
+						padding: 16,
+						borderRadius: 12,
+						alignItems: 'center',
+						marginTop: 24,
+						marginBottom: 50
+					}}
 					onPress={() => bottomSheetRef.current?.dismiss()}
 				>
-					<ThemedText type='defaultSemiBold' lightColor='white'>
+					<ThemedText
+						style={{ color: onPrimaryColor, fontSize: 16, fontWeight: '600' }}
+					>
 						Сохранить
 					</ThemedText>
 				</TouchableOpacity>
@@ -464,32 +570,64 @@ const ModeSwitcher = memo(
 		currentMode: 'tasks' | 'notes'
 		onModeChange: (mode: 'tasks' | 'notes') => void
 	}) => {
+		const primaryColor = useThemeColor({}, 'primary')
+		const onPrimaryColor = useThemeColor({}, 'onPrimary')
+		const textSecondaryColor = useThemeColor({}, 'textSecondary')
+
 		return (
-			<ThemedView colorName='surfaceSecondary' style={styles.switcherContainer}>
+			<ThemedView
+				colorName='surfaceSecondary'
+				style={{
+					flexDirection: 'row',
+					padding: 4,
+					borderRadius: 12,
+					marginBottom: 16
+				}}
+			>
 				<TouchableOpacity
 					style={[
-						styles.switcherButton,
-						currentMode === 'tasks' && styles.switcherButtonActive
+						{
+							flex: 1,
+							paddingVertical: 8,
+							paddingHorizontal: 16,
+							borderRadius: 8,
+							alignItems: 'center'
+						},
+						currentMode === 'tasks' && { backgroundColor: primaryColor }
 					]}
 					onPress={() => onModeChange('tasks')}
 				>
 					<ThemedText
-						type='body'
-						lightColor={currentMode === 'tasks' ? Colors.blue : Colors.grey_2}
+						style={{
+							fontSize: 16,
+							fontWeight: '500',
+							color:
+								currentMode === 'tasks' ? onPrimaryColor : textSecondaryColor
+						}}
 					>
 						Задачи
 					</ThemedText>
 				</TouchableOpacity>
 				<TouchableOpacity
 					style={[
-						styles.switcherButton,
-						currentMode === 'notes' && styles.switcherButtonActive
+						{
+							flex: 1,
+							paddingVertical: 8,
+							paddingHorizontal: 16,
+							borderRadius: 8,
+							alignItems: 'center'
+						},
+						currentMode === 'notes' && { backgroundColor: primaryColor }
 					]}
 					onPress={() => onModeChange('notes')}
 				>
 					<ThemedText
-						type='body'
-						lightColor={currentMode === 'notes' ? Colors.blue : Colors.grey_2}
+						style={{
+							fontSize: 16,
+							fontWeight: '500',
+							color:
+								currentMode === 'notes' ? onPrimaryColor : textSecondaryColor
+						}}
 					>
 						Заметки
 					</ThemedText>
@@ -509,12 +647,323 @@ export default function TaskScreen() {
 		useState<Task['repeat']>('Никогда')
 	const [mode, setMode] = useState<'tasks' | 'notes'>('tasks')
 
+	// Theme colors for the main screen
+	const addButtonIconColor = useThemeColor({}, 'onPrimary')
+
 	const taskModalRef = useRef<BottomSheetModal>(null)
 	const calendarRef = useRef<BottomSheetModal>(null)
 	const repeatBottomSheetRef = useRef<BottomSheetModal>(null)
 	const notebookModalRef = useRef<BottomSheetModal>(null)
 
 	const opacity = useSharedValue(0)
+
+	const styles = useDynamicStyles(colors => ({
+		container: {
+			flex: 1,
+			marginBottom: Platform.OS === 'ios' ? -55 : -20
+		},
+		safeArea: {
+			flex: 1
+		},
+		content: {
+			flex: 1,
+			margin: 20
+		},
+		header: {
+			marginBottom: 10,
+			gap: 20
+		},
+		headerText: {
+			fontSize: 28,
+			fontWeight: '600',
+			color: colors.textPrimary
+		},
+		taskItem: {
+			padding: 16,
+			borderRadius: 12,
+			marginBottom: 12
+		},
+		taskRow: {
+			flexDirection: 'row',
+			alignItems: 'center'
+		},
+		checkbox: {
+			width: 24,
+			height: 24,
+			borderRadius: 12,
+			borderWidth: 2,
+			borderColor: colors.primary,
+			marginRight: 12,
+			alignItems: 'center',
+			justifyContent: 'center'
+		},
+		checkboxChecked: {
+			backgroundColor: colors.primary
+		},
+		checkmark: {
+			color: colors.onPrimary,
+			fontSize: 16,
+			fontWeight: 'bold'
+		},
+		taskTitle: {
+			fontSize: 16,
+			color: colors.textPrimary
+		},
+		addButton: {
+			position: 'absolute' as const,
+			bottom: 60,
+			right: 20,
+			width: 56,
+			height: 56,
+			borderRadius: 28,
+			backgroundColor: colors.primary,
+			alignItems: 'center' as const,
+			justifyContent: 'center' as const,
+			shadowColor: colors.shadow,
+			shadowOffset: {
+				width: 0,
+				height: 2
+			},
+			shadowOpacity: 0.25,
+			shadowRadius: 3.84,
+			elevation: 5,
+			zIndex: 1
+		},
+		modalContainer: {
+			flex: 1,
+			padding: 16,
+			paddingBottom: 100
+		},
+		modalTitle: {
+			fontSize: 24,
+			fontWeight: '600',
+			marginBottom: 24,
+			color: colors.textPrimary
+		},
+		inputContainer: {
+			marginBottom: 24
+		},
+		dateContainer: {
+			marginBottom: 24
+		},
+		dateRow: {
+			flexDirection: 'row',
+			alignItems: 'center'
+		},
+		dateInput: {
+			flex: 1,
+			marginRight: 16
+		},
+		label: {
+			fontSize: 16,
+			color: colors.textPrimary,
+			marginBottom: 8
+		},
+		optionButton: {
+			padding: 12,
+			borderRadius: 8,
+			marginBottom: 8
+		},
+		selectedOption: {
+			backgroundColor: colors.primary
+		},
+		optionText: {
+			fontSize: 16,
+			color: colors.textPrimary
+		},
+		selectedOptionText: {
+			color: colors.onPrimary
+		},
+		repeatButton: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'space-between',
+			padding: 12,
+			borderRadius: 8
+		},
+		repeatButtonText: {
+			fontSize: 16,
+			color: colors.textPrimary
+		},
+		repeatModalContainer: {
+			padding: 16
+		},
+		repeatModalHeader: {
+			flexDirection: 'row',
+			justifyContent: 'space-between',
+			alignItems: 'center',
+			marginBottom: 24
+		},
+		repeatModalTitle: {
+			fontSize: 20,
+			fontWeight: '600',
+			color: colors.textPrimary
+		},
+		closeButton: {
+			padding: 4
+		},
+		repeatOption: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'space-between',
+			paddingVertical: 16,
+			paddingHorizontal: 4
+		},
+		repeatOptionText: {
+			fontSize: 16,
+			color: colors.textPrimary
+		},
+		radioOuter: {
+			width: 20,
+			height: 20,
+			alignItems: 'center',
+			justifyContent: 'center'
+		},
+		radioInner: {
+			width: 12,
+			height: 12,
+			borderRadius: 6,
+			backgroundColor: colors.primary
+		},
+		saveButton: {
+			backgroundColor: colors.primary,
+			padding: 16,
+			borderRadius: 12,
+			alignItems: 'center',
+			marginTop: 24,
+			marginBottom: 50
+		},
+		saveButtonText: {
+			color: colors.onPrimary,
+			fontSize: 16,
+			fontWeight: '600'
+		},
+		taskTitleCompleted: {
+			textDecorationLine: 'line-through',
+			color: colors.textSecondary
+		},
+		dateSelector: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			padding: 12,
+			borderRadius: 12,
+			marginBottom: 16
+		},
+		dateDisplay: {
+			flex: 1,
+			marginRight: 12
+		},
+		dateText: {
+			fontSize: 16,
+			fontWeight: '600',
+			color: colors.textPrimary
+		},
+		headerRow: {
+			flexDirection: 'row',
+			alignItems: 'center'
+		},
+		notificationContainer: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			paddingTop: 12
+		},
+		timeButton: {
+			borderRadius: 8,
+			marginLeft: 12
+		},
+		timeText: {
+			fontSize: 16,
+			color: colors.textPrimary
+		},
+		commentInput: {
+			minHeight: 55,
+			paddingTop: 12,
+			textAlignVertical: 'top',
+			paddingHorizontal: 12,
+			borderRadius: 12,
+			fontSize: 16
+		},
+		flexibleInput: {
+			flex: 1,
+			flexWrap: 'wrap'
+		},
+		switcherContainer: {
+			flexDirection: 'row',
+			backgroundColor: colors.surfaceSecondary,
+			padding: 4,
+			borderRadius: 12,
+			marginBottom: 16
+		},
+		switcherButton: {
+			flex: 1,
+			paddingVertical: 8,
+			paddingHorizontal: 16,
+			borderRadius: 8,
+			alignItems: 'center'
+		},
+		switcherButtonActive: {
+			backgroundColor: colors.primary
+		},
+		switcherText: {
+			fontSize: 16,
+			color: colors.textSecondary,
+			fontWeight: '500'
+		},
+		switcherTextActive: {
+			color: colors.onPrimary
+		},
+		notesList: {
+			flex: 1
+		},
+		noteItem: {
+			padding: 16,
+			borderRadius: 12,
+			marginBottom: 12,
+			flexDirection: 'row',
+			alignItems: 'center'
+		},
+		noteContent: {
+			flex: 1,
+			marginRight: 12
+		},
+		noteTitle: {
+			fontSize: 17,
+			fontWeight: '600',
+			color: colors.textPrimary,
+			marginBottom: 4
+		},
+		notePreview: {
+			fontSize: 15,
+			color: colors.textSecondary
+		},
+		completedText: {
+			textDecorationLine: 'line-through',
+			color: colors.textSecondary
+		},
+		emptyState: {
+			flex: 1,
+			alignItems: 'center',
+			justifyContent: 'center',
+			marginTop: 40
+		},
+		emptyStateText: {
+			fontSize: 16,
+			color: colors.textSecondary,
+			fontWeight: '500'
+		},
+		taskListContent: {
+			paddingBottom: 100
+		},
+		notesListContent: {
+			paddingBottom: 100
+		},
+		emptyTaskState: {
+			flex: 1,
+			alignItems: 'center',
+			justifyContent: 'center',
+			marginTop: 40
+		}
+	}))
 
 	const repeatOptions = [
 		{ value: 'Никогда', label: 'Не повторять' },
@@ -689,7 +1138,7 @@ export default function TaskScreen() {
 					behavior={Platform.OS === 'ios' ? 'padding' : undefined}
 					style={{ flex: 1 }}
 				>
-					<Animated.View style={[styles.content, animatedStyle]}>
+					<Animated.View style={[{ flex: 1, margin: 20 }, animatedStyle]}>
 						<Header
 							selectedDate={selectedDate}
 							onCalendarPress={handleCalendarPresent}
@@ -704,13 +1153,19 @@ export default function TaskScreen() {
 								onTaskComplete={handleTaskComplete}
 							/>
 						) : (
-							<View style={styles.notesList}>
+							<View style={{ flex: 1 }}>
 								{notes.length === 0 ? (
-									<View style={styles.emptyState}>
+									<View
+										style={{
+											flex: 1,
+											alignItems: 'center',
+											justifyContent: 'center',
+											marginTop: 40
+										}}
+									>
 										<ThemedText
-											type='default'
-											lightColor={Colors.grey_2}
-											style={styles.emptyStateText}
+											type='secondary'
+											style={{ fontSize: 16, fontWeight: '500' as const }}
 										>
 											У вас пока нет заметок
 										</ThemedText>
@@ -725,7 +1180,7 @@ export default function TaskScreen() {
 							<Feather
 								name={mode === 'tasks' ? 'plus' : 'edit-2'}
 								size={24}
-								color='white'
+								color={addButtonIconColor}
 							/>
 						</TouchableOpacity>
 					</Animated.View>
@@ -785,317 +1240,6 @@ export default function TaskScreen() {
 	)
 }
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-
-		marginBottom: Platform.OS === 'ios' ? -55 : -20
-	},
-	safeArea: {
-		flex: 1
-	},
-	content: {
-		flex: 1,
-		margin: 20
-	},
-	header: {
-		marginBottom: 10,
-		gap: 20
-	},
-	headerText: {
-		fontSize: 28,
-		fontWeight: '600',
-		color: Colors.black
-	},
-	taskItem: {
-		padding: 16,
-		borderRadius: 12,
-		marginBottom: 12
-	},
-	taskRow: {
-		flexDirection: 'row',
-		alignItems: 'center'
-	},
-	checkbox: {
-		width: 24,
-		height: 24,
-		borderRadius: 12,
-		borderWidth: 2,
-		borderColor: Colors.blue,
-		marginRight: 12,
-		alignItems: 'center',
-		justifyContent: 'center'
-	},
-	checkboxChecked: {
-		backgroundColor: Colors.blue
-	},
-	checkmark: {
-		color: 'white',
-		fontSize: 16,
-		fontWeight: 'bold'
-	},
-	taskTitle: {
-		fontSize: 16,
-		color: Colors.black
-	},
-	addButton: {
-		position: 'absolute',
-		bottom: 60,
-		right: 20,
-		width: 56,
-		height: 56,
-		borderRadius: 28,
-		backgroundColor: Colors.blue,
-		alignItems: 'center',
-		justifyContent: 'center',
-		shadowColor: '#000',
-		shadowOffset: {
-			width: 0,
-			height: 2
-		},
-		shadowOpacity: 0.25,
-		shadowRadius: 3.84,
-		elevation: 5,
-		zIndex: 1
-	},
-	modalContainer: {
-		flex: 1,
-		padding: 16,
-		paddingBottom: 100
-	},
-	modalTitle: {
-		fontSize: 24,
-		fontWeight: '600',
-		marginBottom: 24,
-		color: Colors.black
-	},
-	inputContainer: {
-		marginBottom: 24
-	},
-	dateContainer: {
-		marginBottom: 24
-	},
-	dateRow: {
-		flexDirection: 'row',
-		alignItems: 'center'
-	},
-	dateInput: {
-		flex: 1,
-		marginRight: 16
-	},
-	label: {
-		fontSize: 16,
-		color: Colors.black,
-		marginBottom: 8
-	},
-	optionButton: {
-		padding: 12,
-		borderRadius: 8,
-		marginBottom: 8
-	},
-	selectedOption: {
-		backgroundColor: Colors.blue
-	},
-	optionText: {
-		fontSize: 16,
-		color: Colors.black
-	},
-	selectedOptionText: {
-		color: 'white'
-	},
-	repeatButton: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-		padding: 12,
-		borderRadius: 8
-	},
-	repeatButtonText: {
-		fontSize: 16,
-		color: Colors.black
-	},
-	repeatModalContainer: {
-		padding: 16
-	},
-	repeatModalHeader: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		marginBottom: 24
-	},
-	repeatModalTitle: {
-		fontSize: 20,
-		fontWeight: '600',
-		color: Colors.black
-	},
-	closeButton: {
-		padding: 4
-	},
-	repeatOption: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-		paddingVertical: 16,
-		paddingHorizontal: 4
-	},
-	repeatOptionText: {
-		fontSize: 16,
-		color: Colors.black
-	},
-	radioOuter: {
-		width: 20,
-		height: 20,
-
-		alignItems: 'center',
-		justifyContent: 'center'
-	},
-	radioInner: {
-		width: 12,
-		height: 12,
-		borderRadius: 6,
-		backgroundColor: Colors.blue
-	},
-	saveButton: {
-		backgroundColor: Colors.blue,
-		padding: 16,
-		borderRadius: 12,
-		alignItems: 'center',
-		marginTop: 24,
-		marginBottom: 50
-	},
-	saveButtonText: {
-		color: 'white',
-		fontSize: 16,
-		fontWeight: '600'
-	},
-	taskTitleCompleted: {
-		textDecorationLine: 'line-through',
-		color: Colors.grey_2
-	},
-	dateSelector: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		padding: 12,
-		borderRadius: 12,
-		marginBottom: 16
-	},
-	dateDisplay: {
-		flex: 1,
-		marginRight: 12
-	},
-	dateText: {
-		fontSize: 16,
-		fontWeight: '600',
-		color: Colors.black
-	},
-	headerRow: {
-		flexDirection: 'row',
-		alignItems: 'center'
-	},
-	notificationContainer: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		paddingTop: 12
-	},
-	timeButton: {
-		borderRadius: 8,
-		marginLeft: 12
-	},
-	timeText: {
-		fontSize: 16,
-		color: Colors.black
-	},
-	commentInput: {
-		minHeight: 55,
-		paddingTop: 12,
-		textAlignVertical: 'top',
-		paddingHorizontal: 12,
-		borderRadius: 12,
-		fontSize: 16
-	},
-	flexibleInput: {
-		flex: 1,
-		flexWrap: 'wrap'
-	},
-	switcherContainer: {
-		flexDirection: 'row',
-		backgroundColor: '#F8F8F8',
-		padding: 4,
-		borderRadius: 12,
-		marginBottom: 16
-	},
-	switcherButton: {
-		flex: 1,
-		paddingVertical: 8,
-		paddingHorizontal: 16,
-		borderRadius: 8,
-		alignItems: 'center'
-	},
-	switcherButtonActive: {
-		backgroundColor: Colors.blue
-	},
-	switcherText: {
-		fontSize: 16,
-		color: Colors.grey_2,
-		fontWeight: '500'
-	},
-	switcherTextActive: {
-		color: 'white'
-	},
-	notesList: {
-		flex: 1
-	},
-	noteItem: {
-		padding: 16,
-		borderRadius: 12,
-		marginBottom: 12,
-		flexDirection: 'row',
-		alignItems: 'center'
-	},
-	noteContent: {
-		flex: 1,
-		marginRight: 12
-	},
-	noteTitle: {
-		fontSize: 17,
-		fontWeight: '600',
-		color: Colors.black,
-		marginBottom: 4
-	},
-	notePreview: {
-		fontSize: 15,
-		color: Colors.grey_2
-	},
-	completedText: {
-		textDecorationLine: 'line-through',
-		color: Colors.grey_2
-	},
-	emptyState: {
-		flex: 1,
-		alignItems: 'center',
-		justifyContent: 'center',
-		marginTop: 40
-	},
-	emptyStateText: {
-		fontSize: 16,
-		color: Colors.grey_2,
-		fontWeight: '500'
-	},
-	// Стили для оптимизированных списков
-	taskListContent: {
-		paddingBottom: 100 // Отступ снизу для кнопки добавления
-	},
-	notesListContent: {
-		paddingBottom: 100
-	},
-	emptyTaskState: {
-		flex: 1,
-		alignItems: 'center',
-		justifyContent: 'center',
-		marginTop: 40
-	}
-})
-
 // NoteItem компонент - мемоизированный для оптимизации
 const NoteItem = memo(
 	({ note, onPress }: { note: Note; onPress: (note: Note) => void }) => {
@@ -1104,15 +1248,26 @@ const NoteItem = memo(
 		}, [note.id, onPress])
 
 		return (
-			<TouchableOpacity style={styles.noteItem} onPress={handlePress}>
-				<View style={styles.noteContent}>
-					<ThemedText type='defaultSemiBold' numberOfLines={1}>
-						{note.title}
-					</ThemedText>
-					<ThemedText type='body' lightColor={Colors.grey_2} numberOfLines={2}>
-						{note.content}
-					</ThemedText>
-				</View>
+			<TouchableOpacity onPress={handlePress}>
+				<ThemedView
+					colorName='surface'
+					style={{
+						padding: 16,
+						borderRadius: 12,
+						marginBottom: 12,
+						flexDirection: 'row',
+						alignItems: 'center'
+					}}
+				>
+					<View style={{ flex: 1, marginRight: 12 }}>
+						<ThemedText type='defaultSemiBold' numberOfLines={1}>
+							{note.title}
+						</ThemedText>
+						<ThemedText type='secondary' numberOfLines={2}>
+							{note.content}
+						</ThemedText>
+					</View>
+				</ThemedView>
 			</TouchableOpacity>
 		)
 	},
@@ -1145,23 +1300,29 @@ const NotesList = memo(
 
 		return (
 			<FlatList
-				style={styles.notesList}
+				style={{ flex: 1 }}
 				data={notes}
 				renderItem={renderNote}
 				keyExtractor={keyExtractor}
 				showsVerticalScrollIndicator={false}
-				contentContainerStyle={styles.notesListContent}
+				contentContainerStyle={{ paddingBottom: 100 }}
 				maxToRenderPerBatch={8}
 				windowSize={8}
 				initialNumToRender={10}
 				updateCellsBatchingPeriod={50}
 				removeClippedSubviews={true}
 				ListEmptyComponent={
-					<View style={styles.emptyState}>
+					<View
+						style={{
+							flex: 1,
+							alignItems: 'center',
+							justifyContent: 'center',
+							marginTop: 40
+						}}
+					>
 						<ThemedText
-							type='default'
-							lightColor={Colors.grey_2}
-							style={styles.emptyStateText}
+							type='secondary'
+							style={{ fontSize: 16, fontWeight: '500' as const }}
 						>
 							У вас пока нет заметок
 						</ThemedText>

@@ -6,7 +6,7 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 export type ThemedViewProps = ViewProps & {
   lightColor?: string;
   darkColor?: string;
-  colorName?: 'background' | 'surface' | 'surfaceSecondary' | 'surfaceElevated' | 'backgroundSecondary' | 'backgroundTertiary' | 'card' | 'cardElevated' | 'inputBackground' | 'tabBar';
+  colorName?: 'background' | 'surface' | 'surfaceSecondary' | 'surfaceElevated' | 'backgroundSecondary' | 'backgroundTertiary' | 'card' | 'cardElevated' | 'inputBackground' | 'tabBar' | 'transparent';
 };
 
 export default function ThemedView({ 
