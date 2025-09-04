@@ -1,25 +1,16 @@
 import React, { forwardRef, useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet } from 'react-native';
+import ThemedView from '@/components/ThemedView';
 import { BottomSheetBackdrop, BottomSheetModal } from '@gorhom/bottom-sheet';
 import Slider from '@react-native-community/slider';
 import Colors from '@/constants/Colors';
+import ThemedText from '@/components/ThemedText';
 import { useSettingsStore } from '@/store/settingsStore';
+import BackdropComponent from '../BackdropComponent';
 
 interface BufferSettingsModalProps {
   handleDismiss: () => void;
 }
-
-const renderBackdrop = () =>
-  useCallback(
-    (props: any) => (
-      <BottomSheetBackdrop
-        appearsOnIndex={0}
-        disappearsOnIndex={-1}
-        {...props}
-      />
-    ),
-    [],
-  );
 
 const BufferSettingsModal = forwardRef<BottomSheetModal, BufferSettingsModalProps>(
   ({ handleDismiss }, ref) => {
@@ -33,18 +24,18 @@ const BufferSettingsModal = forwardRef<BottomSheetModal, BufferSettingsModalProp
       <BottomSheetModal
         ref={ref}
         snapPoints={['50%']}
-        backdropComponent={renderBackdrop()}
+        backdropComponent={BackdropComponent}
         enablePanDownToClose
         index={0}
       >
-        <View style={styles.container}>
-          <Text style={styles.title}>Резервный буфер</Text>
+        <ThemedView style={styles.container}>
+          <ThemedText type="subtitle">Резервный буфер</ThemedText>
           
-          <Text style={styles.description}>
+          <ThemedText type="body" lightColor={Colors.grey_2} style={styles.description}>
             Процент от бюджета, который будет автоматически резервироваться на непредвиденные расходы
-          </Text>
+          </ThemedText>
 
-          <View style={styles.sliderContainer}>
+          <ThemedView style={styles.sliderContainer}>
             <Slider
               style={styles.slider}
               minimumValue={0}
@@ -56,17 +47,17 @@ const BufferSettingsModal = forwardRef<BottomSheetModal, BufferSettingsModalProp
               maximumTrackTintColor="#E5E5E5"
               thumbTintColor={Colors.blue}
             />
-            <Text style={styles.percentageText}>{safetyBufferPercent}%</Text>
-          </View>
+            <ThemedText type="heading" style={styles.percentageText}>{safetyBufferPercent}%</ThemedText>
+          </ThemedView>
 
-          <View style={styles.infoContainer}>
-            <Text style={styles.infoText}>
+          <ThemedView colorName="surfaceSecondary" style={styles.infoContainer}>
+            <ThemedText type="body" lightColor={Colors.grey_2} style={styles.infoText}>
               Рекомендуемое значение: 20%{'\n'}
               Минимальное значение: 0%{'\n'}
               Максимальное значение: 50%
-            </Text>
-          </View>
-        </View>
+            </ThemedText>
+          </ThemedView>
+        </ThemedView>
       </BottomSheetModal>
     );
   }

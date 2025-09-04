@@ -25,6 +25,7 @@ import { scheduleTaskNotification, cancelTaskNotification } from '@/utils/notifi
 import dayjs from 'dayjs'
 import { BottomSheetModal } from '@gorhom/bottom-sheet'
 import RepeatPickModal from '@/components/RepeatPickModal'
+import { ThemedView } from '@/components'
 
 interface TodoItem {
   id: string
@@ -61,10 +62,12 @@ const TodoItem = memo(({
   const [showActions, setShowActions] = useState(true)
 
   const handleTimePress = () => {
+    Keyboard.dismiss()
     timePickerRef.current?.present()
   }
 
   const handleCalendarPress = () => {
+    Keyboard.dismiss()
     calendarRef.current?.present()
   }
 
@@ -76,18 +79,17 @@ const TodoItem = memo(({
       )
       return
     }
+    Keyboard.dismiss()
     repeatBottomSheetRef.current?.present()
   }
 
   const handleTimeSelect = (time: string) => {
     const date = todo.notificationDate || new Date().toISOString()
     onUpdateNotification(todo.id, time, date, todo.repeat || 'Никогда')
-    timePickerRef.current?.dismiss()
   }
 
   const handleDateSelect = (date: string) => {
     onUpdateNotification(todo.id, todo.notificationTime, date, todo.repeat || 'Никогда')
-    calendarRef.current?.dismiss()
   }
 
   const handleRepeatSelect = (repeat: string) => {
@@ -150,7 +152,7 @@ const TodoItem = memo(({
           <TouchableOpacity 
             style={[
               styles.iconButton,
-              todo.notificationTime && styles.iconButtonActive
+              todo.notificationTime ? styles.iconButtonActive : undefined
             ]}
             onPress={handleTimePress}
             onLongPress={todo.notificationTime ? handleCancelNotification : undefined}
@@ -166,7 +168,7 @@ const TodoItem = memo(({
           <TouchableOpacity 
             style={[
               styles.iconButton,
-              todo.notificationDate && styles.iconButtonActive
+              todo.notificationDate ? styles.iconButtonActive : undefined
             ]}
             onPress={handleCalendarPress}
             onLongPress={todo.notificationDate ? handleCancelNotification : undefined}
@@ -182,7 +184,7 @@ const TodoItem = memo(({
           <TouchableOpacity 
             style={[
               styles.iconButton,
-              todo.repeat && todo.repeat !== 'Никогда' && styles.iconButtonActive
+              todo.repeat && todo.repeat !== 'Никогда' ? styles.iconButtonActive : undefined
             ]}
             onPress={handleRepeatPress}
             onLongPress={todo.repeat && todo.repeat !== 'Никогда' ? handleCancelNotification : undefined}
@@ -298,7 +300,7 @@ export default function NoteDetailsScreen() {
       }
 
       saveTimeoutRef.current = setTimeout(() => {
-        updateNote(params.id, { 
+        updateNote(params.id as string, { 
           title, 
           content, 
           todos, // Сохраняем todos
@@ -382,7 +384,7 @@ export default function NoteDetailsScreen() {
             notificationTime: undefined,
             notificationDate: undefined,
             notificationId: undefined,
-            repeat: 'Никогда'
+            repeat: 'Никогда' as const
           }
         }
 
@@ -390,7 +392,7 @@ export default function NoteDetailsScreen() {
           ...todo,
           notificationTime: time,
           notificationDate: date,
-          repeat: repeat || 'Никогда',
+          repeat: (repeat || 'Никогда') as TodoItem['repeat'],
           notificationId: undefined
         }
       }
@@ -405,7 +407,7 @@ export default function NoteDetailsScreen() {
           title: `${currentNote?.title || 'Заметка'}: ${todoToUpdate.text}`,
           date: todoToUpdate.notificationDate,
           notificationTime: todoToUpdate.notificationTime,
-          repeat: todoToUpdate.repeat || 'Никогда' // Убедимся что repeat всегда передается
+          repeat: todoToUpdate.repeat || 'Никогда'
         })
 
         if (notificationId) {
@@ -423,7 +425,7 @@ export default function NoteDetailsScreen() {
           setTodos(finalTodos)
 
           // Сразу сохраняем в store
-          updateNote(params.id, {
+          updateNote(params.id as string, {
             ...currentNote,
             todos: finalTodos,
             updatedAt: new Date().toISOString()
@@ -437,7 +439,7 @@ export default function NoteDetailsScreen() {
 
     setTodos(updatedTodos)
     // Сохраняем и при неудачном создании уведомления
-    updateNote(params.id, {
+    updateNote(params.id as string, {
       ...currentNote,
       todos: updatedTodos,
       updatedAt: new Date().toISOString()
@@ -470,7 +472,7 @@ export default function NoteDetailsScreen() {
                 .filter(todo => todo.notificationId)
                 .map(todo => cancelTaskNotification(todo.notificationId!))
             )
-            deleteNote(params.id)
+            deleteNote(params.id as string)
             router.back()
           },
         },
@@ -480,6 +482,7 @@ export default function NoteDetailsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      
       <NoteHeader 
         onBack={handleBack}
         onDelete={handleDelete}
@@ -508,7 +511,7 @@ export default function NoteDetailsScreen() {
         />
 
         {todos.length > 0 && (
-          <View style={styles.todosContainer}>
+          <ThemedView style={styles.todosContainer}>
             {todos.map(todo => (
               <TodoItem
                 key={todo.id}
@@ -518,7 +521,7 @@ export default function NoteDetailsScreen() {
                 onUpdateNotification={handleUpdateNotification}
               />
             ))}
-          </View>
+          </ThemedView>
         )}
 
         <CommonInput
@@ -544,7 +547,6 @@ export default function NoteDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F8F8',
   },
   header: {
     flexDirection: 'row',

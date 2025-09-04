@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { persist } from 'zustand/middleware';
+import { createOptimizedJSONStorage } from '@/utils/optimizedStorage';
 
 export interface Transaction {
   id: string;
@@ -84,7 +84,7 @@ export const useTransactionStore = create<TransactionStore>()(
     }),
     {
       name: 'transactions-storage',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createOptimizedJSONStorage(),
     }
   )
 ); 

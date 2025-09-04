@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { AppState, AppStateStatus } from 'react-native'
 import dayjs from 'dayjs'
 
 interface Task {
@@ -88,18 +89,43 @@ export const useTaskStore = create<TaskStore>()(
 	)
 )
 
-export const initTaskCleaning = () => {
-	const checkAndCleanTasks = () => {
-		const { cleanCompletedTasks } = useTaskStore.getState()
-		cleanCompletedTasks()
+let appStateSubscription: { remove: () => void } | null = null
+let lastCleanupDate: string | null = null
+
+const checkAndCleanTasks = () => {
+	const today = dayjs().format('YYYY-MM-DD')
+	
+	// Only run cleanup once per day
+	if (lastCleanupDate === today) {
+		return
 	}
+	
+	const { cleanCompletedTasks } = useTaskStore.getState()
+	cleanCompletedTasks()
+	lastCleanupDate = today
+}
 
+export const initTaskCleaning = () => {
+	// Run initial cleanup
 	checkAndCleanTasks()
-
-	setInterval(() => {
-		const now = new Date()
-		if (now.getHours() === 0 && now.getMinutes() === 0) {
+	
+	// Clean up existing subscription to prevent duplicates
+	if (appStateSubscription) {
+		appStateSubscription.remove()
+	}
+	
+	// Create new subscription
+	appStateSubscription = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
+		if (nextAppState === 'active') {
+			// App became active, check if we need to clean tasks
 			checkAndCleanTasks()
 		}
-	}, 60000)
+	})
+}
+
+export const cleanupTaskCleaning = () => {
+	if (appStateSubscription) {
+		appStateSubscription.remove()
+		appStateSubscription = null
+	}
 }

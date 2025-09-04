@@ -1,7 +1,7 @@
 import { useTransactionStore } from '@/store/transactionStore';
 import { useFinanceStore } from '@/store/financeStore';
 import { useSettingsStore } from '@/store/settingsStore';
-import { useCurrencyRates } from '@/features/hooks/useCurrencyRates';
+import { useCurrencyRates } from '@/hooks/useCurrencyRates';
 import dayjs from 'dayjs';
 
 interface BudgetStats {

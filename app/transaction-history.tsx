@@ -1,24 +1,28 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import React, { useMemo, useCallback, memo } from 'react';
+import { StyleSheet, FlatList, ListRenderItemInfo } from 'react-native';
+import ThemedView from '@/components/ThemedView';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Colors from '@/constants/Colors';
+import ThemedText from '@/components/ThemedText';
 import BackButton from '@/components/BackButton';
 import { useTransactionStore } from '@/store/transactionStore';
 import dayjs from 'dayjs';
 import { useSettingsStore } from '@/store/settingsStore';
 
+interface Transaction {
+  id: string;
+  category: string;
+  price: number;
+  color: string;
+  type: 'income' | 'expense';
+  date: Date;
+  description: string;
+}
+
 interface GroupedTransaction {
   title: string; // Дата в формате "DD MMMM YYYY"
-  data: Array<{
-    id: string;
-    category: string;
-    price: number;
-    color: string;
-    type: 'income' | 'expense';
-    date: Date;
-    description: string;
-  }>;
+  data: Transaction[];
 }
 
 export default function TransactionHistoryScreen() {
@@ -53,62 +57,96 @@ export default function TransactionHistoryScreen() {
     router.back();
   };
 
-  const renderTransaction = ({ item: transaction }) => (
-    <View 
+  // Мемоизированный компонент транзакции для оптимизации производительности
+  const TransactionItem = memo(({ transaction }: { transaction: Transaction }) => (
+    <ThemedView 
+      colorName="surface"
       style={[
         styles.transactionItem,
         { borderLeftColor: transaction.color }
       ]}
     >
-      <View style={styles.transactionInfo}>
-        <Text style={styles.transactionCategory}>
+      <ThemedView style={styles.transactionInfo}>
+        <ThemedText type="defaultSemiBold">
           {transaction.category}
-        </Text>
-        <Text style={styles.transactionDescription}>
+        </ThemedText>
+        <ThemedText type="body" lightColor={Colors.grey_2}>
           {transaction.description}
-        </Text>
-      </View>
-      <Text style={[
-        styles.transactionAmount,
-        transaction.type === 'income' ? styles.positive : styles.negative
-      ]}>
+        </ThemedText>
+      </ThemedView>
+      <ThemedText 
+        type="defaultSemiBold"
+        lightColor={transaction.type === 'income' ? '#34C759' : '#FF3B30'}
+      >
         {transaction.type === 'income' ? '+' : '-'}
         {transaction.price} {currency.symbol}
-      </Text>
-    </View>
+      </ThemedText>
+    </ThemedView>
+  ), (prevProps, nextProps) => {
+    return (
+      prevProps.transaction.id === nextProps.transaction.id &&
+      prevProps.transaction.price === nextProps.transaction.price &&
+      prevProps.transaction.category === nextProps.transaction.category
+    );
+  });
+
+  // Оптимизированный компонент группы транзакций с FlatList вместо map
+  const DateGroup = memo(({ group }: { group: GroupedTransaction }) => {
+    const renderTransaction = useCallback(
+      ({ item }: ListRenderItemInfo<Transaction>) => (
+        <TransactionItem transaction={item} />
+      ),
+      []
+    );
+
+    const keyExtractor = useCallback((item: Transaction) => item.id, []);
+
+    return (
+      <ThemedView style={styles.dateGroup}>
+        <ThemedText type="defaultSemiBold" lightColor={Colors.grey_2}>{group.title}</ThemedText>
+        {group.data.map((transaction) => (
+          <TransactionItem key={transaction.id} transaction={transaction} />
+        ))}
+      </ThemedView>
+    );
+  });
+
+  const renderDateGroup = useCallback(
+    ({ item }: ListRenderItemInfo<GroupedTransaction>) => (
+      <DateGroup group={item} />
+    ),
+    []
   );
 
-  const renderDateGroup = ({ item: group }: { item: GroupedTransaction }) => (
-    <View style={styles.dateGroup}>
-      <Text style={styles.dateTitle}>{group.title}</Text>
-      {group.data.map(transaction => (
-        <View key={transaction.id}>
-          {renderTransaction({ item: transaction })}
-        </View>
-      ))}
-    </View>
-  );
+  const keyExtractor = useCallback((item: GroupedTransaction) => item.title, []);
 
   return (
     <SafeAreaView style={styles.container}>
       <BackButton handleBack={handleBack} />
       
-      <View style={styles.content}>
-        <Text style={styles.title}>История операций</Text>
+      <ThemedView style={styles.content}>
+        <ThemedText type="heading">История операций</ThemedText>
 
         <FlatList
           data={groupedTransactions}
           renderItem={renderDateGroup}
-          keyExtractor={item => item.title}
+          keyExtractor={keyExtractor}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
+          maxToRenderPerBatch={3} // Рендерим по 3 группы за раз
+          windowSize={8} // Количество экранов для предзагрузки
+          initialNumToRender={5} // Начальное количество групп
+          updateCellsBatchingPeriod={100} // Батчинг обновлений
+          removeClippedSubviews={true} // Удаляем элементы вне области видимости
           ListEmptyComponent={
-            <Text style={styles.emptyText}>
-              У вас пока нет транзакций
-            </Text>
+            <ThemedView style={styles.emptyContainer}>
+              <ThemedText type="default" lightColor={Colors.grey_2} style={styles.emptyText}>
+                У вас пока нет транзакций
+              </ThemedText>
+            </ThemedView>
           }
         />
-      </View>
+      </ThemedView>
     </SafeAreaView>
   );
 }
@@ -177,6 +215,13 @@ const styles = StyleSheet.create({
   emptyText: {
     textAlign: 'center',
     color: Colors.grey_2,
-    marginTop: 24,
+    fontSize: 16,
+    fontWeight: '500'
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 40
   },
 }); 

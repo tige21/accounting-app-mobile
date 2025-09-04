@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native'
+import { View, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router, useLocalSearchParams } from 'expo-router'
 import Colors from '@/constants/Colors'
+import ThemedText from '@/components/ThemedText'
 import BackButton from '@/components/BackButton'
 import { useTaskStore } from '@/store/taskStore'
 import Feather from '@expo/vector-icons/Feather'
@@ -117,17 +118,18 @@ export default function TaskDetailsScreen() {
 								<Feather name='check' size={16} color='white' />
 							)}
 						</TouchableOpacity>
-						<Text
-							style={[styles.title, task?.isCompleted && styles.titleCompleted]}
+						<ThemedText
+							type="heading"
+							style={[task?.isCompleted && styles.titleCompleted]}
 						>
 							{task?.title}
-						</Text>
+						</ThemedText>
 					</View>
 				</View>
 
 				<View style={styles.section}>
-					<Text style={styles.label}>Дата</Text>
-					<Text style={styles.value}>{formatDate(params.date)}</Text>
+					<ThemedText type="body" lightColor={Colors.grey_2}>Дата</ThemedText>
+					<ThemedText type="subtitle">{formatDate(params.date)}</ThemedText>
 				</View>
 
 				{/* <View style={styles.section}>
@@ -136,38 +138,38 @@ export default function TaskDetailsScreen() {
 				</View> */}
 
 				<View style={styles.section}>
-					<Text style={styles.label}>Повтор</Text>
-					<Text style={styles.value}>
+					<ThemedText type="body" lightColor={Colors.grey_2}>Повтор</ThemedText>
+					<ThemedText type="subtitle">
 						{repeatOptions.find(option => option.value === task?.repeat)?.label || 'Не повторять'}
-					</Text>
+					</ThemedText>
 				</View>
 
 				<View style={styles.section}>
-					<Text style={styles.label}>Комментарий</Text>
+					<ThemedText type="body" lightColor={Colors.grey_2}>Комментарий</ThemedText>
 					<View style={styles.commentContainer}>
 						<ScrollView 
 							style={styles.commentScroll}
 						>
-							<Text style={styles.commentText}>
+							<ThemedText type="default" style={styles.commentText}>
 								{task?.comment || 'Нет комментария'}
-							</Text>
+							</ThemedText>
 						</ScrollView>
 					</View>
 				</View>
 
 				{task?.notificationTime && (
 					<View style={styles.section}>
-						<Text style={styles.label}>Уведомление</Text>
-						<Text style={styles.value}>{task.notificationTime}</Text>
+						<ThemedText type="body" lightColor={Colors.grey_2}>Уведомление</ThemedText>
+						<ThemedText type="subtitle">{task.notificationTime}</ThemedText>
 					</View>
 				)}
 
 				<View style={styles.buttonContainer}>
 					<TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-						<Text style={styles.editButtonText}>Редактировать</Text>
+						<ThemedText type="defaultSemiBold" lightColor="white">Редактировать</ThemedText>
 					</TouchableOpacity>
 					<TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-						<Text style={styles.deleteButtonText}>Удалить задачу</Text>
+						<ThemedText type="defaultSemiBold" lightColor="white">Удалить задачу</ThemedText>
 					</TouchableOpacity>
 				</View>
 			</View>

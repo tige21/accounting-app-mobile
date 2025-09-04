@@ -28,21 +28,6 @@ export default StyleSheet.create({
 
 		flex: 1
 	},
-	transactionItem: {
-		height: 60,
-		borderRadius: 10,
-		alignItems: 'center',
-		backgroundColor: '#ffffff',
-		marginBottom: 20,
-		paddingHorizontal: 20,
-		flexDirection: 'row',
-		justifyContent: 'space-between'
-	},
-	transactionText: {
-		color: '#333333',
-		fontSize: 18,
-		fontWeight: 500
-	},
 	container: {
 		flex: 1,
 		margin: 20,

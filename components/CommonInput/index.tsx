@@ -1,28 +1,36 @@
 import React from 'react'
-import { StyleSheet, TextInput, TextInputProps } from 'react-native'
-import Colors from '@/constants/Colors'
+import { TextInput, TextInputProps, Platform } from 'react-native'
+import { useDynamicStyles, useTheme } from '@/hooks'
 
 interface CommonInputProps extends TextInputProps {
-	// добавляем дополнительные пропсы если нужно
+	isModal?: boolean
 }
 
-export default function CommonInput(props: CommonInputProps) {
+export default function CommonInput({ isModal, ...props }: CommonInputProps) {
+	const { isDark } = useTheme()
+	
+	const styles = useDynamicStyles((colors) => ({
+		input: {
+			backgroundColor: colors.inputBackground,
+			borderRadius: 12,
+			padding: 12,
+			fontSize: 16,
+			color: colors.inputText,
+			borderWidth: 1,
+			borderColor: colors.inputBorder,
+		},
+		placeholder: {
+			color: colors.inputPlaceholder,
+		}
+	}))
+
 	return (
 		<TextInput
 			{...props}
 			style={[styles.input, props.style]}
-			placeholderTextColor={Colors.grey_2}
-			scrollEnabled={false} // Отключаем внутренний скролл
+			placeholderTextColor={styles.placeholder.color}
+			scrollEnabled={false}
+			keyboardAppearance={isDark ? 'dark' : 'light'} // Поддержка темной клавиатуры
 		/>
 	)
 }
-
-const styles = StyleSheet.create({
-	input: {
-		backgroundColor: 'white',
-		borderRadius: 12,
-		padding: 12,
-		fontSize: 16,
-		color: Colors.black,
-	},
-})

@@ -24,6 +24,7 @@ import dayjs from 'dayjs'
 import { cancelTaskNotification, scheduleTaskNotification } from '@/utils/notifications'
 import { Task, TaskParams } from '@/types/task'
 import TimePickerModal from '@/components/TimePickerModal'
+import { ThemedText, ThemedView } from '@/components'
 
 interface Task {
 	id: string
@@ -170,18 +171,18 @@ export default function EditTaskScreen() {
 						/>
 					</View>
 
-					<View style={styles.inputContainer}>
-						<Text style={styles.label}>Повтор</Text>
+					<ThemedView style={styles.inputContainer}>
+						<ThemedText type="body" lightColor={Colors.grey_2}>Повтор</ThemedText>
 						<TouchableOpacity
 							style={styles.repeatButton}
 							onPress={handleRepeatPress}
 						>
-							<Text style={styles.repeatButtonText}>
+							<Text type="body" lightColor={Colors.black}>
 								{repeatOptions.find(option => option.value === editedTask.repeat)?.label || 'Не повторять'}
 							</Text>
 							<Feather name='chevron-right' size={20} color={Colors.grey_2} />
 						</TouchableOpacity>
-					</View>
+					</ThemedView>
 
 					<View style={styles.inputContainer}>
 						<Text style={styles.label}>Комментарий</Text>
@@ -195,9 +196,9 @@ export default function EditTaskScreen() {
 						/>
 					</View>
 
-					<View style={styles.inputContainer}>
-						<Text style={styles.label}>Уведомление</Text>
-						<View style={styles.notificationContainer}>
+					<ThemedView style={styles.inputContainer}>
+						<ThemedText type="body" lightColor={Colors.grey_2}>Уведомление</ThemedText>
+						<ThemedView style={styles.notificationContainer}>
 							<Switch
 								value={isNotificationEnabled}
 								onValueChange={setIsNotificationEnabled}
@@ -207,20 +208,20 @@ export default function EditTaskScreen() {
 									style={styles.timeButton}
 									onPress={handleTimePress}
 								>
-									<Text style={styles.timeText}>
+									<ThemedText type="body" lightColor={Colors.black}>
 										{notificationTime || 'Выберите время'}
-									</Text>
+									</ThemedText>
 								</TouchableOpacity>
 							)}
-						</View>
-					</View>
+						</ThemedView>
+					</ThemedView>
 				</ScrollView>
 
-				<View style={styles.bottomContainer}>
+				<ThemedView style={styles.bottomContainer}>
 					<TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-						<Text style={styles.saveButtonText}>Сохранить</Text>
+						<ThemedText type="defaultSemiBold" lightColor="white">Сохранить</ThemedText>
 					</TouchableOpacity>
-				</View>
+				</ThemedView>
 			</View>
 
 			<BottomSheetModal
@@ -301,10 +302,8 @@ const styles = StyleSheet.create({
 	bottomContainer: {
 		padding: 20,
 		paddingBottom: Platform.OS === 'ios' ? 0 : 20,
-		backgroundColor: '#F8F8F8'
 	},
 	saveButton: {
-		backgroundColor: Colors.blue,
 		padding: 16,
 		borderRadius: 12,
 		alignItems: 'center'

@@ -6,6 +6,7 @@ import Slider from '@react-native-community/slider';
 import Colors from '@/constants/Colors';
 import CommonButton from '@/components/CommonButton';
 import styles from './styles';
+import BackdropComponent from '../BackdropComponent';
 
 export interface FontSettings {
   fontSize: number;
@@ -18,17 +19,6 @@ interface FontSettingsModalProps {
   onSave: (fontSize: number, fontFamily: string, fontStyle: string) => void;
   handleDismiss: () => void;
 }
-
-const renderBackdrop = useCallback(
-  (props: any) => (
-    <BottomSheetBackdrop
-      appearsOnIndex={0}
-      disappearsOnIndex={-1}
-      {...props}
-    />
-  ),
-  [],
-);
 
 const FONT_SIZES = [12, 14, 16, 18, 20, 24];
 const FONT_FAMILIES = [
@@ -182,7 +172,7 @@ const FontSettingsModal = forwardRef<BottomSheetModal, FontSettingsModalProps>(
       <BottomSheetModal
         ref={ref}
         snapPoints={snapPoints}
-        backdropComponent={renderBackdrop}
+        backdropComponent={BackdropComponent}
         enablePanDownToClose
         enableDynamicSizing={false}
         accessibilityLabel="Font settings modal"

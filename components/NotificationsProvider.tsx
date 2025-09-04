@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { initializeNotifications } from '@/utils/notifications/init'
 import * as Notifications from 'expo-notifications'
 
-export function NotificationsProvider({ children }: { children: React.ReactNode }) {
+export default function NotificationsProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     initializeNotifications()
 
@@ -24,4 +24,6 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   }, [])
 
   return <>{children}</>
-} 
+}
+
+export { NotificationsProvider } 

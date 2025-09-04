@@ -1,9 +1,9 @@
 import CustomBottomSheetModal from '@/components/CalendarPickModal'
 import Colors from '@/constants/Colors'
+import ThemedText from '@/components/ThemedText'
 import { BottomSheetModal } from '@gorhom/bottom-sheet'
 import React, { useRef, useState } from 'react'
 import {
-	Text,
 	View,
 	StyleSheet,
 	Alert,
@@ -14,6 +14,7 @@ import {
 	ScrollView,
 	KeyboardAvoidingView
 } from 'react-native'
+import ThemedView from '@/components/ThemedView'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import HealthIcon from '@/assets/svg/health-icon'
 import TransportIcon from '@/assets/svg/transport-icon'
@@ -425,7 +426,7 @@ export function TransactionForm({
 			}
 
 			addTransaction(transaction)
-			router.push('/(tabs)')
+			router.push('/task-screen')
 			Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
 		} catch (error) {
 			console.error('Error saving transaction:', error)
@@ -443,9 +444,9 @@ export function TransactionForm({
 					contentContainerStyle={{ flexGrow: 1 }}
 					keyboardShouldPersistTaps='handled'
 				>
-					<View style={styles.contentToDisplay}>
-						<View>
-							<Text style={styles.subText}>Сумма</Text>
+					<ThemedView style={styles.contentToDisplay}>
+						<ThemedView>
+							<ThemedText type="body" lightColor={Colors.grey_2}>Сумма</ThemedText>
 							<CommonInput
 								placeholder="0"
 								value={amount}
@@ -455,52 +456,51 @@ export function TransactionForm({
 								maxLength={10}
 								autoFocus
 							/>
-						</View>
+						</ThemedView>
 
-						<View style={{ flex: 1 }}>
-							<Text style={styles.subText}>Категория</Text>
-							<View style={[styles.categoriesContainer, { width: '100%' }]}>
+						<ThemedView style={{ flex: 1 }}>
+							<ThemedText type="body" lightColor={Colors.grey_2}>Категория</ThemedText>
+							<ThemedView style={[styles.categoriesContainer, { width: '100%' }]}>
 								{categories[
 									type === 'expenses'
 										? ECatogories.EXPENSES
 										: ECatogories.INCOME
 								].map(category => (
-									<View key={category.id} style={styles.categoriesButton}>
+								<View key={category.id} style={styles.categoriesButton}>
 										<CategoryButton
-											key={category.id}
-											id={category.id}
+												id={category.id}
 											title={category.title}
 											handleCategory={handleCategoryChange}
 											selectedCategory={selectedCategory}
 											icon={category.icon}
 										/>
-									</View>
+								</View>
 								))}
-							</View>
-						</View>
+							</ThemedView>
+						</ThemedView>
 
 						{/* Блок с датой */}
-						<View>
-							<Text style={styles.subText}>Дата</Text>
-							<View style={styles.dateRow}>
-								<View style={{ flex: 1 }}>
+						<ThemedView>
+							<ThemedText type="body" lightColor={Colors.grey_2}>Дата</ThemedText>
+							<ThemedView style={styles.dateRow}>
+								<ThemedView style={{ flex: 1 }}>
 									<CommonInput
 										editable={false}
 										pointerEvents='none'
 										placeholder={formatDate(selectedDate)}
 									/>
-								</View>
-								<View style={{ marginLeft: 34 }}>
+								</ThemedView>
+								<ThemedView style={{ marginLeft: 34 }}>
 									<CalendarPickButton handlePresent={handlePresent} />
-								</View>
-							</View>
-						</View>
+								</ThemedView>
+							</ThemedView>
+						</ThemedView>
 
 						{/* Кнопка "Сохранить" */}
-						<View>
+						<ThemedView>
 							<CommonButton placeholder='Сохранить' onPress={handleSave} />
-						</View>
-					</View>
+						</ThemedView>
+					</ThemedView>
 				</ScrollView>
 			</TouchableWithoutFeedback>
 		</KeyboardAvoidingView>

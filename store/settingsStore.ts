@@ -9,11 +9,15 @@ export type Currency = {
   rate?: number;
 };
 
+export type ThemeMode = 'light' | 'dark' | 'system';
+
 export interface SettingsStore {
   currency: Currency;
   safetyBufferPercent: number;
+  themeMode: ThemeMode;
   setCurrency: (newCurrency: Currency) => void;
   setSafetyBufferPercent: (percent: number) => void;
+  setThemeMode: (mode: ThemeMode) => void;
   updateCurrencyRates: (rates: { [key: string]: number }) => void;
 }
 
@@ -22,8 +26,10 @@ export const useSettingsStore = create<SettingsStore>()(
     (set) => ({
       currency: { code: 'RUB', symbol: '₽', name: 'Российский рубль', rate: 1 },
       safetyBufferPercent: 20,
+      themeMode: 'system',
       setCurrency: (newCurrency) => set({ currency: newCurrency }),
       setSafetyBufferPercent: (percent) => set({ safetyBufferPercent: percent }),
+      setThemeMode: (mode) => set({ themeMode: mode }),
       updateCurrencyRates: (rates) => 
         set((state) => ({
           currency: {

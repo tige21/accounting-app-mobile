@@ -1,7 +1,6 @@
 import React, { useRef, useState, memo, useCallback } from 'react'
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
@@ -11,6 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { BottomSheetModal } from '@gorhom/bottom-sheet'
 import Colors from '@/constants/Colors'
+import ThemedText from '@/components/ThemedText'
 import BackButton from '@/components/BackButton'
 import { router } from 'expo-router'
 import NotebookModal from '@/components/NotebookModal'
@@ -32,18 +32,19 @@ const NoteItem = memo(({
     onPress={() => onPress(note)}
   >
     <View style={styles.noteContent}>
-      <Text 
-        style={styles.noteTitle}
+      <ThemedText 
+        type="defaultSemiBold"
         numberOfLines={1}
       >
         {note.title}
-      </Text>
-      <Text 
-        style={styles.notePreview}
+      </ThemedText>
+      <ThemedText 
+        type="body"
+        lightColor={Colors.grey_2}
         numberOfLines={2}
       >
         {note.content}
-      </Text>
+      </ThemedText>
     </View>
     <Feather name="chevron-right" size={24} color={Colors.grey_2} />
   </TouchableOpacity>
@@ -52,9 +53,9 @@ const NoteItem = memo(({
 // Мемоизированный компонент пустого состояния
 const EmptyState = memo(() => (
   <View style={styles.emptyState}>
-    <Text style={styles.emptyStateText}>
+    <ThemedText type="default" lightColor={Colors.grey_2} style={styles.emptyStateText}>
       У вас пока нет заметок
-    </Text>
+    </ThemedText>
   </View>
 ))
 
@@ -107,7 +108,7 @@ export default function NotesScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <BackButton handleBack={handleBack} />
-        <Text style={styles.title}>Заметки</Text>
+        <ThemedText type="heading">Заметки</ThemedText>
       </View>
 
       <FlatList
@@ -144,7 +145,6 @@ export default function NotesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F8F8',
   },
   header: {
     flexDirection: 'row',

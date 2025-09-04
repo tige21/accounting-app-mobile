@@ -30,6 +30,7 @@ import {useUserId} from "@/features/hooks";
 import {ILevelsInfo} from "@/features/converters/levels-info-converter";
 import {getLevelColor} from "@/features/converters/button-converters";
 import {getLevelsInfo} from "@/features/converters";
+import BackdropComponent from '@/components/BackdropComponent'
 
 const { width } = Dimensions.get('window')
 
@@ -39,16 +40,7 @@ interface CustomBottomSheetModalProps {
 }
 
 export type Ref = BottomSheetModal
-const renderBackdrop = ()=>useCallback(
-	(props: any) => (
-		<BottomSheetBackdrop
-			appearsOnIndex={0}
-			disappearsOnIndex={-1}
-			{...props}
-		/>
-	),
-	[]
-)
+
 const CustomBottomSheetModal = forwardRef<Ref, CustomBottomSheetModalProps>(
 	({ deck, userId }, ref) => {
 		const snapPoints = useMemo(() => ['80%'], [])
@@ -57,7 +49,7 @@ const CustomBottomSheetModal = forwardRef<Ref, CustomBottomSheetModalProps>(
 				ref={ref}
 				index={0}
 				snapPoints={snapPoints}
-				backdropComponent={renderBackdrop()}
+				backdropComponent={BackdropComponent}
 				backgroundStyle={styles.bottomSheetModal}
 			>
 				<DeckInfoSheet deck={deck} userId={userId}/>

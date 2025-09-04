@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet } from 'react-native';
+import ThemedView from '@/components/ThemedView';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { CommonInput } from '@/components';
+import CommonInput from '@/components/CommonInput';
 import Colors from '@/constants/Colors';
+import ThemedText from '@/components/ThemedText';
 
 interface TaskModalProps {
   isVisible: boolean;
@@ -25,16 +27,16 @@ const TaskModal: React.FC<TaskModalProps> = ({ isVisible, onClose, onSave }) => 
       enablePanDownToClose
       onDismiss={onClose}
     >
-      <View style={styles.container}>
-        <Text style={styles.title}>Задача</Text>
+      <ThemedView style={styles.container}>
+        <ThemedText type="heading">Задача</ThemedText>
         
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Комментарий</Text>
+        <ThemedView style={styles.inputContainer}>
+          <ThemedText type="default">Комментарий</ThemedText>
           <CommonInput placeholder="Введите комментарий" />
-        </View>
+        </ThemedView>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Повтор</Text>
+        <ThemedView style={styles.inputContainer}>
+          <ThemedText type="default">Повтор</ThemedText>
           {repeatOptions.map((option) => (
             <TouchableOpacity
               key={option}
@@ -44,13 +46,13 @@ const TaskModal: React.FC<TaskModalProps> = ({ isVisible, onClose, onSave }) => 
               ]}
               onPress={() => setSelectedRepeat(option)}
             >
-              <Text style={styles.optionText}>{option}</Text>
+              <ThemedText type="default">{option}</ThemedText>
             </TouchableOpacity>
           ))}
-        </View>
+        </ThemedView>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Напоминание</Text>
+        <ThemedView style={styles.inputContainer}>
+          <ThemedText type="default">Напоминание</ThemedText>
           {reminderOptions.map((option) => (
             <TouchableOpacity
               key={option}
@@ -60,19 +62,19 @@ const TaskModal: React.FC<TaskModalProps> = ({ isVisible, onClose, onSave }) => 
               ]}
               onPress={() => setSelectedReminder(option)}
             >
-              <Text style={styles.optionText}>{option}</Text>
+              <ThemedText type="default">{option}</ThemedText>
             </TouchableOpacity>
           ))}
-        </View>
+        </ThemedView>
 
         <TouchableOpacity style={styles.saveButton} onPress={() => onSave({
           title,
           repeat: selectedRepeat,
           reminder: selectedReminder
         })}>
-          <Text style={styles.saveButtonText}>Сохранить</Text>
+          <ThemedText type="defaultSemiBold" lightColor="white">Сохранить</ThemedText>
         </TouchableOpacity>
-      </View>
+      </ThemedView>
     </BottomSheetModal>
   );
 };

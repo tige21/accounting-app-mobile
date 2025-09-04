@@ -1,6 +1,8 @@
 import React from 'react'
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { StyleSheet, TouchableOpacity } from 'react-native'
+import ThemedView from '@/components/ThemedView'
 import Colors from '@/constants/Colors'
+import ThemedText from '@/components/ThemedText'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useConvertCurrency } from '@/hooks/useConvertCurrency'
 
@@ -26,19 +28,19 @@ const TransactionListItem = ({ icon, category, amount, percentage, onLongPress, 
 
   return (
     <TouchableOpacity onLongPress={() => onLongPress?.(category)} delayLongPress={delayLongPress} activeOpacity={0.7} style={styles.container}>
-      <View style={styles.leftContent}>
-        <View style={styles.iconContainer}>
+      <ThemedView style={styles.leftContent}>
+        <ThemedView style={styles.iconContainer}>
           {icon}
-        </View>
-        <Text style={styles.category}>{category}</Text>
-      </View>
+        </ThemedView>
+        <ThemedText type="defaultSemiBold">{category}</ThemedText>
+      </ThemedView>
       
-      <View style={styles.rightContent}>
-        <Text style={styles.percentage}>{percentage}%</Text>
-        <Text style={styles.amount}>
+      <ThemedView style={styles.rightContent}>
+        <ThemedText type="body" lightColor={Colors.grey_2}>{percentage}%</ThemedText>
+        <ThemedText type="defaultSemiBold">
           {formatNumber(convertedAmount)} {currency.symbol}
-        </Text>
-      </View>
+        </ThemedText>
+      </ThemedView>
     </TouchableOpacity>
   )
 }

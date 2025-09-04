@@ -12,18 +12,19 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import uuid from 'react-native-uuid'
 import '../constants/i18n/i18n.config'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { initTaskCleaning } from '@/store/taskStore'
-import AnimateSplashScreen from '@/screens/AnimateSplashScreen'
-import { useCurrencyRates } from '@/features/hooks/useCurrencyRates'
+import { initTaskCleaning, cleanupTaskCleaning } from '@/store/taskStore'
+import AnimateSplashScreen from '@/components/AnimateSplashScreen'
+import { useCurrencyRates } from '@/hooks/useCurrencyRates'
 import { useSettingsStore } from '@/store/settingsStore'
-import { NotificationsProvider } from '@/components/NotificationsProvider'
+import NotificationsProvider from '@/components/NotificationsProvider'
+import { ThemeProvider } from '@/contexts/ThemeProvider'
 
 SplashScreen.hideAsync()
 
 export { ErrorBoundary } from 'expo-router'
 
 export const unstable_settings = {
-	initialRouteName: '(tabs)'
+	initialRouteName: 'task-screen'
 }
 
 function CurrencyRatesInitializer() {
@@ -110,6 +111,11 @@ export default function RootLayout() {
 			setAppReady(true)
 			initTaskCleaning()
 		}
+		
+		// Cleanup function to remove listeners when component unmounts
+		return () => {
+			cleanupTaskCleaning()
+		}
 	}, [loaded])
 
 	if (!loaded) {
@@ -131,33 +137,30 @@ export default function RootLayout() {
 	}
 
 	return (
-		<NotificationsProvider>
-			<QueryClientProvider client={queryClient}>
-				<CurrencyRatesInitializer />
-				<GestureHandlerRootView style={{ flex: 1 }}>
-					<BottomSheetModalProvider>
-						{/* <ThemeProvider
-							value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
-						> */}
-						<Stack>
-							<Stack.Screen name='(tabs)' options={{ headerShown: false }} />
-							<Stack.Screen name='transaction' options={{ headerShown: false }} />
-							<Stack.Screen
-								name='task-details'
-								options={{ headerShown: false }}
-							/>
-							<Stack.Screen name='edit-task' options={{ headerShown: false }} />
-							<Stack.Screen name='profile' options={{ headerShown: false }} />
-							<Stack.Screen
-								name='transaction-history'
-								options={{ headerShown: false }}
-							/>
-							<Stack.Screen name='note-details' options={{ headerShown: false }} />
-						</Stack>
-						{/* </ThemeProvider> */}
-					</BottomSheetModalProvider>
-				</GestureHandlerRootView>
-			</QueryClientProvider>
-		</NotificationsProvider>
+		<ThemeProvider>
+			<NotificationsProvider>
+				<QueryClientProvider client={queryClient}>
+					<CurrencyRatesInitializer />
+					<GestureHandlerRootView style={{ flex: 1 }}>
+						<BottomSheetModalProvider>
+							<Stack initialRouteName='task-screen'>
+								<Stack.Screen name='task-screen' options={{ headerShown: false}} />
+								<Stack.Screen
+									name='task-details'
+									options={{ headerShown: false }}
+								/>
+								<Stack.Screen name='edit-task' options={{ headerShown: false }} />
+								<Stack.Screen name='profile' options={{ headerShown: false }} />
+								<Stack.Screen
+									name='transaction-history'
+									options={{ headerShown: false }}
+								/>
+								<Stack.Screen name='note-details' options={{ headerShown: false }} />
+							</Stack>
+						</BottomSheetModalProvider>
+					</GestureHandlerRootView>
+				</QueryClientProvider>
+			</NotificationsProvider>
+		</ThemeProvider>
 	)
 }

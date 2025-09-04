@@ -1,5 +1,6 @@
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, TouchableOpacity } from 'react-native'
 import React from 'react'
+import ThemedText from '@/components/ThemedText'
 import styles from './styles'
 
 interface IButton {
@@ -18,7 +19,7 @@ const CommonButton: React.FC<IButton> = ({ placeholder, isCancel, onPress }) => 
 
 	return (
 		<TouchableOpacity style={buttonStyle} onPress={onPress}>
-			<Text style={textStyle}>{placeholder}</Text>
+			<ThemedText style={textStyle}>{placeholder}</ThemedText>
 		</TouchableOpacity>
 	)
 }

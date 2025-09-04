@@ -1,26 +1,16 @@
 import React, { forwardRef, useCallback, useState, useMemo } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, ActivityIndicator } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, TextInput, ActivityIndicator } from 'react-native';
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import Colors from '@/constants/Colors';
+import ThemedText from '@/components/ThemedText';
 import { Currency, useSettingsStore } from '@/store/settingsStore';
-import { useCurrencyRates } from '@/features/hooks/useCurrencyRates';
+import { useCurrencyRates } from '@/hooks/useCurrencyRates';
 import { Ionicons } from '@expo/vector-icons';
+import BackdropComponent from '../BackdropComponent';
 
 interface CurrencyPickModalProps {
   handleDismiss: () => void;
 }
-
-const renderBackdrop = () =>
-  useCallback(
-    (props: any) => (
-      <BottomSheetBackdrop
-        appearsOnIndex={0}
-        disappearsOnIndex={-1}
-        {...props}
-      />
-    ),
-    [],
-  );
 
 const CurrencyPickModal = forwardRef<BottomSheetModal, CurrencyPickModalProps>(
   ({ handleDismiss }, ref) => {
@@ -127,12 +117,12 @@ const CurrencyPickModal = forwardRef<BottomSheetModal, CurrencyPickModalProps>(
       <BottomSheetModal
         ref={ref}
         snapPoints={['80%', '90%']}
-        backdropComponent={renderBackdrop()}
+        backdropComponent={BackdropComponent}
         enablePanDownToClose
         index={0}
       >
         <View style={styles.container}>
-          <Text style={styles.title}>Выберите валюту</Text>
+          <ThemedText type="subtitle">Выберите валюту</ThemedText>
           
           {/* Поисковая строка */}
           <View style={styles.searchContainer}>
@@ -165,18 +155,18 @@ const CurrencyPickModal = forwardRef<BottomSheetModal, CurrencyPickModalProps>(
                   onPress={() => handleCurrencySelect(currency)}
                 >
                   <View style={styles.currencyInfo}>
-                    <Text style={[
-                      styles.currencyText,
-                      currency.code === selectedCurrency.code && styles.selectedText,
-                    ]}>
+                    <ThemedText 
+                      type="default"
+                      lightColor={currency.code === selectedCurrency.code ? 'white' : Colors.black}
+                    >
                       {currency.name}
-                    </Text>
-                    <Text style={[
-                      styles.currencySubtext,
-                      currency.code === selectedCurrency.code && styles.selectedText,
-                    ]}>
+                    </ThemedText>
+                    <ThemedText 
+                      type="body"
+                      lightColor={currency.code === selectedCurrency.code ? 'white' : Colors.grey_2}
+                    >
                       {currency.code} • {currency.symbol}
-                    </Text>
+                    </ThemedText>
                   </View>
                   {currency.code === selectedCurrency.code && (
                     <Ionicons name="checkmark" size={24} color="white" />

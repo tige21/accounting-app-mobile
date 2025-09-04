@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useEffect } from "react";
 import { TextInputProps, NativeSyntheticEvent, TextInputFocusEventData } from "react-native";
 import { useBottomSheetInternal } from "@gorhom/bottom-sheet";
-import { CommonInput } from "..";
+import CommonInput from "../CommonInput";
 
 interface IBottomSheetInput extends TextInputProps {
   onFocus?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;

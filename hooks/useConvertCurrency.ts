@@ -1,4 +1,4 @@
-import { useCurrencyRates } from '@/features/hooks/useCurrencyRates'
+import { useCurrencyRates } from '@/hooks/useCurrencyRates'
 import { useSettingsStore } from '@/store/settingsStore'
 
 export const useConvertCurrency = () => {

@@ -1,5 +1,7 @@
-import { View, Text, TouchableOpacity } from 'react-native'
+import { TouchableOpacity } from 'react-native'
 import React from 'react'
+import ThemedView from '@/components/ThemedView'
+import ThemedText from '@/components/ThemedText'
 import styles from './styles'
 
 export interface ICategoryButtonProps {
@@ -23,18 +25,20 @@ const CategoryButton: React.FC<ICategoryButtonProps> = ({
 			style={[styles.categoryButton]}
 			onPress={() => handleCategory(id)}
 		>
-			<View
+			<ThemedView
+				colorName={isCategorySelected ? "surface" : "background"}
 				style={isCategorySelected ? styles.iconViewActive : styles.iconView}
 			>
 				{icon}
-			</View>
-			<Text
+			</ThemedView>
+			<ThemedText
+				type="caption"
 				style={
 					isCategorySelected ? styles.selectedText : styles.placeholderCategory
 				}
 			>
 				{title}
-			</Text>
+			</ThemedText>
 		</TouchableOpacity>
 	)
 }
