@@ -21,7 +21,7 @@ import CalendarPickModal from '@/components/CalendarPickModal'
 import {
 	scheduleTaskNotification,
 	cancelTaskNotification
-} from '@/utils/notifications'
+} from '@/utils/notifications/index'
 import dayjs from 'dayjs'
 import { BottomSheetModal } from '@gorhom/bottom-sheet'
 import RepeatPickModal from '@/components/RepeatPickModal'

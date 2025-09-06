@@ -1,16 +1,17 @@
-import Colors from '@/constants/Colors'
 import {
-	BottomSheetBackdrop,
 	BottomSheetModal,
 	BottomSheetView
 } from '@gorhom/bottom-sheet'
-import React, { forwardRef, useCallback, useEffect, useMemo, useState } from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import {Calendar, CalendarUtils, DateData, LocaleConfig} from 'react-native-calendars'
-import { bottomSheetModalStyles } from '@/components/CalendarPickModal/styles'
-import styles from './styles'
+import React, { forwardRef, useEffect, useState, useMemo, memo, useCallback } from 'react'
+import { TouchableOpacity } from 'react-native'
+import {Calendar, DateData, LocaleConfig} from 'react-native-calendars'
+import { Ionicons } from '@expo/vector-icons'
+import { bottomSheetModalStyles, createStyles } from '@/components/CalendarPickModal/styles'
 import { MarkedDates } from 'react-native-calendars/src/types'
-import dayjs from "dayjs";
+import ThemedText from '../ThemedText'
+import ThemedView from '../ThemedView'
+import { useThemeColor, useDynamicStyles } from '@/hooks'
+import BackdropComponent from '../BackdropComponent'
 
 LocaleConfig.locales['ru'] = {
 	monthNames: [
@@ -61,131 +62,153 @@ interface CustomBottomSheetModalProps {
 	selectedDate: string,
 	handleDateChange: (date: string) => void
 }
-const dateDataFromDate = (date: Date): DateData => {
-	const now = dayjs(date);
-	return {
-		day: now.date(),
-		month: now.month() + 1,
-		year: now.year(),
-		timestamp: +now,
-		dateString: now.format("YYYY-MM-DD"),
-	};
-};
-const initDateData: DateData = dateDataFromDate(new Date());
 
 export type Ref = BottomSheetModal
-const renderBackdrop = () =>
-	useCallback(
-		(props: any) => (
-			<BottomSheetBackdrop
-				appearsOnIndex={0}
-				disappearsOnIndex={-1}
-				{...props}
-			/>
-		),
-		[]
-	)
 
-const CalendarPickModal = forwardRef<Ref, CustomBottomSheetModalProps>(
+const CalendarPickModal = memo(forwardRef<Ref, CustomBottomSheetModalProps>(
 	({ handleDismiss, selectedDate, handleDateChange }, ref) => {
-		const snapPoints = useMemo(() => ['60%'], [])
-		const [date, setDate] = useState<DateData>(initDateData);
+		// Memoized theme colors
+		const primaryColor = useThemeColor({}, 'primary')
+		const onPrimaryColor = useThemeColor({}, 'onPrimary')
+		const textPrimaryColor = useThemeColor({}, 'textPrimary')
+		const textSecondaryColor = useThemeColor({}, 'textSecondary')
+		const surfaceColor = useThemeColor({}, 'surface')
+		
+		
+		const styles = useDynamicStyles((colors) => createStyles(colors))
+		
 
 		const [markedDates, setMarkedDates] = useState<MarkedDates>({} as MarkedDates)
-		let currentDate = new Date();
-		let dateArray = [
-		  new Date(currentDate.getTime() + (1 * 24 * 60 * 60 * 1000)),
-		  new Date(currentDate.getTime() + (2 * 24 * 60 * 60 * 1000)),
-		  new Date(currentDate.getTime() + (3 * 24 * 60 * 60 * 1000)),
-		  new Date(currentDate.getTime() + (4 * 24 * 60 * 60 * 1000)),
-		  new Date(currentDate.getTime() + (5 * 24 * 60 * 60 * 1000)),
-		  new Date(currentDate.getTime() + (6 * 24 * 60 * 60 * 1000)),
-		  new Date(currentDate.getTime() + (7 * 24 * 60 * 60 * 1000)),
-		  new Date(currentDate.getTime() + (8 * 24 * 60 * 60 * 1000)),
-		  new Date(currentDate.getTime() + (9 * 24 * 60 * 60 * 1000)),
-		  new Date(currentDate.getTime() + (10 * 24 * 60 * 60 * 1000))
-		];
-
-		useEffect(() => {
-			const newMarkedDates = dateArray.reduce((acc, date) => {
-				const dateData = dateDataFromDate(date);
-				// acc[dateData.dateString] = {
-				// 	customStyles: {
-				// 		text: {
-				// 		  color: Colors.blue,
-				// 		}
-				// 	  }
-				// }
-				acc[selectedDate] = {
+		
+		// Memoized marked dates calculation
+		const markedDatesConfig = useMemo(() => {
+			const newMarkedDates: MarkedDates = {}
+			if (selectedDate) {
+				newMarkedDates[selectedDate] = {
 					customStyles: {
 						container: {
-						  backgroundColor: Colors.blue,
-						  borderRadius: 5,
-						  elevation: 2
+							backgroundColor: primaryColor,
+							borderRadius: 8,
+							elevation: 2
 						},
 						text: {
-						  color: Colors.white,
+							color: onPrimaryColor,
+							fontWeight: '600'
 						}
-					  }
+					}
 				}
-				return acc;
-			}, {} as MarkedDates);
-			setMarkedDates(newMarkedDates);
-		}, [selectedDate]);
+			}
+			return newMarkedDates
+		}, [selectedDate, primaryColor, onPrimaryColor])
+
+		useEffect(() => {
+			setMarkedDates(markedDatesConfig)
+		}, [markedDatesConfig])
 
 	
 
-		const handleDayPress = (day: DateData) => {
-			handleDateChange(day.dateString);
-		};
+		// Optimized callbacks
+		const handleDayPress = useCallback((day: DateData) => {
+			handleDateChange(day.dateString)
+		}, [handleDateChange])
 
-		const handleMarkedDates = (day: DateData) => {
-			if (day.dateString === selectedDate) {
-				return {
-					[day.dateString]: {
-						selected: true,
-						selectedColor: 'blue',
-					},
-				};
-			}
-			return {};
-		};
+		const handleSave = useCallback(() => {
+			handleDismiss()
+		}, [handleDismiss])
+
+		const snapPoints = useMemo(() => ['65%'], [])
+
+		// Memoized calendar theme
+		const calendarTheme = useMemo(() => ({
+			backgroundColor: surfaceColor,
+			calendarBackground: surfaceColor,
+			textSectionTitleColor: textPrimaryColor,
+			selectedDayBackgroundColor: primaryColor,
+			selectedDayTextColor: onPrimaryColor,
+			todayTextColor: primaryColor,
+			dayTextColor: textPrimaryColor,
+			textDisabledColor: textSecondaryColor + '60',
+			dotColor: primaryColor,
+			selectedDotColor: onPrimaryColor,
+			arrowColor: primaryColor,
+			monthTextColor: textPrimaryColor,
+			indicatorColor: primaryColor,
+			textDayFontWeight: '500' as const,
+			textMonthFontWeight: 'bold' as const,
+			textDayHeaderFontWeight: '500' as const,
+			textDayFontSize: 16,
+			textMonthFontSize: 18,
+			textDayHeaderFontSize: 14
+		}), [surfaceColor, textPrimaryColor, primaryColor, onPrimaryColor, textSecondaryColor])
+
 		return (
 			<BottomSheetModal
 				ref={ref}
+				snapPoints={snapPoints}
+				backdropComponent={BackdropComponent}
+				enablePanDownToClose
 				index={0}
-				maxDynamicContentSize={500}
-				enableHandlePanningGesture
-				enableContentPanningGesture
-				enableDynamicSizing
-				backdropComponent={renderBackdrop()}
-				backgroundStyle={bottomSheetModalStyles.bottomSheetModal}
+				accessibilityLabel="Calendar picker modal"
+				backgroundStyle={[bottomSheetModalStyles.bottomSheetModal, { backgroundColor: styles.container.backgroundColor }]}
 				onDismiss={handleDismiss}
 			>
-				<BottomSheetView
-					style={{
-						flex: 1
-					}}
-				>
-					<View style={styles.container}>
-						<View style={styles.calendarContainer}>
-							<Calendar
-								style={styles.calendar}
-								markingType={'custom'}
-								onDayPress={handleDayPress}
-								markedDates={markedDates}
-
+				<BottomSheetView style={styles.container}>
+					{/* Header */}
+					<ThemedView colorName="surface" style={styles.header}>
+						<ThemedView colorName="surface" style={styles.headerContent}>
+							<Ionicons 
+								name="calendar-outline" 
+								size={24} 
+								color={primaryColor} 
+								style={styles.headerIcon}
 							/>
-						</View>
-
-						<TouchableOpacity style={styles.saveButton} onPress={handleDismiss}>
-							<Text style={styles.saveButtonText}>Сохранить</Text>
+							<ThemedText type="heading" style={styles.title}>Выберите дату</ThemedText>
+						</ThemedView>
+						<TouchableOpacity 
+							onPress={handleSave}
+							style={styles.closeButton}
+							accessibilityRole="button"
+							accessibilityLabel="Закрыть модальное окно"
+						>
+							<Ionicons name="close" size={24} color={textSecondaryColor} />
 						</TouchableOpacity>
-					</View>
+					</ThemedView>
+
+					{/* Divider */}
+					<ThemedView colorName="surface" style={styles.divider} />
+
+					{/* Calendar */}
+					<ThemedView colorName="surface" style={styles.calendarContainer}>
+						<Calendar
+							style={styles.calendar}
+							markingType={'custom'}
+							onDayPress={handleDayPress}
+							markedDates={markedDates}
+							theme={calendarTheme}
+							firstDay={1}
+							enableSwipeMonths={true}
+						/>
+					</ThemedView>
+
+					
+
+					{/* Footer */}
+					<ThemedView colorName="surface" style={styles.footer}>
+						<TouchableOpacity 
+							style={styles.saveButton} 
+							onPress={handleSave}
+							accessibilityRole="button"
+							accessibilityLabel="Сохранить выбранную дату"
+						>
+							<ThemedText style={styles.saveButtonText}>Сохранить</ThemedText>
+						</TouchableOpacity>
+					</ThemedView>
 				</BottomSheetView>
 			</BottomSheetModal>
 		)
 	}
-)
+))
+
+CalendarPickModal.displayName = 'CalendarPickModal'
 
 export default CalendarPickModal

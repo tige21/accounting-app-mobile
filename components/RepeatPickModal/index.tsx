@@ -1,134 +1,151 @@
-import React, { forwardRef } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
-import { BottomSheetModal } from '@gorhom/bottom-sheet'
-import Colors from '@/constants/Colors'
-import Feather from '@expo/vector-icons/Feather'
+import React, { forwardRef, useMemo, useCallback, memo } from 'react'
+import { TouchableOpacity } from 'react-native'
+import { BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet'
+import { Ionicons } from '@expo/vector-icons'
+import ThemedText from '../ThemedText'
+import ThemedView from '../ThemedView'
+import BackdropComponent from '../BackdropComponent'
+import { useThemeColor, useDynamicStyles } from '@/hooks'
+import { createStyles, bottomSheetModalStyles } from './styles'
 
 interface RepeatPickModalProps {
-  value?: string
-  onChange: (repeat: string) => void
-  onDismiss: () => void
+	value?: string
+	onChange: (repeat: string) => void
+	onDismiss: () => void
 }
 
-const repeatOptions = [
-  { value: 'Никогда', label: 'Не повторять' },
-  { value: 'Ежедневно', label: 'Каждый день' },
-  { value: 'Еженедельно', label: 'Каждую неделю' },
-  { value: 'Ежемесячно', label: 'Каждый месяц' },
-  { value: 'Ежегодно', label: 'Каждый год' }
+// Static data for better performance
+const REPEAT_OPTIONS = [
+	{ value: 'Никогда', label: 'Не повторять', description: null },
+	{
+		value: 'Ежедневно',
+		label: 'Каждый день',
+		description: 'Каждый день в это же время'
+	},
+	{
+		value: 'Еженедельно',
+		label: 'Каждую неделю',
+		description: 'В этот день каждую неделю'
+	},
+	{
+		value: 'Ежемесячно',
+		label: 'Каждый месяц',
+		description: 'В это число каждый месяц'
+	},
+	{
+		value: 'Ежегодно',
+		label: 'Каждый год',
+		description: 'В эту дату каждый год'
+	}
 ]
 
-const RepeatPickModal = forwardRef<BottomSheetModal, RepeatPickModalProps>(
-  ({ value, onChange, onDismiss }, ref) => {
-    return (
-      <BottomSheetModal
-        ref={ref}
-        snapPoints={['45%']}
-        index={0}
-        enablePanDownToClose
-      >
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={onDismiss}>
-              <Text style={styles.cancelButton}>Отмена</Text>
-            </TouchableOpacity>
-            <Text style={styles.title}>Повтор</Text>
-            <TouchableOpacity onPress={onDismiss}>
-              <Text style={styles.doneButton}>Готово</Text>
-            </TouchableOpacity>
-          </View>
+const RepeatPickModal = memo(
+	forwardRef<BottomSheetModal, RepeatPickModalProps>(
+		({ value, onChange, onDismiss }, ref) => {
+			// Memoized theme colors
+			const primaryColor = useThemeColor({}, 'primary')
+			const textSecondaryColor = useThemeColor({}, 'textSecondary')
 
-          {repeatOptions.map(option => (
-            <TouchableOpacity
-              key={option.value}
-              style={[
-                styles.option,
-                value === option.value && styles.optionSelected
-              ]}
-              onPress={() => {
-                onChange(option.value)
-                onDismiss()
-              }}
-            >
-              <View style={styles.optionContent}>
-                <Text style={styles.optionText}>{option.label}</Text>
-                {option.value !== 'Никогда' && (
-                  <Text style={styles.optionDescription}>
-                    {option.value === 'Ежедневно' && 'Каждый день в это же время'}
-                    {option.value === 'Еженедельно' && 'В этот день каждую неделю'}
-                    {option.value === 'Ежемесячно' && 'В это число каждый месяц'}
-                    {option.value === 'Ежегодно' && 'В эту дату каждый год'}
-                  </Text>
-                )}
-              </View>
-              {value === option.value && (
-                <View style={styles.checkmarkContainer}>
-                  <Feather name="check" size={20} color={Colors.blue} />
-                </View>
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
-      </BottomSheetModal>
-    )
-  }
+			// Memoized styles
+			const styles = useDynamicStyles(createStyles)
+
+			// Optimized callbacks
+			const handleOptionSelect = useCallback(
+				(optionValue: string) => {
+					onChange(optionValue)
+					onDismiss()
+				},
+				[onChange, onDismiss]
+			)
+
+			const handleCancel = useCallback(() => {
+				onDismiss()
+			}, [onDismiss])
+
+			const snapPoints = useMemo(() => ['55%'], [])
+
+			return (
+				<BottomSheetModal
+					ref={ref}
+					snapPoints={snapPoints}
+					backdropComponent={BackdropComponent}
+					enablePanDownToClose
+					index={0}
+					accessibilityLabel='Repeat picker modal'
+					backgroundStyle={[
+						bottomSheetModalStyles.bottomSheetModal,
+						{ backgroundColor: styles.container.backgroundColor }
+					]}
+				>
+					<BottomSheetView style={styles.container}>
+						{/* Header */}
+						<ThemedView colorName='surface' style={styles.header}>
+							<TouchableOpacity
+								onPress={handleCancel}
+								accessibilityRole='button'
+								accessibilityLabel='Отменить выбор'
+							>
+								<ThemedText style={styles.cancelButton}>Отмена</ThemedText>
+							</TouchableOpacity>
+
+							<TouchableOpacity
+								onPress={handleCancel}
+								accessibilityRole='button'
+								accessibilityLabel='Подтвердить выбор'
+							>
+								<ThemedText style={styles.doneButton}>Готово</ThemedText>
+							</TouchableOpacity>
+						</ThemedView>
+
+						{/* Divider */}
+						<ThemedView colorName='surface' style={styles.divider} />
+
+						{/* Content */}
+						<ThemedView colorName='surface' style={styles.content}>
+							{REPEAT_OPTIONS.map(option => (
+								<TouchableOpacity
+									key={option.value}
+									style={[
+										styles.option,
+										value === option.value && styles.optionSelected
+									]}
+									onPress={() => handleOptionSelect(option.value)}
+									accessibilityRole='radio'
+									accessibilityState={{ checked: value === option.value }}
+									accessibilityLabel={`${option.label}${option.description ? `, ${option.description}` : ''}`}
+								>
+									<ThemedView
+										colorName='transparent'
+										style={styles.optionContent}
+									>
+										<ThemedText style={styles.optionText}>
+											{option.label}
+										</ThemedText>
+										{option.description && (
+											<ThemedText
+												type='secondary'
+												style={styles.optionDescription}
+											>
+												{option.description}
+											</ThemedText>
+										)}
+									</ThemedView>
+
+									{value === option.value && (
+										<ThemedView style={styles.checkmarkContainer}>
+											<Ionicons name='checkmark' size={18} color='white' />
+										</ThemedView>
+									)}
+								</TouchableOpacity>
+							))}
+						</ThemedView>
+					</BottomSheetView>
+				</BottomSheetModal>
+			)
+		}
+	)
 )
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  title: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  cancelButton: {
-    fontSize: 17,
-    color: Colors.grey_2,
-  },
-  doneButton: {
-    fontSize: 17,
-    color: Colors.blue,
-    fontWeight: '600',
-  },
-  option: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-  },
-  optionSelected: {
-    backgroundColor: Colors.blue + '10',
-  },
-  optionContent: {
-    flex: 1,
-  },
-  optionText: {
-    fontSize: 17,
-    color: Colors.black,
-    marginBottom: 2,
-  },
-  optionDescription: {
-    fontSize: 13,
-    color: Colors.grey_2,
-  },
-  checkmarkContainer: {
-    width: 24,
-    height: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 12,
-  }
-})
+RepeatPickModal.displayName = 'RepeatPickModal'
 
-export default RepeatPickModal 
+export default RepeatPickModal

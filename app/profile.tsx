@@ -1,9 +1,5 @@
 import React, { useRef } from 'react'
-import {
-	TouchableOpacity,
-	Alert,
-	ScrollView
-} from 'react-native'
+import { TouchableOpacity, Alert, ScrollView, View } from 'react-native'
 import ThemedView from '@/components/ThemedView'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
@@ -12,28 +8,25 @@ import BackButton from '@/components/BackButton'
 import { useTransactionStore } from '@/store/transactionStore'
 import { useFinanceStore } from '@/store/financeStore'
 import { BottomSheetModal } from '@gorhom/bottom-sheet'
-import CurrencyPickModal from '@/components/CurrencyPickModal'
-import { useSettingsStore } from '@/store/settingsStore'
-import BufferSettingsModal from '@/components/BufferSettingsModal'
+import { useSettingsStore, ThemeMode } from '@/store/settingsStore'
 import { Logo } from '@/assets/images'
 import ThemeSettingsModal from '@/components/ThemeSettingsModal'
-import { useDynamicStyles } from '@/hooks'
+import { useDynamicStyles, useThemeColorValue } from '@/hooks'
+import { Ionicons } from '@expo/vector-icons'
 
 export default function ProfileScreen() {
 	const { clearTransactions } = useTransactionStore()
 	const { setMonthlyBudget } = useFinanceStore()
-
-	const { currency, safetyBufferPercent } = useSettingsStore()
-	const currencyModalRef = useRef<BottomSheetModal>(null)
-	const bufferModalRef = useRef<BottomSheetModal>(null)
+	const { themeMode, setThemeMode } = useSettingsStore()
 	const themeModalRef = useRef<BottomSheetModal>(null)
+	const primaryColor = useThemeColorValue('primary')
 
-	const styles = useDynamicStyles((colors) => ({
+	const styles = useDynamicStyles(colors => ({
 		container: {
-			flex: 1,
+			flex: 1
 		},
 		safeArea: {
-			flex: 1,
+			flex: 1
 		},
 		mainContent: {
 			flex: 1,
@@ -64,9 +57,7 @@ export default function ProfileScreen() {
 			flexDirection: 'row' as const,
 			justifyContent: 'space-between' as const,
 			alignItems: 'center' as const,
-			paddingVertical: 12,
-			borderBottomWidth: 1,
-			borderBottomColor: colors.border
+			paddingVertical: 12
 		},
 		settingValue: {
 			color: colors.textSecondary
@@ -88,6 +79,36 @@ export default function ProfileScreen() {
 		},
 		lastItem: {
 			borderBottomWidth: 0
+		},
+		themeOptionsContainer: {
+			flexDirection: 'row' as const,
+			gap: 8,
+			marginTop: 12
+		},
+		themeOption: {
+			flex: 1,
+			flexDirection: 'row' as const,
+			alignItems: 'center' as const,
+			justifyContent: 'center' as const,
+			paddingVertical: 12,
+			paddingHorizontal: 12,
+			borderRadius: 8,
+			borderWidth: 1,
+			borderColor: colors.border,
+			gap: 6
+		},
+		activeThemeOption: {
+			borderColor: colors.primary,
+			backgroundColor: colors.primary + '15'
+		},
+		themeOptionText: {
+			fontSize: 12,
+			color: colors.textSecondary,
+			textAlign: 'center' as const
+		},
+		activeThemeOptionText: {
+			color: colors.primary,
+			fontWeight: '600' as const
 		}
 	}))
 
@@ -113,26 +134,6 @@ export default function ProfileScreen() {
 		)
 	}
 
-	const handleCurrencyPress = () => {
-		currencyModalRef.current?.present()
-	}
-
-	const handleCurrencyDismiss = () => {
-		currencyModalRef.current?.dismiss()
-	}
-
-	const handleBufferPress = () => {
-		bufferModalRef.current?.present()
-	}
-
-	const handleBufferDismiss = () => {
-		bufferModalRef.current?.dismiss()
-	}
-
-	const handleTransactionHistory = () => {
-		router.push('/transaction-history')
-	}
-
 	const handleThemePress = () => {
 		themeModalRef.current?.present()
 	}
@@ -141,71 +142,96 @@ export default function ProfileScreen() {
 		themeModalRef.current?.dismiss()
 	}
 
+	const getThemeLabel = (mode: ThemeMode): string => {
+		switch (mode) {
+			case 'light':
+				return 'Светлая'
+			case 'dark':
+				return 'Темная'
+			case 'system':
+				return 'Системная'
+			default:
+				return 'Системная'
+		}
+	}
+
+	const getThemeIcon = (mode: ThemeMode): keyof typeof Ionicons.glyphMap => {
+		switch (mode) {
+			case 'light':
+				return 'sunny-outline'
+			case 'dark':
+				return 'moon-outline'
+			case 'system':
+				return 'phone-portrait-outline'
+			default:
+				return 'phone-portrait-outline'
+		}
+	}
+
+	const themeOptions: ThemeMode[] = ['light', 'dark', 'system']
+
 	return (
-		<ThemedView colorName="background" style={styles.container}>
+		<ThemedView colorName='background' style={styles.container}>
 			<SafeAreaView style={styles.safeArea}>
 				<BackButton handleBack={handleBack} />
 
-				<ThemedView colorName="background" style={styles.mainContent}>
+				<ThemedView colorName='background' style={styles.mainContent}>
 					<ScrollView style={styles.scrollContent}>
-						<ThemedText type="heading">Профиль</ThemedText>
+						<ThemedText type='heading'>Профиль</ThemedText>
 
 						{/* Аватар и основная информация */}
-						<ThemedView colorName="background" style={styles.avatarSection}>
+						<ThemedView colorName='background' style={styles.avatarSection}>
 							<Logo />
-							<ThemedText type="subtitle">Пользователь</ThemedText>
+							<ThemedText type='subtitle'>Пользователь</ThemedText>
 						</ThemedView>
 
 						{/* Настройки */}
-						<ThemedView colorName="card" style={styles.settingsCard}>
-							<ThemedText type="primary" style={styles.sectionTitle}>Настройки</ThemedText>
-							
-							<TouchableOpacity style={styles.settingItem} onPress={handleThemePress}>
-								<ThemedText>Тема приложения</ThemedText>
-								<ThemedText type="secondary" style={styles.settingValue}>›</ThemedText>
-							</TouchableOpacity>
+						<ThemedView colorName='card' style={styles.settingsCard}>
+							<ThemedText type='primary' style={styles.sectionTitle}>
+								Настройки
+							</ThemedText>
 
-							<TouchableOpacity style={styles.settingItem} onPress={handleCurrencyPress}>
-								<ThemedText>Валюта</ThemedText>
-								<ThemedText type="secondary" style={styles.settingValue}>{currency.symbol} {currency.code} ›</ThemedText>
-							</TouchableOpacity>
-
-							<TouchableOpacity style={[styles.settingItem, styles.lastItem]} onPress={handleBufferPress}>
-								<ThemedText>Буферный процент</ThemedText>
-								<ThemedText type="secondary" style={styles.settingValue}>{safetyBufferPercent}% ›</ThemedText>
-							</TouchableOpacity>
-						</ThemedView>
-
-						{/* История транзакций */}
-						<ThemedView colorName="card" style={styles.settingsCard}>
-							<TouchableOpacity style={[styles.settingItem, styles.lastItem]} onPress={handleTransactionHistory}>
-								<ThemedText>История транзакций</ThemedText>
-								<ThemedText type="secondary" style={styles.settingValue}>›</ThemedText>
-							</TouchableOpacity>
+							{/* Прямое переключение тем */}
+							<View style={styles.themeOptionsContainer}>
+								{themeOptions.map((option) => (
+									<TouchableOpacity
+										key={option}
+										style={[
+											styles.themeOption,
+											themeMode === option && styles.activeThemeOption
+										]}
+										onPress={() => setThemeMode(option)}
+									>
+										<Ionicons 
+											name={getThemeIcon(option)}
+											size={16}
+											color={themeMode === option ? primaryColor : styles.themeOptionText.color}
+										/>
+										<ThemedText 
+											style={[
+												styles.themeOptionText,
+												themeMode === option && styles.activeThemeOptionText
+											]}
+										>
+											{getThemeLabel(option)}
+										</ThemedText>
+									</TouchableOpacity>
+								))}
+							</View>
 						</ThemedView>
 
 						{/* Опасная зона */}
-						<ThemedView colorName="background" style={styles.dangerZone}>
-							<TouchableOpacity style={styles.resetButton} onPress={handleResetData}>
-								<ThemedText style={styles.resetButtonText}>Сбросить все данные</ThemedText>
+						<ThemedView colorName='background' style={styles.dangerZone}>
+							<TouchableOpacity
+								style={styles.resetButton}
+								onPress={handleResetData}
+							>
+								<ThemedText style={styles.resetButtonText}>
+									Сбросить все данные
+								</ThemedText>
 							</TouchableOpacity>
 						</ThemedView>
 					</ScrollView>
-
-					<CurrencyPickModal
-						ref={currencyModalRef}
-						handleDismiss={handleCurrencyDismiss}
-					/>
-
-					<BufferSettingsModal
-						ref={bufferModalRef}
-						handleDismiss={handleBufferDismiss}
-					/>
-
-					<ThemeSettingsModal
-						ref={themeModalRef}
-						handleDismiss={handleThemeDismiss}
-					/>
 				</ThemedView>
 			</SafeAreaView>
 		</ThemedView>

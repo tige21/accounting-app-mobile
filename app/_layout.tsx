@@ -1,3 +1,5 @@
+import '../global.css'
+
 if (__DEV__) {
 	require('../ReactotronConfig')
 }
@@ -14,40 +16,12 @@ import '../constants/i18n/i18n.config'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { initTaskCleaning, cleanupTaskCleaning } from '@/store/taskStore'
 import AnimateSplashScreen from '@/components/AnimateSplashScreen'
-import { useCurrencyRates } from '@/hooks/useCurrencyRates'
-import { useSettingsStore } from '@/store/settingsStore'
 import NotificationsProvider from '@/components/NotificationsProvider'
 import { ThemeProvider } from '@/contexts/ThemeProvider'
 
 SplashScreen.hideAsync()
 
 export { ErrorBoundary } from 'expo-router'
-
-export const unstable_settings = {
-	initialRouteName: 'task-screen'
-}
-
-function CurrencyRatesInitializer() {
-	const { data: ratesData } = useCurrencyRates()
-	const updateCurrencyRates = useSettingsStore(
-		state => state.updateCurrencyRates
-	)
-
-	useEffect(() => {
-		if (ratesData) {
-			const rates = Object.entries(ratesData.Valute).reduce(
-				(acc, [code, data]) => ({
-					...acc,
-					[code]: data.Value
-				}),
-				{}
-			)
-			updateCurrencyRates(rates)
-		}
-	}, [ratesData])
-
-	return null
-}
 
 export default function RootLayout() {
 	const [loaded, error] = useFonts({
@@ -111,7 +85,7 @@ export default function RootLayout() {
 			setAppReady(true)
 			initTaskCleaning()
 		}
-		
+
 		// Cleanup function to remove listeners when component unmounts
 		return () => {
 			cleanupTaskCleaning()
@@ -140,22 +114,27 @@ export default function RootLayout() {
 		<ThemeProvider>
 			<NotificationsProvider>
 				<QueryClientProvider client={queryClient}>
-					<CurrencyRatesInitializer />
 					<GestureHandlerRootView style={{ flex: 1 }}>
 						<BottomSheetModalProvider>
-							<Stack initialRouteName='task-screen'>
-								<Stack.Screen name='task-screen' options={{ headerShown: false}} />
+							<Stack>
+								<Stack.Screen
+									name='(tabs)'
+									options={{ headerShown: false }}
+								/>
+								
 								<Stack.Screen
 									name='task-details'
 									options={{ headerShown: false }}
 								/>
-								<Stack.Screen name='edit-task' options={{ headerShown: false }} />
-								<Stack.Screen name='profile' options={{ headerShown: false }} />
 								<Stack.Screen
-									name='transaction-history'
+									name='edit-task'
 									options={{ headerShown: false }}
 								/>
-								<Stack.Screen name='note-details' options={{ headerShown: false }} />
+								<Stack.Screen name='profile' options={{ headerShown: false }} />
+								<Stack.Screen
+									name='note-details'
+									options={{ headerShown: false }}
+								/>
 							</Stack>
 						</BottomSheetModalProvider>
 					</GestureHandlerRootView>

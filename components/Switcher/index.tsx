@@ -20,26 +20,25 @@ const Switcher: React.FC<SwitcherProps> = ({
 
 	// Получаем язык из AsyncStorage и устанавливаем его в состояние isEnglish
 	const [isEnglish, setIsEnglish] = useState<boolean>(language === 'en')
-	const translateX = useSharedValue(language === 'en' ? 24 : 0)
+	const translateX = useSharedValue(0) // Инициализируем с нулевым значением
 
 	useEffect(() => {
 		const fetchLanguage = async () => {
 			const storedLanguage = 'en'
 			if (storedLanguage) {
 				setIsEnglish(storedLanguage === 'en')
-				translateX.value = withTiming(storedLanguage === 'en' ? 24 : 0, {
-					duration: 300
-				})
+				// Устанавливаем начальное значение без анимации
+				translateX.value = storedLanguage === 'en' ? 24 : 0
 			}
 		}
 		fetchLanguage()
-	}, [])
+	}, [translateX])
 
 	const animatedStyle = useAnimatedStyle(() => {
 		return {
 			transform: [{ translateX: translateX.value }]
 		}
-	})
+	}, [translateX])
 
 	const toggleSwitch = async () => {
 		const newLanguageValue = !isEnglish ? 'en' : 'ru'

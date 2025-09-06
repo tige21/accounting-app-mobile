@@ -17,15 +17,16 @@ export async function requestNotificationsPermissions() {
   return status === 'granted'
 }
 
-// Планирование уведомления
+// Планирование уведомления с учетом времени напоминания
 export async function scheduleTaskNotification(task: {
   id: string
   title: string
   date: string
-  repeat: 'Никогда' | 'Ежедневно' | 'Еженедельно' | 'Ежемесячно' | 'Ежегодно'
+  repeat?: 'Никогда' | 'Ежедневно' | 'Еженедельно' | 'Ежемесячно' | 'Ежегодно'
   notificationTime?: string
+  reminder?: 'Нет' | 'За 5 минут' | 'За 15 минут' | 'За 1 час' | 'За 1 день' | 'За 1 неделю'
 }) {
-  if (!task.notificationTime) return null
+  if (!task.notificationTime || !task.reminder || task.reminder === 'Нет') return null
 
   try {
     // Отменяем существующие уведомления для этой задачи
@@ -39,41 +40,63 @@ export async function scheduleTaskNotification(task: {
 
     const [hours, minutes] = task.notificationTime.split(':').map(Number)
     let notificationDates: Date[] = []
-    const baseDate = dayjs(task.date).hour(hours).minute(minutes).second(0)
+    
+    // Базовая дата и время задачи
+    const taskDateTime = dayjs(task.date).hour(hours).minute(minutes).second(0)
+    
+    // Рассчитываем время уведомления в зависимости от напоминания
+    let baseNotificationTime = taskDateTime
+    switch (task.reminder) {
+      case 'За 5 минут':
+        baseNotificationTime = taskDateTime.subtract(5, 'minutes')
+        break
+      case 'За 15 минут':
+        baseNotificationTime = taskDateTime.subtract(15, 'minutes')
+        break
+      case 'За 1 час':
+        baseNotificationTime = taskDateTime.subtract(1, 'hour')
+        break
+      case 'За 1 день':
+        baseNotificationTime = taskDateTime.subtract(1, 'day')
+        break
+      case 'За 1 неделю':
+        baseNotificationTime = taskDateTime.subtract(1, 'week')
+        break
+    }
 
     // Создаем массив дат уведомлений в зависимости от типа повторения
-    switch (task.repeat) {
+    switch (task.repeat || 'Никогда') {
       case 'Ежедневно':
         // Планируем на 30 дней вперед
         for (let i = 0; i < 30; i++) {
-          notificationDates.push(baseDate.add(i, 'day').toDate())
+          notificationDates.push(baseNotificationTime.add(i, 'day').toDate())
         }
         break
       
       case 'Еженедельно':
         // Планируем на 12 недель вперед
         for (let i = 0; i < 12; i++) {
-          notificationDates.push(baseDate.add(i, 'week').toDate())
+          notificationDates.push(baseNotificationTime.add(i, 'week').toDate())
         }
         break
       
       case 'Ежемесячно':
         // Планируем на 12 месяцев вперед
         for (let i = 0; i < 12; i++) {
-          notificationDates.push(baseDate.add(i, 'month').toDate())
+          notificationDates.push(baseNotificationTime.add(i, 'month').toDate())
         }
         break
       
       case 'Ежегодно':
         // Планируем на 3 года вперед
         for (let i = 0; i < 3; i++) {
-          notificationDates.push(baseDate.add(i, 'year').toDate())
+          notificationDates.push(baseNotificationTime.add(i, 'year').toDate())
         }
         break
       
       default:
         // Для одноразовых задач
-        notificationDates = [baseDate.toDate()]
+        notificationDates = [baseNotificationTime.toDate()]
     }
 
     // Фильтруем прошедшие даты

@@ -1,8 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import {
 	View,
-	Text,
-	StyleSheet,
 	TouchableOpacity,
 	ScrollView,
 	Platform,
@@ -10,41 +8,24 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router, useLocalSearchParams } from 'expo-router'
-import Colors from '@/constants/Colors'
 import CommonInput from '@/components/CommonInput'
 import BackButton from '@/components/BackButton'
 import { useTaskStore } from '@/store/taskStore'
-import {
-	BottomSheetModal,
-	BottomSheetBackdrop,
-	BottomSheetView
-} from '@gorhom/bottom-sheet'
+import { BottomSheetModal } from '@gorhom/bottom-sheet'
 import Feather from '@expo/vector-icons/Feather'
 import dayjs from 'dayjs'
-import { cancelTaskNotification, scheduleTaskNotification } from '@/utils/notifications'
-import { Task, TaskParams } from '@/types/task'
+import { cancelTaskNotification, scheduleTaskNotification } from '@/utils/notifications/index'
 import TimePickerModal from '@/components/TimePickerModal'
+import RepeatPickModal from '@/components/RepeatPickModal'
 import { ThemedText, ThemedView } from '@/components'
+import { useDynamicStyles, useThemeColor } from '@/hooks'
 
-interface Task {
+interface TaskParams {
 	id: string
 	title: string
 	date: string
 	time: string
-	repeat: 'Никогда' | 'Ежедневно' | 'Еженедельно' | 'Ежемесячно' | 'Ежегодно'
-	reminder: 'Нет' | 'За 1 час' | 'За 1 день' | 'За 1 неделю'
-	comment: string
-	isCompleted: boolean
-	notificationTime?: string
-	notificationId?: string
-}
-
-interface TaskParams extends Record<string, string | undefined> {
-	id: string
-	title: string
-	date: string
-	time: string
-	repeat: Task['repeat']
+	repeat: string
 	reminder: string
 	comment?: string
 	isCompleted?: string
@@ -59,13 +40,16 @@ const repeatOptions = [
 ]
 
 export default function EditTaskScreen() {
-	const params = useLocalSearchParams<TaskParams>()
+	const params = useLocalSearchParams()
 	const updateTask = useTaskStore(state => state.updateTask)
 	const task = useTaskStore(state => state.tasks.find(t => t.id === params.id))
-	const repeatBottomSheetRef = useRef<BottomSheetModal>(null)
+	const repeatPickModalRef = useRef<BottomSheetModal>(null)
 	const timePickerRef = useRef<BottomSheetModal>(null)
 
-	const [editedTask, setEditedTask] = useState<Task>({
+	const onPrimaryColor = useThemeColor({}, 'onPrimary')
+	const textSecondaryColor = useThemeColor({}, 'textSecondary')
+
+	const [editedTask, setEditedTask] = useState({
 		id: task?.id || '',
 		title: task?.title || '',
 		date: task?.date || new Date().toISOString(),
@@ -90,8 +74,8 @@ export default function EditTaskScreen() {
 				time: task.time,
 				repeat: task.repeat,
 				reminder: task.reminder,
-				comment: task.comment,
-				isCompleted: task.isCompleted,
+				comment: task.comment || '',
+				isCompleted: task.isCompleted || false,
 				notificationTime: task.notificationTime,
 				notificationId: task.notificationId
 			})
@@ -99,15 +83,14 @@ export default function EditTaskScreen() {
 	}, [task])
 
 	const handleRepeatPress = () => {
-		repeatBottomSheetRef.current?.present()
+		repeatPickModalRef.current?.present()
 	}
 
 	const handleRepeatSelect = (value: string) => {
 		setEditedTask(prev => ({
 			...prev,
-			repeat: value as Task['repeat']
+			repeat: value as 'Никогда' | 'Ежедневно' | 'Еженедельно' | 'Ежемесячно' | 'Ежегодно'
 		}))
-		repeatBottomSheetRef.current?.dismiss()
 	}
 
 	const handleTimePress = () => {
@@ -152,116 +135,141 @@ export default function EditTaskScreen() {
 		router.back()
 	}
 
+	const styles = useDynamicStyles(colors => ({
+		container: {
+			flex: 1
+		},
+		wrapper: {
+			flex: 1
+		},
+		content: {
+			flex: 1,
+			padding: 20
+		},
+		title: {
+			fontSize: 24,
+			fontWeight: '600' as const,
+			color: colors.textPrimary,
+			marginBottom: 24
+		},
+		inputContainer: {
+			marginBottom: 24
+		},
+		label: {
+			fontSize: 16,
+			color: colors.textSecondary,
+			marginBottom: 8
+		},
+		bottomContainer: {
+			padding: 20,
+			paddingBottom: Platform.OS === 'ios' ? 0 : 20
+		},
+		saveButton: {
+			backgroundColor: colors.primary,
+			padding: 16,
+			borderRadius: 12,
+			alignItems: 'center' as const
+		},
+		repeatButton: {
+			flexDirection: 'row' as const,
+			alignItems: 'center' as const,
+			justifyContent: 'space-between' as const,
+			backgroundColor: colors.surface,
+			padding: 16,
+			borderRadius: 12
+		},
+		notificationContainer: {
+			flexDirection: 'row' as const,
+			alignItems: 'center' as const,
+			borderRadius: 8,
+			paddingTop: 8
+		},
+		timeButton: {
+			borderRadius: 8,
+			marginLeft: 12
+		}
+	}))
+
 	return (
-		<SafeAreaView style={styles.container}>
-			<BackButton handleBack={handleBack} />
+		<ThemedView colorName='background' style={styles.container}>
+			<SafeAreaView style={styles.container}>
+				<BackButton handleBack={handleBack} />
 
-			<View style={styles.wrapper}>
-				<ScrollView style={styles.content}>
-					<Text style={styles.title}>Редактировать задачу</Text>
+				<View style={styles.wrapper}>
+					<ScrollView style={styles.content}>
+						<ThemedText style={styles.title}>Редактировать задачу</ThemedText>
 
-					<View style={styles.inputContainer}>
-						<Text style={styles.label}>Название</Text>
-						<CommonInput
-							value={editedTask.title}
-							onChangeText={text =>
-								setEditedTask(prev => ({ ...prev, title: text }))
-							}
-							placeholder='Название задачи'
-						/>
-					</View>
-
-					<ThemedView style={styles.inputContainer}>
-						<ThemedText type="body" lightColor={Colors.grey_2}>Повтор</ThemedText>
-						<TouchableOpacity
-							style={styles.repeatButton}
-							onPress={handleRepeatPress}
-						>
-							<Text type="body" lightColor={Colors.black}>
-								{repeatOptions.find(option => option.value === editedTask.repeat)?.label || 'Не повторять'}
-							</Text>
-							<Feather name='chevron-right' size={20} color={Colors.grey_2} />
-						</TouchableOpacity>
-					</ThemedView>
-
-					<View style={styles.inputContainer}>
-						<Text style={styles.label}>Комментарий</Text>
-						<CommonInput
-							value={editedTask.comment || ''}
-							onChangeText={text =>
-								setEditedTask(prev => ({ ...prev, comment: text }))
-							}
-							placeholder='Добавить комментарий'
-							multiline
-						/>
-					</View>
-
-					<ThemedView style={styles.inputContainer}>
-						<ThemedText type="body" lightColor={Colors.grey_2}>Уведомление</ThemedText>
-						<ThemedView style={styles.notificationContainer}>
-							<Switch
-								value={isNotificationEnabled}
-								onValueChange={setIsNotificationEnabled}
+						<View style={styles.inputContainer}>
+							<ThemedText style={styles.label}>Название</ThemedText>
+							<CommonInput
+								value={editedTask.title}
+								onChangeText={text =>
+									setEditedTask(prev => ({ ...prev, title: text }))
+								}
+								placeholder='Название задачи'
 							/>
-							{isNotificationEnabled && (
-								<TouchableOpacity 
-									style={styles.timeButton}
-									onPress={handleTimePress}
-								>
-									<ThemedText type="body" lightColor={Colors.black}>
-										{notificationTime || 'Выберите время'}
-									</ThemedText>
-								</TouchableOpacity>
-							)}
-						</ThemedView>
-					</ThemedView>
-				</ScrollView>
+						</View>
 
-				<ThemedView style={styles.bottomContainer}>
-					<TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-						<ThemedText type="defaultSemiBold" lightColor="white">Сохранить</ThemedText>
-					</TouchableOpacity>
-				</ThemedView>
-			</View>
+						<View style={styles.inputContainer}>
+							<ThemedText style={styles.label}>Повтор</ThemedText>
+							<TouchableOpacity
+								style={styles.repeatButton}
+								onPress={handleRepeatPress}
+							>
+								<ThemedText type="body">
+									{repeatOptions.find(option => option.value === editedTask.repeat)?.label || 'Не повторять'}
+								</ThemedText>
+								<Feather name='chevron-right' size={20} color={textSecondaryColor} />
+							</TouchableOpacity>
+						</View>
 
-			<BottomSheetModal
-				ref={repeatBottomSheetRef}
-				enableDynamicSizing
-				backdropComponent={props => (
-					<BottomSheetBackdrop
-						{...props}
-						appearsOnIndex={0}
-						disappearsOnIndex={-1}
-					/>
-				)}
-			>
-				<BottomSheetView style={styles.repeatModalContainer}>
-					<View style={styles.repeatModalHeader}>
-						<Text style={styles.repeatModalTitle}>Повтор</Text>
-						<TouchableOpacity
-							style={styles.closeButton}
-							onPress={() => repeatBottomSheetRef.current?.dismiss()}
-						>
-							<Feather name='x' size={24} color={Colors.black} />
-						</TouchableOpacity>
-					</View>
+						<View style={styles.inputContainer}>
+							<ThemedText style={styles.label}>Комментарий</ThemedText>
+							<CommonInput
+								value={editedTask.comment || ''}
+								onChangeText={text =>
+									setEditedTask(prev => ({ ...prev, comment: text }))
+								}
+								placeholder='Добавить комментарий'
+								multiline
+							/>
+						</View>
 
-					{repeatOptions.map(option => (
-						<TouchableOpacity
-							key={option.value}
-							style={styles.repeatOption}
-							onPress={() => handleRepeatSelect(option.value)}
-						>
-							<Text style={styles.repeatOptionText}>{option.label}</Text>
-							<View>
-								{editedTask.repeat === option.value && (
-									<Feather name='check' size={16} color={Colors.blue} />
+						<View style={styles.inputContainer}>
+							<ThemedText style={styles.label}>Уведомление</ThemedText>
+							<View style={styles.notificationContainer}>
+								<Switch
+									value={isNotificationEnabled}
+									onValueChange={setIsNotificationEnabled}
+								/>
+								{isNotificationEnabled && (
+									<TouchableOpacity 
+										style={styles.timeButton}
+										onPress={handleTimePress}
+									>
+										<ThemedText type="body">
+											{notificationTime || 'Выберите время'}
+										</ThemedText>
+									</TouchableOpacity>
 								)}
 							</View>
+						</View>
+					</ScrollView>
+
+					<View style={styles.bottomContainer}>
+						<TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+							<ThemedText type="defaultSemiBold" style={{ color: onPrimaryColor }}>Сохранить</ThemedText>
 						</TouchableOpacity>
-					))}
-				</BottomSheetView>
-			</BottomSheetModal>
+					</View>
+				</View>
+			</SafeAreaView>
+
+			<RepeatPickModal
+				ref={repeatPickModalRef}
+				value={editedTask.repeat}
+				onChange={handleRepeatSelect}
+				onDismiss={() => repeatPickModalRef.current?.dismiss()}
+			/>
 
 			<TimePickerModal
 				ref={timePickerRef}
@@ -269,118 +277,7 @@ export default function EditTaskScreen() {
 				onChange={setNotificationTime}
 				onDismiss={() => timePickerRef.current?.dismiss()}
 			/>
-		</SafeAreaView>
+		</ThemedView>
 	)
 }
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: '#F8F8F8'
-	},
-	wrapper: {
-		flex: 1
-	},
-	content: {
-		flex: 1,
-		padding: 20
-	},
-	title: {
-		fontSize: 24,
-		fontWeight: '600',
-		color: Colors.black,
-		marginBottom: 24
-	},
-	inputContainer: {
-		marginBottom: 24
-	},
-	label: {
-		fontSize: 16,
-		color: Colors.grey_2,
-		marginBottom: 8
-	},
-	bottomContainer: {
-		padding: 20,
-		paddingBottom: Platform.OS === 'ios' ? 0 : 20,
-	},
-	saveButton: {
-		padding: 16,
-		borderRadius: 12,
-		alignItems: 'center'
-	},
-	saveButtonText: {
-		color: 'white',
-		fontSize: 16,
-		fontWeight: '600'
-	},
-	repeatButton: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-		backgroundColor: 'white',
-		padding: 16,
-		borderRadius: 12
-	},
-	repeatButtonText: {
-		fontSize: 16,
-		color: Colors.black
-	},
-	repeatModalContainer: {
-		padding: 16,
-		paddingBottom: Platform.OS === 'ios' ? 0 : 16
-	},
-	repeatModalHeader: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		marginBottom: 24
-	},
-	repeatModalTitle: {
-		fontSize: 20,
-		fontWeight: '600',
-		color: Colors.black
-	},
-	closeButton: {
-		padding: 4
-	},
-	repeatOption: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-		paddingVertical: 16,
-		paddingHorizontal: 4
-	},
-	repeatOptionText: {
-		fontSize: 16,
-		color: Colors.black
-	},
-	radioOuter: {
-		width: 20,
-		height: 20,
-		borderWidth: 2,
-		borderColor: Colors.blue,
-		borderRadius: 10,
-		alignItems: 'center',
-		justifyContent: 'center'
-	},
-	radioInner: {
-		width: 12,
-		height: 12,
-		borderRadius: 6,
-		backgroundColor: Colors.blue
-	},
-	notificationContainer: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		borderRadius: 8,
-		paddingTop: 8
-	},
-	timeButton: {
-		borderRadius: 8,
-		marginLeft: 12
-	},
-	timeText: {
-		fontSize: 16,
-		color: Colors.black
-	}
-})

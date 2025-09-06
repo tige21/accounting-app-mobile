@@ -3,6 +3,7 @@
 
 
 const { getDefaultConfig } = require('expo/metro-config')
+const { withNativeWind } = require('nativewind/metro');
 
 // const config = getDefaultConfig(__dirname)
 
@@ -28,9 +29,10 @@ module.exports = (async () => {
 	  unstable_enablePackageExports: true,
 	};
   
-	return config;
+	return withNativeWind(config, { input: './global.css' });
   })();
 
+//   module.exports = withNativeWind(config, { input: './global.css' })
 
 
 // // const path = require("path");

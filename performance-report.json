@@ -1,0 +1,245 @@
+{
+  "timestamp": "2025-09-05T00:00:13.373Z",
+  "bundleSize": {
+    "nodeModules": "343.65 MB",
+    "heaviestPackages": [
+      {
+        "name": "react-native",
+        "size": "71.15 MB",
+        "rawSize": 74605866
+      },
+      {
+        "name": "@expo",
+        "size": "41.93 MB",
+        "rawSize": 43969791
+      },
+      {
+        "name": "@react-native",
+        "size": "23.65 MB",
+        "rawSize": 24798579
+      },
+      {
+        "name": "typescript",
+        "size": "21.81 MB",
+        "rawSize": 22867703
+      },
+      {
+        "name": "react-devtools-core",
+        "size": "16.18 MB",
+        "rawSize": 16970632
+      },
+      {
+        "name": "@babel",
+        "size": "11.46 MB",
+        "rawSize": 12016917
+      },
+      {
+        "name": "prettier",
+        "size": "8 MB",
+        "rawSize": 8387958
+      },
+      {
+        "name": "lightningcss-darwin-arm64",
+        "size": "7.43 MB",
+        "rawSize": 7788803
+      },
+      {
+        "name": "react-dom",
+        "size": "6.08 MB",
+        "rawSize": 6370687
+      },
+      {
+        "name": "recyclerlistview",
+        "size": "5.73 MB",
+        "rawSize": 6008275
+      }
+    ],
+    "estimatedJSBundle": "319.06 KB"
+  },
+  "dependencies": {
+    "production": 45,
+    "development": 10,
+    "total": 55,
+    "potentiallyUnused": [
+      "react-native-uuid",
+      "react-native-pager-view",
+      "lottie-react-native"
+    ],
+    "heavy": [
+      "@expo/vector-icons",
+      "react-native-calendars",
+      "react-native-reanimated",
+      "@gorhom/bottom-sheet",
+      "lottie-react-native"
+    ]
+  },
+  "codeMetrics": {
+    "typescriptFiles": 115,
+    "javascriptFiles": 5,
+    "totalFiles": 120,
+    "linesOfCode": 11082,
+    "imports": {
+      "thirdParty": [
+        "reactotron-react-native",
+        "expo-router",
+        "react",
+        "react-native",
+        "@expo",
+        "@gorhom",
+        "@react-native-async-storage",
+        "expo-font",
+        "expo-localization",
+        "react-native-gesture-handler",
+        "react-native-uuid",
+        "@tanstack",
+        "react-native-safe-area-context",
+        "dayjs",
+        "react-native-keyboard-aware-scroll-view",
+        "@shopify",
+        "expo-haptics",
+        "react-native-tab-view",
+        "react-native-svg",
+        "lottie-react-native",
+        "@",
+        "@react-native-community",
+        "react-native-calendars",
+        "expo-notifications",
+        "react-native-wheel-picker-expo",
+        "i18next",
+        "react-i18next",
+        "expo-status-bar",
+        "react-native-reanimated",
+        "axios",
+        "zustand"
+      ],
+      "relative": 16,
+      "absolute": 204,
+      "hooks": 3,
+      "components": 0
+    }
+  },
+  "performance": {
+    "componentsWithoutMemo": [
+      "CustomBottomSheetModal.tsx"
+    ],
+    "heavyComputation": [
+      {
+        "file": "_layout.tsx",
+        "line": 38,
+        "code": "const rates = Object.entries(ratesData.Valute).reduce("
+      },
+      {
+        "file": "edit-task.tsx",
+        "line": 317,
+        "code": "{repeatOptions.map(option => ("
+      },
+      {
+        "file": "note-details.tsx",
+        "line": 529,
+        "code": "JSON.stringify(todos) !== JSON.stringify(lastSaveRef.current.todos) // Сравниваем todos"
+      },
+      {
+        "file": "note-details.tsx",
+        "line": 581,
+        "code": ".filter(text => text.trim())"
+      },
+      {
+        "file": "note-details.tsx",
+        "line": 582,
+        "code": ".map(text => ({"
+      },
+      {
+        "file": "note-details.tsx",
+        "line": 598,
+        "code": "prev.map(todo =>"
+      },
+      {
+        "file": "note-details.tsx",
+        "line": 611,
+        "code": "const updatedTodos = todos.map(todo => {"
+      },
+      {
+        "file": "note-details.tsx",
+        "line": 655,
+        "code": "const finalTodos = updatedTodos.map(t =>"
+      },
+      {
+        "file": "note-details.tsx",
+        "line": 697,
+        "code": "setTodos(prev => prev.filter(todo => todo.id !== id))"
+      },
+      {
+        "file": "note-details.tsx",
+        "line": 716,
+        "code": ".filter(todo => todo.notificationId)"
+      }
+    ],
+    "listOptimization": [
+      {
+        "file": "edit-task.tsx",
+        "issues": [
+          "Using ScrollView with map instead of FlatList"
+        ]
+      },
+      {
+        "file": "note-details.tsx",
+        "issues": [
+          "Using ScrollView with map instead of FlatList"
+        ]
+      },
+      {
+        "file": "notes-screen.tsx",
+        "issues": [
+          "Missing getItemLayout for known sizes",
+          "Missing removeClippedSubviews",
+          "Missing maxToRenderPerBatch"
+        ]
+      },
+      {
+        "file": "transaction-history.tsx",
+        "issues": [
+          "Missing getItemLayout for known sizes"
+        ]
+      },
+      {
+        "file": "transaction.tsx",
+        "issues": [
+          "Using ScrollView with map instead of FlatList"
+        ]
+      },
+      {
+        "file": "index.tsx",
+        "issues": [
+          "Using ScrollView with map instead of FlatList"
+        ]
+      }
+    ],
+    "imageOptimization": []
+  },
+  "recommendations": [
+    {
+      "priority": "HIGH",
+      "category": "Bundle Size",
+      "issue": "Heavy package detected: react-native (71.15 MB)",
+      "solution": "Consider alternatives or lazy loading for this package"
+    },
+    {
+      "priority": "MEDIUM",
+      "category": "Dependencies",
+      "issue": "Potentially unused dependencies: react-native-uuid, react-native-pager-view, lottie-react-native",
+      "solution": "Review usage and consider removing or replacing these dependencies"
+    },
+    {
+      "priority": "HIGH",
+      "category": "Performance",
+      "issue": "Components without memoization: 1",
+      "solution": "Add React.memo to modal and list components for better performance"
+    },
+    {
+      "priority": "MEDIUM",
+      "category": "Lists",
+      "issue": "Suboptimal list implementations: 6",
+      "solution": "Optimize FlatList configurations and replace ScrollView+map with FlatList"
+    }
+  ]
+}

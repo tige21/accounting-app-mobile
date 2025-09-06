@@ -1,47 +1,105 @@
-import Colors from '@/constants/Colors'
 import { StyleSheet } from 'react-native';
 
-export default StyleSheet.create({
+export const createStyles = (colors: any) => StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        margin: 20,
-        gap: 30,
+        padding: 16,
+        backgroundColor: colors.surface,
+    },
+    header: {
+        flexDirection: 'row' as const,
+        alignItems: 'center' as const,
+        justifyContent: 'space-between' as const,
+        paddingHorizontal: 20,
+        paddingVertical: 16,
+        marginBottom: 16,
+    },
+    headerContent: {
+        flexDirection: 'row' as const,
+        alignItems: 'center' as const,
+        flex: 1,
+    },
+    headerIcon: {
+        marginRight: 12,
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: '600' as const,
+        color: colors.textPrimary,
+        flex: 1,
+    },
+    closeButton: {
+        padding: 8,
+        borderRadius: 20,
+        backgroundColor: colors.surfaceSecondary,
     },
     calendarContainer: {
-        width: 335,
-        height: 270,
-        marginBottom: 32,
-        justifyContent: 'center',
+        flex: 1,
+        justifyContent: 'center' as const,
+        paddingHorizontal: 16,
     },
     calendar: {
-        backgroundColor: Colors.white,
-        borderRadius: 33,
-        height: 360,
+        backgroundColor: colors.surface,
+        borderRadius: 16,
+        paddingVertical: 10,
     },
-    selectedRange: {
-        backgroundColor: 'blue',
-        opacity: 0.2,
+    divider: {
+        height: 1,
+        backgroundColor: colors.border,
+        marginHorizontal: 20,
+        marginVertical: 16,
+    },
+    footer: {
+        paddingHorizontal: 20,
+        paddingBottom: 20,
+        paddingTop: 16,
     },
     saveButton: {
         height: 50,
-        width: '100%',
-        backgroundColor: Colors.blue,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 10,
+        width: '100%' as const,
+        backgroundColor: colors.primary,
+        alignItems: 'center' as const,
+        justifyContent: 'center' as const,
+        borderRadius: 12,
     },
     saveButtonText: {
-        fontWeight: 'medium',
+        fontWeight: '600' as const,
         fontSize: 17,
-        color: Colors.white,
-        textAlign: 'center',
+        color: colors.onPrimary,
+        textAlign: 'center' as const,
+    },
+    infoContainer: {
+        flexDirection: 'row' as const,
+        alignItems: 'center' as const,
+        marginHorizontal: 20,
+        marginBottom: 16,
+        padding: 12,
+        backgroundColor: colors.primary + '10',
+        borderRadius: 8,
+        borderLeftWidth: 3,
+        borderLeftColor: colors.primary,
+    },
+    infoIcon: {
+        marginRight: 8,
+    },
+    infoText: {
+        flex: 1,
+        fontSize: 14,
+        lineHeight: 18,
+        color: colors.textSecondary,
     },
 });
 
 export const bottomSheetModalStyles = StyleSheet.create({
     bottomSheetModal: {
-        borderRadius: 32,
+        borderRadius: 24,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: -4,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 8,
     },
 });
